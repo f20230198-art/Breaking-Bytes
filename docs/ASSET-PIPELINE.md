@@ -6,7 +6,7 @@ The fix: **every scene starts as ONE big composed painting** (the "master plate"
 ## Per scene, step by step
 1. **Master plate:** generate the whole scene composed as a single image (16:9), with **empty space where the UI/text will sit** (say so in the prompt).
 2. **Upscale** 2–4× to ~3840×2160 (Higgsfield `upscale_image`, Upscayl, or Topaz). GPT outputs (~1536px) are too soft for full-screen otherwise.
-3. **Split into 3–5 depth layers**, each a full-canvas transparent PNG:
+3. **Split into 3–5 depth layers, made by ChatGPT, not cut by hand.** In the same chat, edit the master: "identical framing, keep ONLY X, everything else flat #00FF00 (or #FF00FF if the scene has green)". Claude only chroma-keys that exact colour and checks the alignment. Prompts: `asset-prompts/GENERATION-CHECKLIST.md`. Each layer is a full-canvas transparent PNG:
    - `bg`: sky / far wall. The subject is removed and the hole filled (AI edit: "remove the RV, fill naturally").
    - `mid`: the main environment.
    - `subject`: the RV / Gus / cash pile, cut out (remove-background tool or Photoshop "Select Subject").
