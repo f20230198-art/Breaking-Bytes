@@ -13,6 +13,7 @@ Hand-drawn (sketchbook/notebook, NOT comic) Breaking-Bad-*parody* website for a 
 | `docs/VISION.md` | **Start here**: the whole website vision on one page |
 | `docs/CONCEPT.md` | **Creative concept "Heisenberg's Notebook"**: hand-drawn realist style + mechanics (purity meter, periodic table of problems) |
 | `docs/PLAN.md` | Refined plan: architecture, page-by-page design, build phases, open questions |
+| `docs/ASSET-PIPELINE.md` | **How art is made**: master plate → full-canvas layers → manifest (read before touching images) |
 | `docs/ASSETS.md` | Asset strategy + full asset list (what's AI-generated vs SVG vs CSS) |
 | `docs/asset-prompts/` | Copy-paste image-generation prompts, one style bible + per-asset prompts |
 | `docs/DATABASE.md` | Supabase schema, RLS policies, RPC functions |
