@@ -1,3 +1,5 @@
+> ⚠ Style changed to LINOCUT. Scene prompts are being re-issued in chat scene by scene as one combined message each; this file's scene descriptions are still valid, but use the linocut style bible.
+
 # Image Generation Checklist (ChatGPT)
 
 **How to use**

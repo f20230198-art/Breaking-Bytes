@@ -1,3 +1,5 @@
+> **Art style locked: LINOCUT PRINT** (see asset-prompts/00-style-bible.md). Wherever this doc says hand-drawn/sketch/pencil, read it as linocut: carved black lines, cream paper, orange + crystal-blue inks. "Draws itself" animations become "ink rolls on / print reveals".
+
 # Breaking Bytes — Full Website Vision (v2, scene-based)
 
 > Start here. This supersedes the section lists in CONCEPT.md / PLAN.md wherever they differ.

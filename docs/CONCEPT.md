@@ -1,3 +1,5 @@
+> **Art style locked: LINOCUT PRINT** (see asset-prompts/00-style-bible.md). Wherever this doc says hand-drawn/sketch/pencil, read it as linocut: carved black lines, cream paper, orange + crystal-blue inks. "Draws itself" animations become "ink rolls on / print reveals".
+
 # Creative Concept: "Heisenberg's Notebook"
 
 > **Style pivot (2026-10-15):** no comic-book pop (too close to Bit N Build). The look is **hand-drawn realism**: pencil, charcoal and ink sketches with muted washes on cream notebook paper, where crystal blue is the only saturated colour. Style prompt: `asset-prompts/00-style-bible.md`. Logo: `public/assets/logo/breaking-bytes-logo.svg` (made by `scripts/logo/build_logo_sketch.py`).
