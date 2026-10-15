@@ -4,7 +4,9 @@ Hand-drawn (sketchbook/notebook, NOT comic) Breaking-Bad-*parody* website for a 
 - `/` — scroll-driven comic hero/story page (desert RV → prizes → cook schedule → vault CTA)
 - `/dashboard` — functional portal (team formation, problem statements, submissions, live countdown)
 
-**Status:** planning phase. No app code scaffolded yet. Read `docs/` before building anything.
+**Status:** Phase 1 done: landing page with all 8 scroll scenes on desktop (placeholder content in `src/data/site.ts`). Next: mobile pass, linocut logo, dashboard, Supabase.
+
+**Run:** `npm run dev`. **Art:** ChatGPT batch -> `python scripts/assets/organize.py` (sort + alignment report) -> `register.py` for any misaligned layer -> `python scripts/assets/build_scenes.py` (keys magenta, builds plates, writes `public/scenes/` + `src/scenes/layers.generated.json`). Next.js is v16: read `node_modules/next/dist/docs/` before using unfamiliar APIs (middleware is now `proxy.ts`).
 
 ## Docs (source of truth)
 | File | What |
