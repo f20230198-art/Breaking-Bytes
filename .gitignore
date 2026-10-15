@@ -1,0 +1,11 @@
+node_modules/
+.next/
+out/
+.env
+.env*.local
+assets-src/
+*.log
+.DS_Store
+supabase/.temp/
+docs/reference/*.mp4
+docs/reference/frames/
