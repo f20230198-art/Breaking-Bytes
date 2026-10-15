@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+/* Linocut palette — see docs/asset-prompts/00-style-bible.md */
+@theme {
+  --color-ink: #111111;
+  --color-ink-soft: #1c1b19;
+  --color-paper: #efe6d2;
+  --color-paper-dim: #d9ccb0;
+  --color-rust: #c8743a;
+  --color-brick: #9c3d2b;
+  --color-olive: #4e6b3a;
+  --color-hazmat: #e8b931;
+  --color-crystal: #13c8e8;
+  --color-night: #2b3442;
+  --color-siren: #e63946;
+
+  --font-display: var(--font-archivo-black), "Arial Black", sans-serif;
+  --font-type: var(--font-special-elite), "Courier New", monospace;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+}
+
+html {
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+
+body {
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+/* Lenis smooth scroll */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+/* Paper grain over everything, like a printed sheet */
+.paper-grain::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 60;
+  opacity: 0.16;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.25 0 0 0 0 0.2 0 0 0 0 0.12 0 0 0 0.9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+/* Carved, slightly uneven edge for UI blocks (filter defined in layout) */
+.carved {
+  filter: url(#carve);
+}
+
+/* Hard print-offset shadow */
+.print-shadow {
+  box-shadow: 5px 5px 0 var(--color-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

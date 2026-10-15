@@ -1,0 +1,354 @@
+{
+  "scenes": {
+    "s1-desert": {
+      "width": 1672,
+      "height": 941,
+      "master": "/scenes/s1-desert/master.webp",
+      "plate": "/scenes/s1-desert/plate.webp",
+      "layers": [
+        {
+          "id": "sky",
+          "src": "/scenes/s1-desert/sky.webp",
+          "bbox": [
+            0.0,
+            0.0,
+            0.9994,
+            0.6791
+          ]
+        },
+        {
+          "id": "ground",
+          "src": "/scenes/s1-desert/ground.webp",
+          "bbox": [
+            0.0,
+            0.7056,
+            0.9994,
+            0.9989
+          ]
+        },
+        {
+          "id": "rv",
+          "src": "/scenes/s1-desert/rv.webp",
+          "bbox": [
+            0.4653,
+            0.2901,
+            0.9139,
+            0.8183
+          ]
+        },
+        {
+          "id": "rv-cutaway",
+          "src": "/scenes/s1-desert/rv-cutaway.webp",
+          "bbox": [
+            0.4659,
+            0.2784,
+            0.9139,
+            0.814
+          ]
+        },
+        {
+          "id": "fg",
+          "src": "/scenes/s1-desert/fg.webp",
+          "bbox": [
+            0.0,
+            0.7046,
+            0.9994,
+            0.9989
+          ]
+        }
+      ]
+    },
+    "s2-superlab": {
+      "width": 1672,
+      "height": 941,
+      "master": "/scenes/s2-superlab/master.webp",
+      "plate": "/scenes/s2-superlab/plate.webp",
+      "layers": [
+        {
+          "id": "back",
+          "src": "/scenes/s2-superlab/back.webp"
+        },
+        {
+          "id": "fg",
+          "src": "/scenes/s2-superlab/fg.webp",
+          "bbox": [
+            0.0,
+            0.4346,
+            0.9994,
+            0.9989
+          ]
+        }
+      ]
+    },
+    "s3-classroom": {
+      "width": 1672,
+      "height": 941,
+      "master": "/scenes/s3-classroom/master.webp",
+      "plate": "/scenes/s3-classroom/plate.webp",
+      "layers": [
+        {
+          "id": "room",
+          "src": "/scenes/s3-classroom/room.webp"
+        },
+        {
+          "id": "teacher",
+          "src": "/scenes/s3-classroom/teacher.webp",
+          "bbox": [
+            0.0389,
+            0.237,
+            0.1752,
+            0.8193
+          ]
+        },
+        {
+          "id": "desks",
+          "src": "/scenes/s3-classroom/desks.webp",
+          "bbox": [
+            0.0,
+            0.7949,
+            0.9994,
+            0.9989
+          ]
+        }
+      ]
+    },
+    "s4-money": {
+      "width": 1672,
+      "height": 941,
+      "master": "/scenes/s4-money/master.webp",
+      "plate": "/scenes/s4-money/plate.webp",
+      "layers": [
+        {
+          "id": "room",
+          "src": "/scenes/s4-money/room.webp"
+        },
+        {
+          "id": "cash",
+          "src": "/scenes/s4-money/cash.webp",
+          "bbox": [
+            0.0873,
+            0.3433,
+            0.9426,
+            0.9628
+          ]
+        },
+        {
+          "id": "barrels",
+          "src": "/scenes/s4-money/barrels.webp",
+          "bbox": [
+            0.8248,
+            0.5197,
+            0.9994,
+            0.8512
+          ]
+        },
+        {
+          "id": "bulb",
+          "src": "/scenes/s4-money/bulb.webp",
+          "bbox": [
+            0.4862,
+            0.0,
+            0.5173,
+            0.2295
+          ]
+        }
+      ]
+    },
+    "s5-carwash": {
+      "width": 1672,
+      "height": 941,
+      "master": "/scenes/s5-carwash/master.webp",
+      "plate": "/scenes/s5-carwash/plate.webp",
+      "layers": [
+        {
+          "id": "back",
+          "src": "/scenes/s5-carwash/back.webp"
+        },
+        {
+          "id": "brushes",
+          "src": "/scenes/s5-carwash/brushes.webp",
+          "bbox": [
+            0.3953,
+            0.5494,
+            0.7512,
+            0.7694
+          ]
+        }
+      ]
+    },
+    "s6-pollos": {
+      "width": 1672,
+      "height": 941,
+      "master": "/scenes/s6-pollos/master.webp",
+      "plate": "/scenes/s6-pollos/plate.webp",
+      "layers": [
+        {
+          "id": "room",
+          "src": "/scenes/s6-pollos/room.webp"
+        },
+        {
+          "id": "gus",
+          "src": "/scenes/s6-pollos/gus.webp",
+          "bbox": [
+            0.3929,
+            0.3656,
+            0.5933,
+            0.7864
+          ]
+        },
+        {
+          "id": "counter",
+          "src": "/scenes/s6-pollos/counter.webp",
+          "bbox": [
+            0.0,
+            0.6121,
+            0.9994,
+            0.9989
+          ]
+        }
+      ]
+    },
+    "s7-saul": {
+      "width": 1672,
+      "height": 941,
+      "master": "/scenes/s7-saul/master.webp",
+      "plate": "/scenes/s7-saul/plate.webp",
+      "layers": [
+        {
+          "id": "room",
+          "src": "/scenes/s7-saul/room.webp"
+        },
+        {
+          "id": "tv",
+          "src": "/scenes/s7-saul/tv.webp",
+          "bbox": [
+            0.7297,
+            0.3167,
+            0.9773,
+            0.899
+          ]
+        },
+        {
+          "id": "desk",
+          "src": "/scenes/s7-saul/desk.webp",
+          "bbox": [
+            0.0173,
+            0.4718,
+            0.7159,
+            0.9989
+          ]
+        }
+      ]
+    },
+    "s8-night": {
+      "width": 1672,
+      "height": 941,
+      "master": "/scenes/s8-night/master.webp",
+      "plate": "/scenes/s8-night/plate.webp",
+      "layers": [
+        {
+          "id": "sky",
+          "src": "/scenes/s8-night/sky.webp",
+          "bbox": [
+            0.0,
+            0.0,
+            0.9994,
+            0.6748
+          ]
+        },
+        {
+          "id": "ground",
+          "src": "/scenes/s8-night/ground.webp",
+          "bbox": [
+            0.0,
+            0.6716,
+            0.9994,
+            0.9989
+          ]
+        },
+        {
+          "id": "rv",
+          "src": "/scenes/s8-night/rv.webp",
+          "bbox": [
+            0.465,
+            0.2944,
+            0.9144,
+            0.8225
+          ]
+        },
+        {
+          "id": "fg",
+          "src": "/scenes/s8-night/fg.webp",
+          "bbox": [
+            0.0,
+            0.7046,
+            0.9994,
+            0.9989
+          ]
+        }
+      ]
+    }
+  },
+  "singles": {
+    "s1-desert/mobile": {
+      "src": "/scenes/s1-desert/mobile.webp",
+      "width": 941,
+      "height": 1672
+    },
+    "s2-superlab/strata": {
+      "src": "/scenes/s2-superlab/strata.webp",
+      "width": 941,
+      "height": 1672
+    },
+    "s5-carwash/car": {
+      "src": "/scenes/s5-carwash/car.webp",
+      "width": 1672,
+      "height": 941
+    },
+    "extras/og": {
+      "src": "/scenes/extras/og.webp",
+      "width": 1672,
+      "height": 941
+    },
+    "extras/404": {
+      "src": "/scenes/extras/404.webp",
+      "width": 1672,
+      "height": 941
+    },
+    "extras/dashboard-bg": {
+      "src": "/scenes/extras/dashboard-bg.webp",
+      "width": 1672,
+      "height": 941
+    },
+    "extras/avatar-1": {
+      "src": "/scenes/extras/avatar-1.webp",
+      "width": 1254,
+      "height": 1254
+    },
+    "extras/avatar-2": {
+      "src": "/scenes/extras/avatar-2.webp",
+      "width": 1254,
+      "height": 1254
+    },
+    "extras/avatar-3": {
+      "src": "/scenes/extras/avatar-3.webp",
+      "width": 1254,
+      "height": 1254
+    },
+    "extras/avatar-4": {
+      "src": "/scenes/extras/avatar-4.webp",
+      "width": 1254,
+      "height": 1254
+    },
+    "extras/avatar-5": {
+      "src": "/scenes/extras/avatar-5.webp",
+      "width": 1254,
+      "height": 1254
+    },
+    "extras/avatar-6": {
+      "src": "/scenes/extras/avatar-6.webp",
+      "width": 1254,
+      "height": 1254
+    }
+  }
+}
