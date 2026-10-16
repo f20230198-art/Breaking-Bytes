@@ -198,9 +198,9 @@ export function LabStage({ progress, reveal = 1 }: { progress: MotionValue<numbe
           style={{ left: `${PAPER.left}%`, top: `${PAPER.top}%`, width: `${PAPER.width}%`, height: `${PAPER.height}%`, padding: "1cqw 1.6cqw" }}
         >
           <div>
-            <p className="font-type text-[0.85cqw] uppercase tracking-[0.22em] text-brick">Form BB-24</p>
-            <h2 className="mt-[0.4cqw] font-display text-[2.2cqw] uppercase leading-[0.95]">The 24{"‑"}hour cook</h2>
-            <p className="mt-[0.8cqw] font-type text-[1.1cqw] leading-snug">
+            <p className="font-type text-[0.72cqw] uppercase tracking-[0.22em] text-brick">Form BB-24</p>
+            <h2 className="mt-[0.4cqw] font-display text-[1.8cqw] uppercase leading-[0.95]">The 24{"‑"}hour cook</h2>
+            <p className="mt-[0.7cqw] font-type text-[0.92cqw] leading-snug">
               One crew. One lab. Cook something pure from scratch against real problems from real suppliers. The best batch walks out with the money.
             </p>
           </div>
@@ -212,15 +212,15 @@ export function LabStage({ progress, reveal = 1 }: { progress: MotionValue<numbe
                 [cookDay, cookWeekday],
               ].map(([big, small]) => (
                 <div key={small} className="flex items-baseline gap-[0.8cqw]">
-                  <dt className="font-display text-[1.7cqw] leading-none">{big}</dt>
-                  <dd className="font-type text-[0.85cqw] uppercase tracking-widest">{small}</dd>
+                  <dt className="font-display text-[1.4cqw] leading-none">{big}</dt>
+                  <dd className="font-type text-[0.72cqw] uppercase tracking-widest">{small}</dd>
                 </div>
               ))}
             </dl>
-            <p className="font-type text-[0.95cqw] leading-snug">
+            <p className="font-type text-[0.8cqw] leading-snug">
               <span className="uppercase tracking-widest text-brick">Lab:</span> {EVENT.venue}
             </p>
-            <ul className="space-y-[0.15cqw] font-type text-[0.9cqw] leading-snug">
+            <ul className="space-y-[0.15cqw] font-type text-[0.76cqw] leading-snug">
               {RULES.slice(0, 3).map((r) => (
                 <li key={r} className="flex gap-[0.5cqw]">
                   <span aria-hidden className="text-brick">✕</span>
@@ -286,19 +286,19 @@ export function LabStage({ progress, reveal = 1 }: { progress: MotionValue<numbe
                   ))}
                 {/* time tag, in the gap between clipboard and pipe */}
                 <p
-                  className="absolute border-2 border-ink bg-paper px-[0.9cqw] py-[0.15cqw] font-display text-[1.5cqw] leading-tight text-ink transition-[opacity,transform] duration-500 print-shadow"
-                  style={{ left: x, top: "63.6%", transform: `translateX(-50%) ${lit ? "" : "translateY(0.4cqw)"}`, opacity: lit ? 1 : 0.4 }}
+                  className="absolute border-2 border-ink bg-paper px-[0.7cqw] py-[0.12cqw] font-display text-[1.2cqw] leading-tight text-ink transition-[opacity,transform] duration-500 print-shadow"
+                  style={{ left: x, top: "65%", transform: `translateX(-50%) ${lit ? "" : "translateY(0.4cqw)"}`, opacity: lit ? 1 : 0.4 }}
                 >
-                  <span className="block text-center font-type text-[0.8cqw] uppercase leading-none tracking-[0.2em] text-brick">{dayLabel(s.day)}</span>
+                  <span className="block text-center font-type text-[0.66cqw] uppercase leading-none tracking-[0.2em] text-brick">{dayLabel(s.day)}</span>
                   {s.time}
                 </p>
                 {/* what happens, on the floor below the valve */}
                 <div
-                  className="absolute bg-ink/85 px-[0.7cqw] py-[0.3cqw] text-center transition-opacity duration-500"
-                  style={{ left: x, top: "90.4%", width: "15.5cqw", transform: "translateX(-50%)", opacity: lit ? 1 : 0.35 }}
+                  className="absolute bg-ink/85 px-[0.6cqw] py-[0.25cqw] text-center transition-opacity duration-500"
+                  style={{ left: x, top: "87.4%", width: "14cqw", transform: "translateX(-50%)", opacity: lit ? 1 : 0.35 }}
                 >
-                  <p className="font-display text-[1cqw] uppercase leading-tight text-hazmat">{s.title}</p>
-                  <p className="font-type text-[0.8cqw] leading-snug text-paper">{s.note}</p>
+                  <p className="font-display text-[0.82cqw] uppercase leading-tight text-hazmat">{s.title}</p>
+                  <p className="font-type text-[0.68cqw] leading-snug text-paper">{s.note}</p>
                 </div>
               </li>
             );
