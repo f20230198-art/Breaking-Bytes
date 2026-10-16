@@ -1,8 +1,8 @@
 {
   "scenes": {
     "s1-desert": {
-      "width": 1672,
-      "height": 941,
+      "width": 3344,
+      "height": 1882,
       "master": "/scenes/s1-desert/master.webp",
       "plate": "/scenes/s1-desert/plate.webp",
       "layers": [
@@ -12,8 +12,8 @@
           "bbox": [
             0.0,
             0.0,
-            0.9994,
-            0.6791
+            0.9997,
+            0.6796
           ]
         },
         {
@@ -22,8 +22,8 @@
           "bbox": [
             0.0,
             0.7056,
-            0.9994,
-            0.9989
+            0.9997,
+            0.9995
           ]
         },
         {
@@ -31,7 +31,7 @@
           "src": "/scenes/s1-desert/rv.webp",
           "bbox": [
             0.4653,
-            0.2901,
+            0.2912,
             0.9139,
             0.8183
           ]
@@ -41,9 +41,9 @@
           "src": "/scenes/s1-desert/rv-cutaway.webp",
           "bbox": [
             0.4659,
-            0.2784,
-            0.9139,
-            0.814
+            0.2795,
+            0.9142,
+            0.8146
           ]
         },
         {
@@ -51,16 +51,16 @@
           "src": "/scenes/s1-desert/fg.webp",
           "bbox": [
             0.0,
-            0.7046,
-            0.9994,
-            0.9989
+            0.7051,
+            0.9997,
+            0.9995
           ]
         }
       ]
     },
     "s2-superlab": {
-      "width": 1672,
-      "height": 941,
+      "width": 3344,
+      "height": 1882,
       "master": "/scenes/s2-superlab/master.webp",
       "plate": "/scenes/s2-superlab/plate.webp",
       "layers": [
@@ -73,9 +73,9 @@
           "src": "/scenes/s2-superlab/fg.webp",
           "bbox": [
             0.0,
-            0.4346,
-            0.9994,
-            0.9989
+            0.4352,
+            0.9997,
+            0.9995
           ]
         }
       ]
@@ -292,13 +292,13 @@
   "singles": {
     "s1-desert/mobile": {
       "src": "/scenes/s1-desert/mobile.webp",
-      "width": 941,
-      "height": 1672
+      "width": 1882,
+      "height": 3344
     },
     "s2-superlab/strata": {
       "src": "/scenes/s2-superlab/strata.webp",
-      "width": 941,
-      "height": 1672
+      "width": 1882,
+      "height": 3344
     },
     "s5-carwash/car": {
       "src": "/scenes/s5-carwash/car.webp",

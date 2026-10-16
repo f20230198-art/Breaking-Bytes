@@ -1,8 +1,10 @@
 """Builds web-ready scene layers from assets-src/ into public/scenes/ + src/scenes/layers.generated.json.
 
 - Magenta-screen layers are chroma-keyed (soft edge + de-spill) into transparent WebP.
+- Scenes in UNIFY are re-printed: 2x upscale, then every pixel snapped to one linocut ink palette,
+  so separate AI generations read as one crisp print (hard ink edges instead of soft upscaled mush).
 - Every layer is resized to the same canvas as its scene master, so layers stack 1:1.
-Usage: python scripts/assets/build_scenes.py [max_width=2560]
+Usage: python scripts/assets/build_scenes.py [max_width=3344]
 """
 import json
 import sys
@@ -15,7 +17,7 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "assets-src"
 OUT = ROOT / "public" / "scenes"
-MAX_W = int(sys.argv[1]) if len(sys.argv) > 1 else 2560
+MAX_W = int(sys.argv[1]) if len(sys.argv) > 1 else 3344
 
 # scene -> master file, [(layer id, source file, keyed?)] in back-to-front order
 SCENES = {
@@ -45,6 +47,30 @@ SINGLES = {  # standalone images (keyed?)
     "extras/dashboard-bg": ("extras/X-dashboard-bg", False),
     **{f"extras/avatar-{i}": (f"extras/X-avatar-{i}", False) for i in range(1, 7)},
 }
+
+# scenes/singles that get the unified print treatment (rolling out scene by scene)
+UNIFY = {"s1-desert", "s2-superlab", "s1-desert/mobile", "s2-superlab/strata"}
+# ink, paper, orange, rust, crystal, hazmat (matches the @theme tokens in globals.css)
+PALETTE = np.array([[17, 17, 17], [239, 230, 210], [232, 106, 46], [150, 58, 34], [19, 200, 232], [232, 185, 49]], np.uint8)
+
+
+def unify(img: Image.Image) -> Image.Image:
+    """Upscale 2x and re-print in the shared palette. Neutral pixels may only become ink or paper."""
+    a = np.asarray(img.convert("RGB"))
+    a = cv2.resize(a, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
+    a = cv2.bilateralFilter(a, 9, 50, 6)
+    lab = cv2.cvtColor(a, cv2.COLOR_RGB2LAB).astype(np.float32)
+    chroma = np.hypot(lab[..., 1] - 128, lab[..., 2] - 128)
+    pal = cv2.cvtColor(PALETTE[None], cv2.COLOR_RGB2LAB)[0].astype(np.float32)
+    d = ((lab[..., None, :] - pal) ** 2).sum(-1)
+    d[..., 2:] += np.where(chroma < 28, 1e9, 0)[..., None]
+    idx = cv2.medianBlur(d.argmin(-1).astype(np.uint8), 5)
+    out = PALETTE[idx]
+    if img.mode == "RGBA":
+        al = cv2.resize(np.asarray(img)[..., 3], (out.shape[1], out.shape[0]), interpolation=cv2.INTER_CUBIC)
+        al = np.clip((al.astype(np.float32) - 96) * 4, 0, 255).astype(np.uint8)  # crisp cut edge
+        return Image.fromarray(np.dstack([out, al]), "RGBA")
+    return Image.fromarray(out)
 
 
 def key_magenta(img: Image.Image) -> Image.Image:
@@ -96,6 +122,8 @@ def fit(size):
 manifest = {}
 for scene, (master, layers) in SCENES.items():
     m = Image.open(SRC / scene / f"{master}.png")
+    if scene in UNIFY:
+        m = unify(m)
     size = fit(m.size)
     export(m.convert("RGB"), size, OUT / scene / "master")
     entry = {"width": size[0], "height": size[1], "master": f"/scenes/{scene}/master.webp",
@@ -104,6 +132,8 @@ for scene, (master, layers) in SCENES.items():
     for lid, file, keyed in layers:
         im = Image.open(SRC / scene / f"{file}.png")
         im = key_magenta(im) if keyed else im.convert("RGB")
+        if scene in UNIFY:
+            im = unify(im)
         if keyed:
             keyed_imgs.append(im)
         export(im, size, OUT / scene / lid)
@@ -122,6 +152,8 @@ singles = {}
 for out, (file, keyed) in SINGLES.items():
     im = Image.open(SRC / f"{file}.png")
     im = key_magenta(im) if keyed else im.convert("RGB")
+    if out in UNIFY:
+        im = unify(im)
     size = fit(im.size)
     export(im, size, OUT / out)
     singles[out] = {"src": f"/scenes/{out}.webp", "width": size[0], "height": size[1]}
