@@ -227,7 +227,7 @@ export function HeroStage({ progress, onLens }: { progress: MotionValue<number>;
             className="pointer-events-none absolute inset-0 h-full w-full select-none motion-reduce:hidden"
             style={{
               clipPath: `inset(47% 0 ${100 - 61}% ${rv[2] * 100 + 1}%)`,
-              filter: "url(#heat)",
+              filter: night < 0.9 && drive < 0.04 ? "url(#heat)" : "none",
               opacity: (1 - night) * (1 - Math.min(1, drive * 25)), // gone once the RV starts to move
               transform: `translate3d(calc(${par("mesas", "x")}), calc(${par("mesas", "y")}), 0)`,
             }}

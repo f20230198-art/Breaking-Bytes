@@ -26,7 +26,7 @@ export function DesertFx({ tumble, night }: { tumble: MutableRefObject<TumbleSta
     let W = 0, H = 0, raf = 0, last = performance.now();
 
     const fit = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const dpr = 1; // birds, dust and stars do not need retina sharpness; a 4K canvas redrawn every frame is costly
       W = cv.clientWidth; H = cv.clientHeight;
       cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);

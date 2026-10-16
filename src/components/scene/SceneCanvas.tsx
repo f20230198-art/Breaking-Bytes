@@ -41,19 +41,24 @@ export function SceneCanvas({ scene, hide = [], children, priority, className = 
     if (!el || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     let raf = 0;
     let tx = 0, ty = 0, x = 0, y = 0;
-    const onMove = (e: PointerEvent) => {
-      tx = (e.clientX / window.innerWidth - 0.5) * 2;
-      ty = (e.clientY / window.innerHeight - 0.5) * 2;
-    };
+    let running = false;
+    // eases toward the pointer, then goes fully idle once settled (no per-frame style writes while nothing moves)
     const tick = () => {
       x += (tx - x) * 0.06;
       y += (ty - y) * 0.06;
+      const settled = Math.abs(tx - x) < 0.0008 && Math.abs(ty - y) < 0.0008;
+      if (settled) { x = tx; y = ty; }
       el.style.setProperty("--mx", x.toFixed(4));
       el.style.setProperty("--my", y.toFixed(4));
+      if (settled) { running = false; return; }
       raf = requestAnimationFrame(tick);
     };
+    const onMove = (e: PointerEvent) => {
+      tx = (e.clientX / window.innerWidth - 0.5) * 2;
+      ty = (e.clientY / window.innerHeight - 0.5) * 2;
+      if (!running) { running = true; raf = requestAnimationFrame(tick); }
+    };
     window.addEventListener("pointermove", onMove, { passive: true });
-    raf = requestAnimationFrame(tick);
     return () => {
       window.removeEventListener("pointermove", onMove);
       cancelAnimationFrame(raf);
