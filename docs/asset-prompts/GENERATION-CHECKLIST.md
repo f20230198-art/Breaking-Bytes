@@ -29,10 +29,13 @@
 - [ ] `S1-mobile-master.png`: **new chat is fine**: the same scene re-composed **portrait 9:16** for phones, RV lower-centre, sky on top.
 
 ## S2: The Superlab, folder `assets-src/s2-superlab/` · screen: GREEN
-- [ ] `S2-master.png`: Wide 16:9 underground industrial superlab: polished steel tanks, catwalks, yellow hazmat suits on hooks, cold fluorescent light, pipework along the walls. Keep a **clear horizontal band across the middle** (the schedule pipe is drawn there in code) and an empty clipboard area left of centre.
-- [ ] `S2-L1-back.png`: clean plate: remove the hazmat suits and anything in the foreground.
-- [ ] `S2-L2-fg.png`: layer: keep ONLY the foreground railing/catwalk and hazmat suits → green.
-- [ ] `S2-transition-strata.png`: tall 9:32 vertical cross-section of the earth: desert sand at the top, rock strata, buried pipes and cables, and a concrete lab ceiling at the bottom. Hand-drawn, same style.
+> Revised 2026-10-16 (no railings/catwalks/hazmat; clipboard + wall pipe baked into the master so everything lines up). Send as one chat, in order; each layer is an EDIT of the master.
+- [ ] `S2-master.png`: Wide 16:9, max quality. Underground production room, flat front view of the back wall, FULL of enormous steel cylinders/reactor tanks of different heights with portholes, gauges and overhead pipes; concrete ceiling slab across the top. NO railings, catwalks, stairs, people or text. An oversized steel clipboard with three blank clipped sheets hangs on the wall over the LEFT HALF (about 45% of the width, top edge ~10% to bottom edge ~68% of the height). A thick horizontal steel pipe with a dark EMPTY glass tube runs end to end (off both edges) at ~85% of the height, wall-mounted on brackets just above the floor, with 5 evenly spaced dusty-orange valve hand-wheels along it; the strip between clipboard and pipe is plain wall (labels go there). Crystal blue only on glowing portholes, gauge faces and drips; everything dark and moody.
+- [ ] `S2-L1-back.png`: clean plate: remove the clipboard, the pipe, brackets and valves; paint in the plain wall and floor behind them. Change nothing else.
+- [ ] `S2-L2-clipboard.png`: layer: keep ONLY the clipboard → green.
+- [ ] `S2-L3-pipe.png`: layer: keep ONLY the pipe, brackets and valves → green.
+- [ ] `S2-L4-glow.png`: layer: keep ONLY the crystal-blue glowing parts (portholes, gauge faces, drips) → green. (Animated in code: pulse/flicker.)
+- [ ] `S2-transition-dirt.png`: **16:9** cross-section of the earth, joins S2-master (attach it): desert sand/gravel at the top, rock strata, a buried barrel, crossing pipes, roots, a steel hatch; bottom 10% = the same concrete ceiling slab and pipes as the top of S2-master. No sky.
 
 ## S3: The Classroom, folder `assets-src/s3-classroom/` · screen: GREEN
 - [ ] `S3-master.png`: Wide 16:9 high-school chemistry classroom drawn in charcoal: a huge **blank, dusty chalkboard** centre-left, a large **blank periodic-table-style poster grid** on the right wall, lab benches, afternoon light through the blinds. A teacher in a short-sleeve shirt seen from behind at the edge of the frame.

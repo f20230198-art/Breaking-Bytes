@@ -68,6 +68,18 @@ html.lenis body {
   box-shadow: 5px 5px 0 var(--color-ink);
 }
 
+/* Superlab: the glowing portholes and gauges breathe and flicker */
+@keyframes lab-glow {
+  0%, 100% { opacity: 0.55; }
+  45% { opacity: 1; }
+  52% { opacity: 0.8; }
+  60% { opacity: 1; }
+}
+.lab-glow {
+  mix-blend-mode: screen;
+  animation: lab-glow 3.6s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

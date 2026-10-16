@@ -25,8 +25,12 @@ SCENES = {
         ("sky", "H-sky", False), ("mesas", "H-mesas", True), ("ground", "H-ground", True),
         ("tumbleweed", "H-tumbleweed", True), ("rv", "H-rv", True), ("rv-cutaway", "H-rv-cutaway", True),
         ("chairs", "H-chairs", True), ("fg", "H-fg", True)]),
+    "lab": ("L-master", [
+        ("back", "L-back", False), ("clipboard", "L-clipboard", "green"),
+        ("pipe", "L-pipe", "green"), ("glow", "L-glow", "green")]),
 }
 SINGLES = {  # standalone images (keyed?)
+    "lab/dirt": ("lab/L-dirt", False),
     "extras/og": ("extras/X-og", False),
     "extras/404": ("extras/X-404", False),
     "extras/dashboard-bg": ("extras/X-dashboard-bg", False),
@@ -72,6 +76,25 @@ def key_magenta(img: Image.Image) -> Image.Image:
     a[..., 2] -= spill
     rgba = np.dstack([a, alpha * 255]).clip(0, 255).astype(np.uint8)
     return Image.fromarray(rgba, "RGBA")
+
+
+def key_green(img: Image.Image) -> Image.Image:
+    """Same as key_magenta for a #00FF00 screen. Our inks are never strongly green, so spill is removed everywhere."""
+    a = np.asarray(img.convert("RGB")).astype(np.float32)
+    r, g, b = a[..., 0], a[..., 1], a[..., 2]
+    m = np.clip((g - np.maximum(r, b) - 40) / 110, 0, 1)
+    alpha = cv2.erode(1 - m, np.ones((3, 3), np.uint8))
+    spill = np.clip(g - np.maximum(r, b), 0, None)
+    a[..., 1] -= spill
+    rgba = np.dstack([a, alpha * 255]).clip(0, 255).astype(np.uint8)
+    return Image.fromarray(rgba, "RGBA")
+
+
+def key(img: Image.Image, mode) -> Image.Image:
+    """mode: False = opaque, True/"magenta" = magenta screen, "green" = green screen."""
+    if not mode:
+        return img.convert("RGB")
+    return key_green(img) if mode == "green" else key_magenta(img)
 
 
 def bleed_down(img: Image.Image, px: int) -> Image.Image:
@@ -150,7 +173,7 @@ for scene, (master, layers) in SCENES.items():
     keyed_imgs = []
     for lid, file, keyed in layers:
         im = Image.open(SRC / scene / f"{file}.png")
-        im = key_magenta(im) if keyed else im.convert("RGB")
+        im = key(im, keyed)
         if scene in UNIFY:
             im = unify(im)
         if (scene, lid) in BLEED:
@@ -172,7 +195,7 @@ for scene, (master, layers) in SCENES.items():
 singles = {}
 for out, (file, keyed) in SINGLES.items():
     im = Image.open(SRC / f"{file}.png")
-    im = key_magenta(im) if keyed else im.convert("RGB")
+    im = key(im, keyed)
     if out in UNIFY:
         im = unify(im)
     size = fit(im.size)

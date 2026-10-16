@@ -89,9 +89,60 @@
           ]
         }
       ]
+    },
+    "lab": {
+      "width": 3344,
+      "height": 1882,
+      "master": "/scenes/lab/master.webp",
+      "plate": "/scenes/lab/plate.webp",
+      "layers": [
+        {
+          "id": "back",
+          "src": "/scenes/lab/back.webp",
+          "srcset": "/scenes/lab/back-1280.webp 1280w, /scenes/lab/back-1920.webp 1920w, /scenes/lab/back.webp 3344w"
+        },
+        {
+          "id": "clipboard",
+          "src": "/scenes/lab/clipboard.webp",
+          "srcset": "/scenes/lab/clipboard-1280.webp 1280w, /scenes/lab/clipboard-1920.webp 1920w, /scenes/lab/clipboard.webp 3344w",
+          "bbox": [
+            0.0622,
+            0.0175,
+            0.4922,
+            0.6509
+          ]
+        },
+        {
+          "id": "pipe",
+          "src": "/scenes/lab/pipe.webp",
+          "srcset": "/scenes/lab/pipe-1280.webp 1280w, /scenes/lab/pipe-1920.webp 1920w, /scenes/lab/pipe.webp 3344w",
+          "bbox": [
+            0.0,
+            0.738,
+            0.9997,
+            0.9075
+          ]
+        },
+        {
+          "id": "glow",
+          "src": "/scenes/lab/glow.webp",
+          "srcset": "/scenes/lab/glow-1280.webp 1280w, /scenes/lab/glow-1920.webp 1920w, /scenes/lab/glow.webp 3344w",
+          "bbox": [
+            0.0329,
+            0.2311,
+            0.9925,
+            0.7529
+          ]
+        }
+      ]
     }
   },
   "singles": {
+    "lab/dirt": {
+      "src": "/scenes/lab/dirt.webp",
+      "width": 3344,
+      "height": 1882
+    },
     "extras/og": {
       "src": "/scenes/extras/og.webp",
       "width": 1672,
