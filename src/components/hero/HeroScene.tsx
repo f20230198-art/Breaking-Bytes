@@ -18,8 +18,7 @@ const twCx = (twX0 + twX1) / 2, twCy = (twY0 + twY1) / 2, twR = (twX1 - twX0) / 
 
 // tumbleweed run, as offsets from where it sits in the art (fractions of the canvas width)
 const ROLL_FROM = 0.62, ROLL_TO = -0.3, ROLL_SPEED = 0.075, ROLL_REST = 2.5;
-const LENS = 46; // radius of each gas-mask eyepiece, px
-const EYE = 1.08; // eyepiece centres sit this many radii either side of the cursor
+const LENS = 85; // gas-cloud lens radius, px
 const EASE = "cubic-bezier(.16,1,.3,1)";
 const SUN_DROP = 13; // % of canvas height the sky slides down at full night (sun sinks behind the mesas)
 
@@ -32,10 +31,17 @@ const split = c0 + (c2 - c0) * 0.72; // chairs on the left, gas mask on the righ
 const chairBox = [placeX(c0), placeY(c1), placeX(split), placeY(c3)];
 const maskBox = [placeX(split), placeY(c1 + (c3 - c1) * 0.5), placeX(c2), placeY(c3)];
 
-// two round eyepieces either side of the cursor, like looking through a gas mask
-const eye = (side: 1 | -1) =>
-  `radial-gradient(circle var(--lr) at calc(var(--lx) + var(--lr) * ${EYE * side}) var(--ly), #000 calc(100% - 1px), transparent 100%)`;
-const VISOR = `${eye(-1)}, ${eye(1)}`;
+// a soft puff of gas around the cursor: overlapping blobs that slowly churn (t = seconds)
+const PUFFS = [0, 1, 2, 3, 4, 5, 6].map((i) => ({ a: (i / 7) * Math.PI * 2 + 0.4, k: 0.6 + (i % 3) * 0.25 }));
+function gasCloud(t: number) {
+  const blob = (dx: number, dy: number, r: number) =>
+    `radial-gradient(circle calc(var(--lr) * ${r.toFixed(3)}) at calc(var(--lx) + var(--lr) * ${dx.toFixed(3)}) calc(var(--ly) + var(--lr) * ${dy.toFixed(3)}), #000 55%, rgba(0,0,0,.6) 75%, transparent 100%)`;
+  const ring = PUFFS.map(({ a, k }, i) => {
+    const d = 0.52 + 0.08 * Math.sin(t * k + i);
+    return blob(Math.cos(a + t * 0.15) * d, Math.sin(a + t * 0.15) * d * 0.85, 0.5 + 0.09 * Math.sin(t * k * 1.3 + i * 2));
+  });
+  return [blob(0, 0, 0.78), ...ring].join(", ");
+}
 
 // the RV's own pixels decide where the visor shows (not its bounding box)
 let rvAlpha: { data: Uint8ClampedArray; w: number; h: number } | null = null;
@@ -70,7 +76,7 @@ function Inner({ progress }: { progress: MotionValue<number> }) {
   const tumble = useRef<TumbleState | null>(null);
   const nightRef = useRef(0);
   const [night, setNight] = useState(0);
-  const [roll, setRoll] = useState({ x: 0, y: 0, rot: 0 });
+  const [roll, setRoll] = useState({ x: 0, y: 0, rot: 0, t: 0 });
   const [lens, setLens] = useState({ x: 50, y: 50, on: false, full: false });
   const [chairTip, setChairTip] = useState(false);
   const [maskOpen, setMaskOpen] = useState(false);
@@ -102,7 +108,7 @@ function Inner({ progress }: { progress: MotionValue<number> }) {
       }
       const hop = Math.abs(Math.sin((ROLL_FROM - dx) / (twR * 2.6))); // 0 = touching the ground
       tumble.current = rest > 0 ? null : { x: twCx + dx, y: twY1, r: twR, landed: hop < 0.12 };
-      setRoll({ x: dx * 100, y: -hop * 1.4, rot: (dx / twR) * (180 / Math.PI) });
+      setRoll({ x: dx * 100, y: -hop * 1.4, rot: (dx / twR) * (180 / Math.PI), t });
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
@@ -118,7 +124,6 @@ function Inner({ progress }: { progress: MotionValue<number> }) {
     setLens({ x: fx * 100, y: fy * 100, on: onRv(fx, fy), full: false });
   };
 
-  const showRing = lens.on && !lens.full;
   const par = (id: string, axis: "x" | "y") => `var(--m${axis}, 0) * ${-(DEPTHS.hero[id] ?? 0.3) * (axis === "x" ? 18 : 10)}px`;
 
   return (
@@ -135,8 +140,8 @@ function Inner({ progress }: { progress: MotionValue<number> }) {
             ["--ly" as string]: `${lens.y}%`,
             ["--lr" as string]: lens.full ? "2400px" : lens.on ? `${LENS}px` : "0px",
             transition: `--lr 420ms ${EASE}`,
-            maskImage: VISOR,
-            WebkitMaskImage: VISOR,
+            maskImage: gasCloud(roll.t),
+            WebkitMaskImage: gasCloud(roll.t),
           },
           tumbleweed: {
             transformOrigin: `${twCx * 100}% ${twCy * 100}%`,
@@ -166,31 +171,6 @@ function Inner({ progress }: { progress: MotionValue<number> }) {
         {/* night falls: cool the whole scene, the RV's doorway keeps its glow through the lens */}
         <div className="pointer-events-none absolute inset-0 bg-night mix-blend-multiply" style={{ opacity: night * 0.75 }} />
         <DesertFx tumble={tumble} night={nightRef} />
-
-        {/* visor outline: two gas-mask eyepieces that follow the cursor over the RV */}
-        <svg
-          aria-hidden
-          viewBox="-220 -100 440 200"
-          className="pointer-events-none absolute overflow-visible"
-          style={{
-            left: `${lens.x}%`,
-            top: `${lens.y}%`,
-            width: LENS * 4.4,
-            height: LENS * 2,
-            translate: "-50% -50%",
-            scale: showRing ? 1 : 0,
-            opacity: showRing ? 1 : 0,
-            transition: `scale 420ms ${EASE}, opacity 200ms`,
-          }}
-        >
-          {[-108, 108].map((cx) => (
-            <g key={cx}>
-              <circle cx={cx} cy="0" r="100" fill="none" className="stroke-ink" strokeWidth="7" />
-              <circle cx={cx} cy="0" r="100" fill="none" className="stroke-paper" strokeWidth="2.5" />
-              <path d={`M ${cx - 62} -58 A 84 84 0 0 1 ${cx + 10} -84`} fill="none" className="stroke-paper/70" strokeWidth="5" strokeLinecap="round" />
-            </g>
-          ))}
-        </svg>
 
         <button
           type="button"
