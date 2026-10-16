@@ -253,6 +253,7 @@ function Inner({ progress }: { progress: MotionValue<number> }) {
         </filter>
       </svg>
 
+      <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-[60vw] bg-[radial-gradient(ellipse_at_60%_35%,rgba(17,17,17,0.45),transparent_65%)]" />
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
@@ -260,10 +261,11 @@ function Inner({ progress }: { progress: MotionValue<number> }) {
         className="pointer-events-none absolute left-[52vw] right-[5vw] top-[17vh] flex flex-col items-center"
       >
         <PeriodicTitle className="text-[clamp(2.75rem,6vw,7.25rem)]" />
-        <p className="mt-6 text-center font-display text-[clamp(0.8rem,1.1vw,1.25rem)] uppercase tracking-[0.4em] text-hazmat [text-shadow:2px_2px_0_#111]">
+        {/* inked outline + hard offset so the small lines read on the bright sunset */}
+        <p className="mt-6 text-center font-display text-[clamp(0.95rem,1.35vw,1.6rem)] uppercase tracking-[0.35em] text-hazmat [paint-order:stroke_fill] [-webkit-text-stroke:0.22em_var(--color-ink)] [text-shadow:0.12em_0.12em_0_var(--color-ink)]">
           {EVENT.tagline}
         </p>
-        <p className="mt-2 text-center font-type text-[clamp(0.65rem,0.8vw,0.9rem)] uppercase tracking-[0.3em] text-paper [text-shadow:1px_1px_0_#111]">
+        <p className="mt-3 bg-ink/85 px-3 py-1 text-center font-type text-[clamp(0.75rem,0.95vw,1.05rem)] uppercase tracking-[0.3em] text-paper">
           {EVENT.hours} hours · {EVENT.venue}
         </p>
       </motion.div>
