@@ -2,11 +2,10 @@
 /* eslint-disable @next/next/no-img-element -- the shimmer strip must stack pixel-exact on the scene layers */
 
 import { AnimatePresence, motion, useMotionValueEvent, type MotionValue } from "motion/react";
-import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { PeriodicTitle } from "@/components/comic/PeriodicTitle";
-import { PinnedScene } from "@/components/scene/PinnedScene";
 import { SceneCanvas, bboxStyle } from "@/components/scene/SceneCanvas";
-import { EVENT, RULES, SCHEDULE } from "@/data/site";
+import { EVENT, RULES } from "@/data/site";
 import { DEPTHS, sceneAssets } from "@/scenes/config";
 import { DesertFx, type TumbleState } from "./DesertFx";
 
@@ -29,7 +28,22 @@ const placeX = (x: number) => CH.ox + (x - CH.ox) * CH.scale + CH.dx;
 const placeY = (y: number) => CH.oy + (y - CH.oy) * CH.scale + CH.dy;
 const split = c0 + (c2 - c0) * 0.72; // chairs on the left, gas mask on the right of the layer
 const chairBox = [placeX(c0), placeY(c1), placeX(split), placeY(c3)];
-const maskBox = [placeX(split), placeY(c1 + (c3 - c1) * 0.5), placeX(c2), placeY(c3)];
+
+// scroll phases of the hero's own 0..1 timeline
+const c01 = (x: number) => Math.min(1, Math.max(0, x));
+const nightAt = (v: number) => c01((v - 0.05) / 0.8);
+const liftAt = (v: number) => c01((v - 0.06) / 0.3);
+const driveAt = (v: number) => c01((v - 0.38) / 0.4) ** 2;
+export const FALL_FROM = 0.78;
+export const fallAt = (v: number) => c01((v - FALL_FROM) / (1 - FALL_FROM));
+
+// the gas mask's front lens ring, as fractions of the chairs layer (measured from the art). The page measures where this
+// lands on screen at runtime, so the fall always pivots on the real lens whatever the window size.
+export const LENS_RAW = { x: 0.2727, y: 0.7245, r: 0.0051 };
+export type LensPx = { x: number; y: number; r: number };
+const ZOOM = 5; // shallow on purpose: the art is soft past ~5x, the blob and vignette carry the rest of the fall
+/** Camera zoom while falling into the lens (f = 0..1). */
+export const fallScale = (f: number) => 1 + (ZOOM - 1) * f ** 2.2;
 
 // a soft puff of gas around the cursor: overlapping blobs that slowly churn (t = seconds)
 const PUFFS = [0, 1, 2, 3, 4, 5, 6].map((i) => ({ a: (i / 7) * Math.PI * 2 + 0.4, k: 0.6 + (i % 3) * 0.25 }));
@@ -63,41 +77,59 @@ const onRv = (fx: number, fy: number) => {
   return rvAlpha.data[(y * rvAlpha.w + x) * 4 + 3] > 40;
 };
 
-/** ① The desert at dusk: hero. Scroll sets the sun; over the RV the cursor becomes a benzene-ring x-ray lens. */
-export function HeroScene() {
-  return (
-    <PinnedScene id="desert" label="The desert" length={2.4}>
-      {(p) => <Inner progress={p} />}
-    </PinnedScene>
-  );
-}
-
-function Inner({ progress }: { progress: MotionValue<number> }) {
+/** ① The desert at dusk: hero. Scroll sets the sun; over the RV the cursor becomes a benzene-ring x-ray lens. Rendered inside the story's pinned stage. */
+export function HeroStage({ progress, onLens }: { progress: MotionValue<number>; onLens?: (l: LensPx) => void }) {
   const tumble = useRef<TumbleState | null>(null);
-  const nightRef = useRef(0);
-  const [night, setNight] = useState(0);
-  const [lift, setLift] = useState(0); // title block rises away
-  const [drive, setDrive] = useState(0); // RV pulls out to the right (eased: slow start, then it floors it)
+  const nightRef = useRef(nightAt(progress.get()));
+  const v0 = progress.get();
+  const [night, setNight] = useState(() => nightAt(v0));
+  const [lift, setLift] = useState(() => liftAt(v0)); // title block rises away
+  const [drive, setDrive] = useState(() => driveAt(v0)); // RV pulls out to the right (eased: slow start, then it floors it)
+  const [fall, setFall] = useState(() => fallAt(v0)); // camera falls into the gas mask lens
+  const zoomRef = useRef<HTMLDivElement>(null);
+  const [origin, setOrigin] = useState<LensPx | null>(null);
+  const zoomed = fall > 0 && origin !== null;
+
+  // where the lens really is on screen: the chairs layer's own box, minus the mouse parallax it currently carries
+  useLayoutEffect(() => {
+    if (zoomed) return;
+    const measure = () => {
+      const el = zoomRef.current;
+      const img = el?.querySelector<HTMLImageElement>('img[data-layer="chairs"]');
+      if (!el || !img) return;
+      const stage = el.parentElement!.getBoundingClientRect();
+      const r = img.getBoundingClientRect();
+      const cs = getComputedStyle(img);
+      const mx = parseFloat(cs.getPropertyValue("--mx")) || 0, my = parseFloat(cs.getPropertyValue("--my")) || 0;
+      const d = DEPTHS.hero.chairs ?? 0.3;
+      const o = {
+        x: r.left - stage.left + LENS_RAW.x * r.width + mx * d * 18,
+        y: r.top - stage.top + LENS_RAW.y * r.height + my * d * 10,
+        r: LENS_RAW.r * r.width,
+      };
+      setOrigin(o);
+      onLens?.(o);
+    };
+    measure();
+    const raf = requestAnimationFrame(measure);
+    window.addEventListener("resize", measure);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", measure);
+    };
+  }, [zoomed, onLens]);
   const [roll, setRoll] = useState({ x: 0, y: 0, rot: 0, t: 0 });
   const [lens, setLens] = useState({ x: 50, y: 50, on: false, full: false });
   const [chairTip, setChairTip] = useState(false);
-  const [maskOpen, setMaskOpen] = useState(false);
 
   useMotionValueEvent(progress, "change", (v) => {
-    const n = Math.min(1, Math.max(0, (v - 0.05) / 0.8));
+    const n = nightAt(v);
     nightRef.current = n;
     setNight(n);
-    const c01 = (x: number) => Math.min(1, Math.max(0, x));
-    setLift(c01((v - 0.06) / 0.3));
-    setDrive(c01((v - 0.38) / 0.4) ** 2);
+    setLift(liftAt(v));
+    setDrive(driveAt(v));
+    setFall(fallAt(v));
   });
-
-  useEffect(() => {
-    if (!maskOpen) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setMaskOpen(false);
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [maskOpen]);
 
   // roll the tumbleweed across the desert: spin matches distance travelled, small hops, wind gusts
   useEffect(() => {
@@ -134,8 +166,15 @@ function Inner({ progress }: { progress: MotionValue<number> }) {
   // the RV keeps its parallax, plus a slow pull-out to the right and a little suspension bob while it moves
   const rvDrive = `translate3d(calc(${par("rv", "x")} + ${drive * 108}%), calc(${par("rv", "y")} + ${drive > 0 && drive < 1 ? Math.sin(drive * 90) * 0.12 : 0}%), 0)`;
 
+  const frozen = 1 - c01(fall * 30); // mouse parallax fades out as the fall starts, so the lens holds still
+
   return (
     <>
+      <div
+        ref={zoomRef}
+        className="absolute inset-0"
+        style={zoomed ? { transform: `scale(${fallScale(fall)})`, transformOrigin: `${origin.x}px ${origin.y}px`, willChange: "transform" } : undefined}
+      >
       <SceneCanvas
         scene="hero"
         priority
@@ -165,7 +204,7 @@ function Inner({ progress }: { progress: MotionValue<number> }) {
           },
           chairs: {
             transformOrigin: `${CH.ox * 100}% ${CH.oy * 100}%`,
-            transform: `translate3d(calc(${par("chairs", "x")} + ${CH.dx * 100}%), calc(${par("chairs", "y")} + ${CH.dy * 100}%), 0) scale(${CH.scale})`,
+            transform: `translate3d(calc((${par("chairs", "x")}) * ${frozen} + ${CH.dx * 100}%), calc((${par("chairs", "y")}) * ${frozen} + ${CH.dy * 100}%), 0) scale(${CH.scale})`,
           },
         }}
       >
@@ -205,6 +244,22 @@ function Inner({ progress }: { progress: MotionValue<number> }) {
           style={{ ...bboxStyle(rv), pointerEvents: drive > 0.02 ? "none" : "auto" }}
         />
 
+        {/* the mask's lens always glows faintly: a hint that something is in there (and the start of the fall) */}
+        <div
+          aria-hidden
+          className="lab-glow pointer-events-none absolute"
+          style={{
+            left: `${placeX(LENS_RAW.x) * 100}%`,
+            top: `${placeY(LENS_RAW.y) * 100}%`,
+            width: `${LENS_RAW.r * 16 * 100}%`,
+            aspectRatio: "1",
+            borderRadius: "9999px",
+            background: "radial-gradient(circle, rgba(19,200,232,0.95) 0, rgba(19,200,232,0.45) 28%, rgba(19,200,232,0.14) 52%, transparent 70%)",
+            transform: `translate(-50%, -50%) translate3d(calc((${par("chairs", "x")}) * ${frozen}), calc((${par("chairs", "y")}) * ${frozen}), 0)`,
+            opacity: 1 - c01(fall * 9),
+          }}
+        />
+
         {/* chairs: hover for the crew rule */}
         <div
           className="absolute"
@@ -228,39 +283,6 @@ function Inner({ progress }: { progress: MotionValue<number> }) {
             )}
           </AnimatePresence>
         </div>
-
-        {/* gas mask: click for the classified file */}
-        <button
-          type="button"
-          aria-label="Open the classified file"
-          aria-expanded={maskOpen}
-          onClick={() => setMaskOpen((v) => !v)}
-          className="group absolute cursor-pointer rounded-full focus-visible:outline-2 focus-visible:outline-crystal"
-          style={bboxStyle(maskBox)}
-        >
-          <span className="absolute inset-0 rounded-full bg-crystal/0 shadow-[0_0_0_0_transparent] transition-[background-color,box-shadow] duration-300 group-hover:bg-crystal/15 group-hover:shadow-[0_0_28px_6px_rgba(19,200,232,0.45)]" />
-        </button>
-        <AnimatePresence>
-          {maskOpen && (
-            <motion.div
-              role="dialog"
-              aria-label="Classified"
-              initial={{ opacity: 0, scale: 0.92, rotate: 3 }}
-              animate={{ opacity: 1, scale: 1, rotate: 1.5 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute w-[min(22rem,80vw)] border-2 border-ink bg-paper p-4 font-type text-sm text-ink print-shadow"
-              style={{ left: `${chairBox[0] * 100}%`, bottom: `${(1 - maskBox[1]) * 100 + 1}%` }}
-            >
-              <p className="mb-2 inline-block -rotate-3 border-2 border-siren px-2 font-display text-lg uppercase tracking-widest text-siren">Classified</p>
-              <p className="font-display text-base uppercase">Problem statements</p>
-              <p className="mt-1">Sealed until {SCHEDULE[1].time} on day one. {SCHEDULE[1].note}</p>
-              <button type="button" onClick={() => setMaskOpen(false)} className="mt-3 text-xs uppercase tracking-widest underline underline-offset-4">
-                Close file
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </SceneCanvas>
 
       <svg aria-hidden className="absolute size-0">
@@ -271,6 +293,7 @@ function Inner({ progress }: { progress: MotionValue<number> }) {
           <feDisplacementMap in="SourceGraphic" in2="n" scale="5" xChannelSelector="R" yChannelSelector="G" />
         </filter>
       </svg>
+      </div>
 
       <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-[60vw] bg-[radial-gradient(ellipse_at_60%_35%,rgba(17,17,17,0.45),transparent_65%)]" />
       <div

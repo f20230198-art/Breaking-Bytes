@@ -22,13 +22,15 @@ type Props = {
   plate?: boolean;
   /** Layers that can arrive after first paint (hover reveals, small props). */
   deferred?: string[];
+  /** Which part of the art stays in view when the window is wider/narrower than the art: 0 = top edge, 0.5 = centre, 1 = bottom edge. */
+  anchorY?: number;
 };
 
 /**
  * Stacks a scene's full-canvas layers so they line up 1:1, scaled to cover the viewport
  * (like object-fit: cover). Mouse movement drives a subtle parallax via CSS variables.
  */
-export function SceneCanvas({ scene, hide = [], children, priority, className = "", layerStyle = {}, overscan = 1.06, bg = "bg-ink", plate = true, deferred = [] }: Props) {
+export function SceneCanvas({ scene, hide = [], children, priority, className = "", layerStyle = {}, overscan = 1.06, bg = "bg-ink", plate = true, deferred = [], anchorY = 0.5 }: Props) {
   const a = sceneAssets(scene);
   const depths = DEPTHS[scene];
   const ref = useRef<HTMLDivElement>(null);
@@ -63,8 +65,8 @@ export function SceneCanvas({ scene, hide = [], children, priority, className = 
       {/* cover box: always fills the viewport while keeping the art's aspect ratio */}
       <div
         data-canvas
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-        style={{ width: `max(100vw, ${100 * ratio}vh)`, height: `max(100vh, ${100 / ratio}vw)` }}
+        className="absolute left-1/2"
+        style={{ top: `${anchorY * 100}%`, transform: `translate(-50%, -${anchorY * 100}%)`, width: `max(100vw, ${100 * ratio}vh)`, height: `max(100vh, ${100 / ratio}vw)` }}
       >
         <div className="absolute inset-0" style={{ scale: overscan }}>
           {plate && <img src={a.plate} alt="" className="absolute inset-0 h-full w-full select-none" draggable={false} />}

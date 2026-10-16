@@ -1,6 +1,4 @@
-import { HeroScene } from "@/components/hero/HeroScene";
-import { Descent } from "@/components/lab/Descent";
-import { LabScene } from "@/components/lab/LabScene";
+import { Story } from "@/components/story/Story";
 import { SmoothScroll } from "@/components/scene/SmoothScroll";
 import { TopBar } from "@/components/ui/TopBar";
 
@@ -10,9 +8,7 @@ export default function Home() {
       <SmoothScroll />
       <TopBar />
       <main>
-        <HeroScene />
-        <Descent />
-        <LabScene />
+        <Story />
       </main>
     </>
   );

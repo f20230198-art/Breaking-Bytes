@@ -80,7 +80,68 @@ html.lenis body {
   animation: lab-glow 3.6s ease-in-out infinite;
 }
 
+/* Superlab effects: all transform/opacity only, so they stay on the compositor */
+@keyframes lab-bubble {
+  0% { transform: translate3d(0, 0, 0) scale(0.6); opacity: 0; }
+  12% { opacity: 0.9; }
+  100% { transform: translate3d(var(--dx, 0), calc(var(--rise) * -1), 0) scale(1); opacity: 0; }
+}
+@keyframes lab-flicker {
+  0%, 100% { opacity: 0.85; }
+  8% { opacity: 0.5; }
+  10% { opacity: 0.95; }
+  46% { opacity: 0.8; }
+  48% { opacity: 0.35; }
+  50% { opacity: 0.9; }
+  78% { opacity: 0.7; }
+}
+/* bulb on/off pattern; lab-bulb-dim is its inverse so the baked-in lit bulb darkens when the light cuts */
+@keyframes lab-bulb {
+  0% { opacity: 1; }
+  6% { opacity: 1; }
+  7% { opacity: 0.1; }
+  9% { opacity: 1; }
+  11% { opacity: 0.2; }
+  12% { opacity: 1; }
+  55% { opacity: 1; }
+  56% { opacity: 0.15; }
+  58% { opacity: 1; }
+  60% { opacity: 0.3; }
+  61% { opacity: 1; }
+  85% { opacity: 0.9; }
+  86% { opacity: 0.1; }
+  88% { opacity: 1; }
+  100% { opacity: 1; }
+}
+@keyframes lab-bulb-dim {
+  0% { opacity: 0; }
+  6% { opacity: 0; }
+  7% { opacity: 0.8; }
+  9% { opacity: 0; }
+  11% { opacity: 0.7; }
+  12% { opacity: 0; }
+  55% { opacity: 0; }
+  56% { opacity: 0.8; }
+  58% { opacity: 0; }
+  60% { opacity: 0.6; }
+  61% { opacity: 0; }
+  85% { opacity: 0; }
+  86% { opacity: 0.8; }
+  88% { opacity: 0; }
+  100% { opacity: 0; }
+}
+@keyframes lab-steam {
+  0% { transform: translate3d(0, 0, 0) scale(0.5); opacity: 0; }
+  25% { opacity: 0.75; }
+  100% { transform: translate3d(var(--dx, 0.6cqw), -6cqw, 0) scale(1.9); opacity: 0; }
+}
+@keyframes lab-flow {
+  to { transform: translateX(-5cqw); }
+}
+.lab-fx { animation-timing-function: linear; animation-iteration-count: infinite; }
+
 @media (prefers-reduced-motion: reduce) {
+  .lab-fx, .lab-glow { animation: none !important; }
   *,
   *::before,
   *::after {

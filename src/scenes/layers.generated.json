@@ -106,10 +106,10 @@
           "src": "/scenes/lab/clipboard.webp",
           "srcset": "/scenes/lab/clipboard-1280.webp 1280w, /scenes/lab/clipboard-1920.webp 1920w, /scenes/lab/clipboard.webp 3344w",
           "bbox": [
-            0.0622,
-            0.0175,
-            0.4922,
-            0.6509
+            0.0574,
+            0.1068,
+            0.4605,
+            0.6323
           ]
         },
         {
@@ -118,9 +118,9 @@
           "srcset": "/scenes/lab/pipe-1280.webp 1280w, /scenes/lab/pipe-1920.webp 1920w, /scenes/lab/pipe.webp 3344w",
           "bbox": [
             0.0,
-            0.738,
+            0.6807,
             0.9997,
-            0.9075
+            0.898
           ]
         },
         {
@@ -128,10 +128,10 @@
           "src": "/scenes/lab/glow.webp",
           "srcset": "/scenes/lab/glow-1280.webp 1280w, /scenes/lab/glow-1920.webp 1920w, /scenes/lab/glow.webp 3344w",
           "bbox": [
-            0.0329,
-            0.2311,
-            0.9925,
-            0.7529
+            0.4907,
+            0.152,
+            0.9943,
+            0.6089
           ]
         }
       ]
