@@ -1,14 +1,13 @@
 "use client";
 
 import { useMotionValueEvent, type MotionValue } from "motion/react";
-import { useState } from "react";
+import { useRef, useState, type CSSProperties } from "react";
 import { SceneCanvas } from "@/components/scene/SceneCanvas";
 import { EVENT, RULES, SCHEDULE } from "@/data/site";
 
 // measured from the art (percent of the canvas unless noted)
 const PAPER = { left: 8.6, top: 22.5, width: 35, height: 36.5 }; // blank paper below the clip
 const VALVES = [0.1008, 0.2952, 0.4973, 0.6996, 0.9043]; // valve centres (fraction of width)
-const VALVE_Y = 78.8; // valve centre height
 const VALVE_TOP = 69.5; // top of a valve's knob: steam leaves from here
 const VALVE_HALF = 0.058; // collar half-width, so liquid stops at each valve body
 const TUBE = { top: 75.9, height: 5.3 }; // the empty dark channel inside the pipe
@@ -20,6 +19,8 @@ const LAMP = { x: 5.6, y: 7.2 }; // the hanging lamp, top left
 
 const cookDay = new Date(EVENT.startsAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "Asia/Dubai" });
 const cookWeekday = new Date(EVENT.startsAt).toLocaleDateString("en-GB", { weekday: "long", timeZone: "Asia/Dubai" });
+const dayLabel = (offset: number) =>
+  new Date(new Date(EVENT.startsAt).getTime() + offset * 86400000).toLocaleDateString("en-GB", { weekday: "short", timeZone: "Asia/Dubai" }).toUpperCase();
 const clamp01 = (n: number) => Math.min(1, Math.max(0, n));
 
 /** Bubbles rising inside a porthole (clipped to the glass). Deterministic, so server and client agree. */
@@ -50,23 +51,104 @@ function Bubbles({ r }: { r: number }) {
   );
 }
 
+type Burst = { id: number; left: number; size: number; dur: number; dx: number };
+let burstId = 0;
+
+/** A porthole you can play with: hover to stir up bubbles, click for a big burst and a glass pulse. */
+function PortholeFx({ x, y, r }: { x: number; y: number; r: number }) {
+  const [bursts, setBursts] = useState<Burst[]>([]);
+  const [pulse, setPulse] = useState(0);
+  const lastRef = useRef(0);
+
+  const spawn = (n: number) => {
+    const fresh = Array.from({ length: n }, () => ({
+      id: ++burstId,
+      left: 6 + Math.random() * 80,
+      size: 0.35 + Math.random() * 0.7,
+      dur: 1.6 + Math.random() * 1.4,
+      dx: (Math.random() - 0.5) * 1.2,
+    }));
+    setBursts((b) => [...b, ...fresh].slice(-40));
+    const ids = new Set(fresh.map((f) => f.id));
+    setTimeout(() => setBursts((b) => b.filter((f) => !ids.has(f.id))), 3200);
+  };
+
+  return (
+    <div
+      className="absolute"
+      style={{ left: `${x}%`, top: `${y}%`, width: `${r * 1.9}cqw`, height: `${r * 1.9}cqw`, transform: "translate(-50%, -50%)" }}
+    >
+      <div
+        key={pulse}
+        aria-hidden
+        className="pointer-events-none absolute inset-0 overflow-hidden rounded-full"
+        style={pulse ? { animation: "lab-pulse 600ms ease-out" } : undefined}
+      >
+        {bursts.map((b) => (
+          <span
+            key={b.id}
+            className="absolute rounded-full border-2 border-white/90 bg-white/40"
+            style={{
+              left: `${b.left}%`,
+              bottom: `${-b.size}cqw`,
+              width: `${b.size}cqw`,
+              height: `${b.size}cqw`,
+              animation: `lab-bubble ${b.dur}s linear forwards`,
+              ["--rise" as string]: `${r * 2.2}cqw`,
+              ["--dx" as string]: `${b.dx}cqw`,
+            }}
+          />
+        ))}
+      </div>
+      <button
+        type="button"
+        aria-label="Stir the flask"
+        className="absolute inset-0 cursor-pointer rounded-full focus-visible:outline-2 focus-visible:outline-crystal"
+        onPointerMove={(e) => {
+          if (e.pointerType !== "mouse") return;
+          const now = performance.now();
+          if (now - lastRef.current < 110) return;
+          lastRef.current = now;
+          spawn(2);
+        }}
+        onClick={() => {
+          spawn(16);
+          setPulse((n) => n + 1);
+        }}
+      />
+    </div>
+  );
+}
+
 /** ② The Superlab: clipboard with the event brief, and a pipe that fills with blue liquid as you scroll the 24-hour schedule. */
 export function LabStage({ progress, reveal = 1 }: { progress: MotionValue<number>; reveal?: number }) {
   const [t, setT] = useState(() => clamp01((progress.get() - 0.08) / 0.8));
   useMotionValueEvent(progress, "change", (v) => setT(clamp01((v - 0.08) / 0.8)));
 
+  // each plane drifts with the mouse and, a little, with scroll; nearer planes move more. Overlays are grouped onto a plane
+  // so text and effects stay glued to the art they belong to.
+  const plane = (d: number): CSSProperties => ({
+    transform: `translate3d(calc(var(--mx, 0) * ${-d * 18}px), calc(var(--my, 0) * ${-d * 10}px + ${((0.5 - t) * d * 16).toFixed(2)}px), 0)`,
+  });
+
   return (
     <SceneCanvas
       scene="lab"
       plate={false}
-      overscan={1}
+      overscan={1.05}
       bg="bg-ink"
       anchorY={0.8}
-      layerStyle={{ glow: { mixBlendMode: "screen", animation: "lab-glow 3.6s ease-in-out infinite" } }}
+      layerStyle={{
+        back: plane(0.2),
+        clipboard: plane(0.7),
+        pipe: plane(1.2),
+        glow: { ...plane(0.2), mixBlendMode: "screen", animation: "lab-glow 3.6s ease-in-out infinite" },
+      }}
     >
       {/* everything below sizes in cqw so it scales with the art, not the window */}
       <div className="absolute inset-0 [container-type:inline-size]" style={{ opacity: reveal }}>
-        {/* porthole glow, plus bubbles rising behind the glass */}
+        {/* back plane: porthole glow + bubbles, and the bulb's light */}
+        <div className="absolute inset-0" style={plane(0.2)}>
         {PORTHOLES.map(([x, y, r]) => (
           <div key={x}>
             <div
@@ -81,6 +163,7 @@ export function LabStage({ progress, reveal = 1 }: { progress: MotionValue<numbe
             >
               <Bubbles r={r * 1.8} />
             </div>
+            <PortholeFx x={x} y={y} r={r} />
           </div>
         ))}
 
@@ -106,7 +189,10 @@ export function LabStage({ progress, reveal = 1 }: { progress: MotionValue<numbe
           style={{ left: `${LAMP.x}%`, top: `${LAMP.y}%`, width: "8cqw", height: "6cqw", transform: "translate(-50%, -50%)", opacity: 0, animationName: "lab-bulb-dim", animationDuration: "6s" }}
         />
 
-        {/* the brief, typed onto the clipboard */}
+        </div>
+
+        {/* clipboard plane: the brief, typed onto the paper */}
+        <div className="pointer-events-none absolute inset-0" style={plane(0.7)}>
         <article
           className="absolute grid grid-cols-[1.1fr_1fr] gap-[1.6cqw] overflow-hidden text-ink"
           style={{ left: `${PAPER.left}%`, top: `${PAPER.top}%`, width: `${PAPER.width}%`, height: `${PAPER.height}%`, padding: "1cqw 1.6cqw" }}
@@ -144,7 +230,10 @@ export function LabStage({ progress, reveal = 1 }: { progress: MotionValue<numbe
             </ul>
           </div>
         </article>
+        </div>
 
+        {/* pipe plane: the liquid, valve glow, steam and schedule tags */}
+        <div className="pointer-events-none absolute inset-0" style={plane(1.2)}>
         {/* schedule pipe: blue liquid fills segment by segment, each valve lights as it arrives */}
         <div aria-hidden className="pointer-events-none absolute inset-x-0" style={{ top: `${TUBE.top}%`, height: `${TUBE.height}%` }}>
           {SEGMENTS.map(([a, b], i) => (
@@ -175,11 +264,6 @@ export function LabStage({ progress, reveal = 1 }: { progress: MotionValue<numbe
             const x = `${VALVES[i] * 100}%`;
             return (
               <li key={s.time + s.title}>
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute rounded-full bg-[radial-gradient(circle,rgba(19,200,232,0.65),transparent_65%)] transition-opacity duration-500"
-                  style={{ left: x, top: `${VALVE_Y}%`, width: "10cqw", height: "10cqw", transform: "translate(-50%, -50%)", opacity: lit ? 1 : 0 }}
-                />
                 {/* steam vents from the valve once the liquid reaches it */}
                 {lit &&
                   [0, 1, 2].map((k) => (
@@ -205,12 +289,13 @@ export function LabStage({ progress, reveal = 1 }: { progress: MotionValue<numbe
                   className="absolute border-2 border-ink bg-paper px-[0.9cqw] py-[0.15cqw] font-display text-[1.5cqw] leading-tight text-ink transition-[opacity,transform] duration-500 print-shadow"
                   style={{ left: x, top: "63.6%", transform: `translateX(-50%) ${lit ? "" : "translateY(0.4cqw)"}`, opacity: lit ? 1 : 0.4 }}
                 >
+                  <span className="block text-center font-type text-[0.8cqw] uppercase leading-none tracking-[0.2em] text-brick">{dayLabel(s.day)}</span>
                   {s.time}
                 </p>
                 {/* what happens, on the floor below the valve */}
                 <div
                   className="absolute bg-ink/85 px-[0.7cqw] py-[0.3cqw] text-center transition-opacity duration-500"
-                  style={{ left: x, top: "90.4%", width: "17cqw", transform: "translateX(-50%)", opacity: lit ? 1 : 0.35 }}
+                  style={{ left: x, top: "90.4%", width: "15.5cqw", transform: "translateX(-50%)", opacity: lit ? 1 : 0.35 }}
                 >
                   <p className="font-display text-[1cqw] uppercase leading-tight text-hazmat">{s.title}</p>
                   <p className="font-type text-[0.8cqw] leading-snug text-paper">{s.note}</p>
@@ -219,6 +304,7 @@ export function LabStage({ progress, reveal = 1 }: { progress: MotionValue<numbe
             );
           })}
         </ol>
+        </div>
       </div>
     </SceneCanvas>
   );

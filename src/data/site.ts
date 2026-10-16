@@ -13,12 +13,13 @@ export const EVENT = {
   expectedCooks: 200,
 };
 
+/** `day` = days after the event date (0 = cook day, 1 = the morning after). Times are local to the venue. */
 export const SCHEDULE = [
-  { time: "10:00", title: "Crews assemble", note: "Form your crew of up to 4 and pick a supplier." },
-  { time: "12:00", title: "Precursors drop", note: "Problem statements unseal. The cook begins." },
-  { time: "20:00", title: "Night shift", note: "Mentor inspections. Quality control, Fring-style." },
-  { time: "08:00", title: "The dead drop", note: "Submission portal opens: repo, live link, demo tape." },
-  { time: "12:00", title: "Purity test", note: "Timers hit zero. Judges test every batch." },
+  { day: 0, time: "10:00", title: "Crews assemble", note: "Form your crew of up to 4 and pick a supplier." },
+  { day: 0, time: "12:00", title: "Precursors drop", note: "Problem statements unseal. The cook begins." },
+  { day: 0, time: "20:00", title: "Night shift", note: "Mentor inspections. Quality control, Fring-style." },
+  { day: 1, time: "08:00", title: "The dead drop", note: "Submission portal opens: repo, live link, demo tape." },
+  { day: 1, time: "12:00", title: "Purity test", note: "Timers hit zero. Judges test every batch." },
 ];
 
 export const RULES = [

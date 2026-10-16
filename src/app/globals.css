@@ -138,6 +138,11 @@ html.lenis body {
 @keyframes lab-flow {
   to { transform: translateX(-5cqw); }
 }
+@keyframes lab-pulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(143, 240, 255, 0.9) inset; }
+  40% { transform: scale(1.06); box-shadow: 0 0 2.4cqw 0.8cqw rgba(143, 240, 255, 0.95) inset; }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(143, 240, 255, 0) inset; }
+}
 .lab-fx { animation-timing-function: linear; animation-iteration-count: infinite; }
 
 @media (prefers-reduced-motion: reduce) {
