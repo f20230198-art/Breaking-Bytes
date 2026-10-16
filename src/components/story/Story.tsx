@@ -118,12 +118,12 @@ function Stage({ progress }: { progress: MotionValue<number> }) {
       {(warm || peeking) && (
         <>
           {/* a blue vapour rim around the opening */}
-          {peeking && !covered && (
+          {peeking && !covered && grow < 0.55 && (
             <div aria-hidden className="absolute inset-0" style={{ filter: "blur(10px)", opacity: 0.9 * (1 - grow * 0.75) }}>
               <div className="absolute inset-0 bg-crystal" style={{ clipPath: rim }} />
             </div>
           )}
-          <div className="absolute inset-0" style={{ visibility: peeking ? "visible" : "hidden", clipPath: clip }}>
+          <div className="absolute inset-0" style={{ display: peeking ? "block" : "none", clipPath: clip }}>
             <LabStage progress={labP} reveal={reveal} />
           </div>
         </>

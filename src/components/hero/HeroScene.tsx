@@ -119,6 +119,10 @@ export function HeroStage({ progress, onLens }: { progress: MotionValue<number>;
     };
   }, [zoomed, onLens]);
   const [roll, setRoll] = useState({ x: 0, y: 0, rot: 0, t: 0 });
+  const fallRef = useRef(0);
+  useEffect(() => {
+    fallRef.current = fall;
+  }, [fall]);
   const [lens, setLens] = useState({ x: 50, y: 50, on: false, full: false });
   const [chairTip, setChairTip] = useState(false);
 
@@ -134,7 +138,7 @@ export function HeroStage({ progress, onLens }: { progress: MotionValue<number>;
   // roll the tumbleweed across the desert: spin matches distance travelled, small hops, wind gusts
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    let raf = 0, last = performance.now(), dx = ROLL_FROM, rest = 0, t = 0;
+    let raf = 0, last = performance.now(), lastPaint = 0, dx = ROLL_FROM, rest = 0, t = 0;
     const tick = (now: number) => {
       const dt = Math.min((now - last) / 1000, 0.05);
       last = now; t += dt;
@@ -145,7 +149,11 @@ export function HeroStage({ progress, onLens }: { progress: MotionValue<number>;
       }
       const hop = Math.abs(Math.sin((ROLL_FROM - dx) / (twR * 2.6))); // 0 = touching the ground
       tumble.current = rest > 0 ? null : { x: twCx + dx, y: twY1, r: twR, landed: hop < 0.12 };
-      setRoll({ x: dx * 100, y: -hop * 1.4, rot: (dx / twR) * (180 / Math.PI), t });
+      // the whole hero re-renders on every setRoll, so cap it at ~30 fps, and stop it once the fall into the mask starts
+      if (fallRef.current === 0 && now - lastPaint >= 33) {
+        lastPaint = now;
+        setRoll({ x: dx * 100, y: -hop * 1.4, rot: (dx / twR) * (180 / Math.PI), t });
+      }
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
@@ -195,8 +203,8 @@ export function HeroStage({ progress, onLens }: { progress: MotionValue<number>;
             ["--ly" as string]: `${lens.y}%`,
             ["--lr" as string]: lens.full ? "2400px" : lens.on ? `${LENS}px` : "0px",
             transition: `--lr 420ms ${EASE}`,
-            maskImage: gasCloud(roll.t),
-            WebkitMaskImage: gasCloud(roll.t),
+            maskImage: gasCloud(lens.on || lens.full ? roll.t : 0),
+            WebkitMaskImage: gasCloud(lens.on || lens.full ? roll.t : 0),
           },
           tumbleweed: {
             transformOrigin: `${twCx * 100}% ${twCy * 100}%`,

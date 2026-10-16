@@ -122,8 +122,9 @@ function PortholeFx({ x, y, r }: { x: number; y: number; r: number }) {
 
 /** ② The Superlab: clipboard with the event brief, and a pipe that fills with blue liquid as you scroll the 24-hour schedule. */
 export function LabStage({ progress, reveal = 1 }: { progress: MotionValue<number>; reveal?: number }) {
-  const [t, setT] = useState(() => clamp01((progress.get() - 0.08) / 0.8));
-  useMotionValueEvent(progress, "change", (v) => setT(clamp01((v - 0.08) / 0.8)));
+  const q = (v: number) => Math.round(clamp01((v - 0.08) / 0.8) * 300) / 300;
+  const [t, setT] = useState(() => q(progress.get()));
+  useMotionValueEvent(progress, "change", (v) => setT(q(v)));
 
   // each plane drifts with the mouse and, a little, with scroll; nearer planes move more. Overlays are grouped onto a plane
   // so text and effects stay glued to the art they belong to.
@@ -142,7 +143,7 @@ export function LabStage({ progress, reveal = 1 }: { progress: MotionValue<numbe
         back: plane(0.2),
         clipboard: plane(0.7),
         pipe: plane(1.2),
-        glow: { ...plane(0.2), mixBlendMode: "screen", animation: "lab-glow 3.6s ease-in-out infinite" },
+        glow: { ...plane(0.2), animation: "lab-glow 3.6s ease-in-out infinite" },
       }}
     >
       {/* everything below sizes in cqw so it scales with the art, not the window */}
@@ -170,7 +171,7 @@ export function LabStage({ progress, reveal = 1 }: { progress: MotionValue<numbe
         {/* the hanging bulb: a cone of warm light on the wall, a hot glow, and a dark dim-out that swaps in when it cuts */}
         <div
           aria-hidden
-          className="lab-fx pointer-events-none absolute mix-blend-screen"
+          className="lab-fx pointer-events-none absolute"
           style={{
             left: `${LAMP.x}%`, top: `${LAMP.y}%`, width: "26cqw", height: "36cqw", transform: "translateX(-50%)",
             clipPath: "polygon(46% 0, 54% 0, 100% 100%, 0 100%)",
@@ -180,7 +181,7 @@ export function LabStage({ progress, reveal = 1 }: { progress: MotionValue<numbe
         />
         <div
           aria-hidden
-          className="lab-fx pointer-events-none absolute rounded-full bg-[radial-gradient(circle,rgba(255,214,140,0.85),rgba(255,170,80,0.3)_35%,transparent_68%)] mix-blend-screen"
+          className="lab-fx pointer-events-none absolute rounded-full bg-[radial-gradient(circle,rgba(255,214,140,0.85),rgba(255,170,80,0.3)_35%,transparent_68%)]"
           style={{ left: `${LAMP.x}%`, top: `${LAMP.y + 0.5}%`, width: "11cqw", height: "11cqw", transform: "translate(-50%, -50%)", animationName: "lab-bulb", animationDuration: "6s" }}
         />
         <div
@@ -198,9 +199,9 @@ export function LabStage({ progress, reveal = 1 }: { progress: MotionValue<numbe
           style={{ left: `${PAPER.left}%`, top: `${PAPER.top}%`, width: `${PAPER.width}%`, height: `${PAPER.height}%`, padding: "1cqw 1.6cqw" }}
         >
           <div>
-            <p className="font-type text-[0.72cqw] uppercase tracking-[0.22em] text-brick">Form BB-24</p>
-            <h2 className="mt-[0.4cqw] font-display text-[1.8cqw] uppercase leading-[0.95]">The 24{"‑"}hour cook</h2>
-            <p className="mt-[0.7cqw] font-type text-[0.92cqw] leading-snug">
+            <p className="font-type text-[0.8cqw] uppercase tracking-[0.22em] text-brick">Form BB-24</p>
+            <h2 className="mt-[0.4cqw] font-display text-[2cqw] uppercase leading-[0.95]">The 24{"‑"}hour cook</h2>
+            <p className="mt-[0.75cqw] font-type text-[1.02cqw] leading-snug">
               One crew. One lab. Cook something pure from scratch against real problems from real suppliers. The best batch walks out with the money.
             </p>
           </div>
@@ -212,15 +213,15 @@ export function LabStage({ progress, reveal = 1 }: { progress: MotionValue<numbe
                 [cookDay, cookWeekday],
               ].map(([big, small]) => (
                 <div key={small} className="flex items-baseline gap-[0.8cqw]">
-                  <dt className="font-display text-[1.4cqw] leading-none">{big}</dt>
-                  <dd className="font-type text-[0.72cqw] uppercase tracking-widest">{small}</dd>
+                  <dt className="font-display text-[1.55cqw] leading-none">{big}</dt>
+                  <dd className="font-type text-[0.8cqw] uppercase tracking-widest">{small}</dd>
                 </div>
               ))}
             </dl>
-            <p className="font-type text-[0.8cqw] leading-snug">
+            <p className="font-type text-[0.88cqw] leading-snug">
               <span className="uppercase tracking-widest text-brick">Lab:</span> {EVENT.venue}
             </p>
-            <ul className="space-y-[0.15cqw] font-type text-[0.76cqw] leading-snug">
+            <ul className="space-y-[0.15cqw] font-type text-[0.84cqw] leading-snug">
               {RULES.slice(0, 3).map((r) => (
                 <li key={r} className="flex gap-[0.5cqw]">
                   <span aria-hidden className="text-brick">✕</span>
@@ -286,19 +287,19 @@ export function LabStage({ progress, reveal = 1 }: { progress: MotionValue<numbe
                   ))}
                 {/* time tag, in the gap between clipboard and pipe */}
                 <p
-                  className="absolute border-2 border-ink bg-paper px-[0.7cqw] py-[0.12cqw] font-display text-[1.2cqw] leading-tight text-ink transition-[opacity,transform] duration-500 print-shadow"
+                  className="absolute border-2 border-ink bg-paper px-[0.7cqw] py-[0.14cqw] font-display text-[1.38cqw] leading-tight text-ink transition-[opacity,transform] duration-500 print-shadow"
                   style={{ left: x, top: "65%", transform: `translateX(-50%) ${lit ? "" : "translateY(0.4cqw)"}`, opacity: lit ? 1 : 0.4 }}
                 >
-                  <span className="block text-center font-type text-[0.66cqw] uppercase leading-none tracking-[0.2em] text-brick">{dayLabel(s.day)}</span>
+                  <span className="block text-center font-type text-[0.74cqw] uppercase leading-none tracking-[0.2em] text-brick">{dayLabel(s.day)}</span>
                   {s.time}
                 </p>
                 {/* what happens, on the floor below the valve */}
                 <div
                   className="absolute bg-ink/85 px-[0.6cqw] py-[0.25cqw] text-center transition-opacity duration-500"
-                  style={{ left: x, top: "87.4%", width: "14cqw", transform: "translateX(-50%)", opacity: lit ? 1 : 0.35 }}
+                  style={{ left: x, top: "87.4%", width: "15cqw", transform: "translateX(-50%)", opacity: lit ? 1 : 0.35 }}
                 >
-                  <p className="font-display text-[0.82cqw] uppercase leading-tight text-hazmat">{s.title}</p>
-                  <p className="font-type text-[0.68cqw] leading-snug text-paper">{s.note}</p>
+                  <p className="font-display text-[0.92cqw] uppercase leading-tight text-hazmat">{s.title}</p>
+                  <p className="font-type text-[0.76cqw] leading-snug text-paper">{s.note}</p>
                 </div>
               </li>
             );
