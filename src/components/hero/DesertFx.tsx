@@ -7,15 +7,16 @@ export type TumbleState = { x: number; y: number; r: number; landed: boolean };
 
 type Bird = { x: number; y: number; s: number; v: number; ph: number; glide: number };
 type Grain = { x: number; y: number; v: number; len: number; a: number };
+type Star = { x: number; y: number; r: number; ph: number };
 type Puff = { x: number; y: number; r: number; life: number; vx: number };
 
 const BIRD = "#1d1020";
 
 /**
  * Canvas painted in canvas coordinates (it scales with the art): flapping birds,
- * wind-blown sand, and dust kicked up where the tumbleweed lands.
+ * wind-blown sand, dust kicked up where the tumbleweed lands, and stars as night falls.
  */
-export function DesertFx({ tumble }: { tumble: MutableRefObject<TumbleState | null> }) {
+export function DesertFx({ tumble, night }: { tumble: MutableRefObject<TumbleState | null>; night: MutableRefObject<number> }) {
   const ref = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -45,6 +46,7 @@ export function DesertFx({ tumble }: { tumble: MutableRefObject<TumbleState | nu
     const grain = (): Grain => ({ x: rnd(0, 1.1), y: rnd(0.6, 1), v: rnd(0.05, 0.16), len: rnd(6, 26), a: rnd(0.12, 0.4) });
     const grains: Grain[] = Array.from({ length: 90 }, grain);
     const puffs: Puff[] = [];
+    const stars: Star[] = Array.from({ length: 110 }, () => ({ x: rnd(0, 1), y: rnd(0, 0.5) ** 1.4 * 1.2, r: rnd(0.5, 1.7), ph: rnd(0, 6.3) }));
     let wasLanded = false;
 
     const drawBird = (b: Bird) => {
@@ -65,8 +67,21 @@ export function DesertFx({ tumble }: { tumble: MutableRefObject<TumbleState | nu
       const dt = Math.min((now - last) / 1000, 0.05);
       last = now;
       ctx.clearRect(0, 0, W, H);
+      const n = night.current;
 
-      // birds: flap, sometimes glide, drift right and wrap
+      // stars come out as the sun goes down
+      if (n > 0.05) {
+        for (const st of stars) {
+          const tw = 0.6 + 0.4 * Math.sin(now / 700 + st.ph);
+          ctx.fillStyle = `rgba(255, 244, 220, ${Math.min(1, (n - 0.05) * 1.6) * tw * 0.9})`;
+          ctx.beginPath();
+          ctx.arc(st.x * W, st.y * H, st.r * (W / 1672), 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      // birds: flap, sometimes glide, drift right and wrap; they leave as it gets dark
+      ctx.globalAlpha = Math.max(0, 1 - n * 1.5);
       ctx.fillStyle = BIRD;
       for (const b of birds) {
         b.x += b.v * dt;
@@ -76,6 +91,7 @@ export function DesertFx({ tumble }: { tumble: MutableRefObject<TumbleState | nu
         else b.ph += dt * 9;
         drawBird(b);
       }
+      ctx.globalAlpha = 1;
 
       // wind-blown sand streaks along the ground, right → left (same wind as the tumbleweed)
       ctx.lineCap = "round";
@@ -113,7 +129,7 @@ export function DesertFx({ tumble }: { tumble: MutableRefObject<TumbleState | nu
     };
     raf = requestAnimationFrame(tick);
     return () => { cancelAnimationFrame(raf); ro.disconnect(); };
-  }, [tumble]);
+  }, [tumble, night]);
 
   return <canvas ref={ref} aria-hidden className="pointer-events-none absolute inset-0 h-full w-full" />;
 }

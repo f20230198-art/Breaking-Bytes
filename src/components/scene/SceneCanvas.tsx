@@ -16,13 +16,15 @@ type Props = {
   layerStyle?: Record<string, CSSProperties>;
   /** Extra scale so parallax never shows an edge. Keep small: every bit of it is zoom. */
   overscan?: number;
+  /** Background shown wherever layers move off the canvas. */
+  bg?: string;
 };
 
 /**
  * Stacks a scene's full-canvas layers so they line up 1:1, scaled to cover the viewport
  * (like object-fit: cover). Mouse movement drives a subtle parallax via CSS variables.
  */
-export function SceneCanvas({ scene, hide = [], children, priority, className = "", layerStyle = {}, overscan = 1.06 }: Props) {
+export function SceneCanvas({ scene, hide = [], children, priority, className = "", layerStyle = {}, overscan = 1.06, bg = "bg-ink" }: Props) {
   const a = sceneAssets(scene);
   const depths = DEPTHS[scene];
   const ref = useRef<HTMLDivElement>(null);
@@ -53,7 +55,7 @@ export function SceneCanvas({ scene, hide = [], children, priority, className = 
   }, []);
 
   return (
-    <div ref={ref} className={`absolute inset-0 overflow-hidden bg-ink ${className}`}>
+    <div ref={ref} className={`absolute inset-0 overflow-hidden ${bg} ${className}`}>
       {/* cover box: always fills the viewport while keeping the art's aspect ratio */}
       <div
         data-canvas
