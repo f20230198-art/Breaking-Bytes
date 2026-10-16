@@ -76,6 +76,8 @@ function Inner({ progress }: { progress: MotionValue<number> }) {
   const tumble = useRef<TumbleState | null>(null);
   const nightRef = useRef(0);
   const [night, setNight] = useState(0);
+  const [lift, setLift] = useState(0); // title block rises away
+  const [drive, setDrive] = useState(0); // RV pulls out to the right (eased: slow start, then it floors it)
   const [roll, setRoll] = useState({ x: 0, y: 0, rot: 0, t: 0 });
   const [lens, setLens] = useState({ x: 50, y: 50, on: false, full: false });
   const [chairTip, setChairTip] = useState(false);
@@ -85,6 +87,9 @@ function Inner({ progress }: { progress: MotionValue<number> }) {
     const n = Math.min(1, Math.max(0, (v - 0.05) / 0.8));
     nightRef.current = n;
     setNight(n);
+    const c01 = (x: number) => Math.min(1, Math.max(0, x));
+    setLift(c01((v - 0.06) / 0.3));
+    setDrive(c01((v - 0.38) / 0.4) ** 2);
   });
 
   useEffect(() => {
@@ -126,6 +131,9 @@ function Inner({ progress }: { progress: MotionValue<number> }) {
 
   const par = (id: string, axis: "x" | "y") => `var(--m${axis}, 0) * ${-(DEPTHS.hero[id] ?? 0.3) * (axis === "x" ? 18 : 10)}px`;
 
+  // the RV keeps its parallax, plus a slow pull-out to the right and a little suspension bob while it moves
+  const rvDrive = `translate3d(calc(${par("rv", "x")} + ${drive * 108}%), calc(${par("rv", "y")} + ${drive > 0 && drive < 1 ? Math.sin(drive * 90) * 0.12 : 0}%), 0)`;
+
   return (
     <>
       <SceneCanvas
@@ -136,8 +144,14 @@ function Inner({ progress }: { progress: MotionValue<number> }) {
         plate={false}
         deferred={["rv-cutaway", "chairs", "tumbleweed"]}
         layerStyle={{
-          sky: { transform: `translate3d(calc(${par("sky", "x")}), calc(${par("sky", "y")} + ${night * SUN_DROP}%), 0)` },
+          // the sky sinks to drop the sun; it's scaled up from its bottom edge so the slide never exposes a gap at the top
+          sky: {
+            transformOrigin: "50% 100%",
+            transform: `translate3d(calc(${par("sky", "x")}), calc(${par("sky", "y")} + ${night * SUN_DROP}%), 0) scale(${1 + night * SUN_DROP * 0.0125})`,
+          },
+          rv: { transform: rvDrive },
           "rv-cutaway": {
+            transform: rvDrive,
             ["--lx" as string]: `${lens.x}%`,
             ["--ly" as string]: `${lens.y}%`,
             ["--lr" as string]: lens.full ? "2400px" : lens.on ? `${LENS}px` : "0px",
@@ -167,7 +181,7 @@ function Inner({ progress }: { progress: MotionValue<number> }) {
             style={{
               clipPath: `inset(47% 0 ${100 - 61}% ${rv[2] * 100 + 1}%)`,
               filter: "url(#heat)",
-              opacity: 1 - night,
+              opacity: (1 - night) * (1 - Math.min(1, drive * 25)), // gone once the RV starts to move
               transform: `translate3d(calc(${par("mesas", "x")}), calc(${par("mesas", "y")}), 0)`,
             }}
           />
@@ -180,6 +194,7 @@ function Inner({ progress }: { progress: MotionValue<number> }) {
           type="button"
           aria-label={lens.full ? "Close the RV" : "Look inside the RV"}
           aria-pressed={lens.full}
+          tabIndex={drive > 0.02 ? -1 : 0}
           onPointerMove={moveLens}
           onPointerLeave={() => setLens((l) => ({ ...l, on: false }))}
           onClick={(e) => {
@@ -187,7 +202,7 @@ function Inner({ progress }: { progress: MotionValue<number> }) {
             setLens((l) => ({ x: ((rv[0] + rv[2]) / 2) * 100, y: ((rv[1] + rv[3]) / 2) * 100, on: false, full: !l.full }));
           }}
           className={`absolute focus-visible:outline-2 focus-visible:outline-crystal ${lens.on ? "cursor-none" : "cursor-default"}`}
-          style={bboxStyle(rv)}
+          style={{ ...bboxStyle(rv), pointerEvents: drive > 0.02 ? "none" : "auto" }}
         />
 
         {/* chairs: hover for the crew rule */}
@@ -258,11 +273,15 @@ function Inner({ progress }: { progress: MotionValue<number> }) {
       </svg>
 
       <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-[60vw] bg-[radial-gradient(ellipse_at_60%_35%,rgba(17,17,17,0.45),transparent_65%)]" />
+      <div
+        className="pointer-events-none absolute left-[52vw] right-[5vw] top-[17vh]"
+        style={{ translate: `0 ${-lift * 55}vh`, opacity: 1 - lift }}
+      >
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
-        className="pointer-events-none absolute left-[52vw] right-[5vw] top-[17vh] flex flex-col items-center"
+        className="flex flex-col items-center"
       >
         <PeriodicTitle className="text-[clamp(2.75rem,6vw,7.25rem)]" />
         {/* inked outline + hard offset so the small lines read on the bright sunset */}
@@ -273,6 +292,7 @@ function Inner({ progress }: { progress: MotionValue<number> }) {
           {EVENT.hours} hours · {EVENT.venue}
         </p>
       </motion.div>
+      </div>
 
       <p className="pointer-events-none absolute bottom-3 right-4 font-type text-[10px] text-paper/60">
         Fan-made parody · not affiliated with AMC or Sony Pictures Television
