@@ -6,7 +6,6 @@ import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } f
 import { PeriodicTitle } from "@/components/comic/PeriodicTitle";
 import { PinnedScene } from "@/components/scene/PinnedScene";
 import { SceneCanvas, bboxStyle } from "@/components/scene/SceneCanvas";
-import { StampButton } from "@/components/ui/StampButton";
 import { EVENT, RULES, SCHEDULE } from "@/data/site";
 import { DEPTHS, sceneAssets } from "@/scenes/config";
 import { DesertFx, type TumbleState } from "./DesertFx";
@@ -19,24 +18,44 @@ const twCx = (twX0 + twX1) / 2, twCy = (twY0 + twY1) / 2, twR = (twX1 - twX0) / 
 
 // tumbleweed run, as offsets from where it sits in the art (fractions of the canvas width)
 const ROLL_FROM = 0.62, ROLL_TO = -0.3, ROLL_SPEED = 0.075, ROLL_REST = 2.5;
-const LENS = 92; // x-ray hexagon radius, px
+const LENS = 46; // radius of each gas-mask eyepiece, px
+const EYE = 1.08; // eyepiece centres sit this many radii either side of the cursor
 const EASE = "cubic-bezier(.16,1,.3,1)";
 const SUN_DROP = 13; // % of canvas height the sky slides down at full night (sun sinks behind the mesas)
 
 // chairs + mask are pulled toward the viewer: scaled around their feet, then nudged down/right
 const [c0, c1, c2, c3] = layer("chairs").bbox!;
-const CH = { scale: 1.26, dx: 0.045, dy: 0.13, ox: (c0 + c2) / 2, oy: c3 };
+const CH = { scale: 1.1, dx: 0.03, dy: 0.05, ox: (c0 + c2) / 2, oy: c3 };
 const placeX = (x: number) => CH.ox + (x - CH.ox) * CH.scale + CH.dx;
 const placeY = (y: number) => CH.oy + (y - CH.oy) * CH.scale + CH.dy;
 const split = c0 + (c2 - c0) * 0.72; // chairs on the left, gas mask on the right of the layer
 const chairBox = [placeX(c0), placeY(c1), placeX(split), placeY(c3)];
 const maskBox = [placeX(split), placeY(c1 + (c3 - c1) * 0.5), placeX(c2), placeY(c3)];
 
-// regular hexagon (flat top) around the cursor; radius animates through the registered --lr property
-const HEX = [0, 60, 120, 180, 240, 300].map((a) => {
-  const r = (a * Math.PI) / 180;
-  return `calc(var(--lx) + var(--lr) * ${Math.cos(r).toFixed(4)}) calc(var(--ly) + var(--lr) * ${Math.sin(r).toFixed(4)})`;
-});
+// two round eyepieces either side of the cursor, like looking through a gas mask
+const eye = (side: 1 | -1) =>
+  `radial-gradient(circle var(--lr) at calc(var(--lx) + var(--lr) * ${EYE * side}) var(--ly), #000 calc(100% - 1px), transparent 100%)`;
+const VISOR = `${eye(-1)}, ${eye(1)}`;
+
+// the RV's own pixels decide where the visor shows (not its bounding box)
+let rvAlpha: { data: Uint8ClampedArray; w: number; h: number } | null = null;
+function loadRvAlpha(src: string) {
+  const img = new Image();
+  img.onload = () => {
+    const w = 836, h = Math.round((w * img.height) / img.width);
+    const c = document.createElement("canvas");
+    c.width = w; c.height = h;
+    const ctx = c.getContext("2d", { willReadFrequently: true })!;
+    ctx.drawImage(img, 0, 0, w, h);
+    rvAlpha = { data: ctx.getImageData(0, 0, w, h).data, w, h };
+  };
+  img.src = src;
+}
+const onRv = (fx: number, fy: number) => {
+  if (!rvAlpha) return true;
+  const x = Math.floor(fx * rvAlpha.w), y = Math.floor(fy * rvAlpha.h);
+  return rvAlpha.data[(y * rvAlpha.w + x) * 4 + 3] > 40;
+};
 
 /** ① The desert at dusk: hero. Scroll sets the sun; over the RV the cursor becomes a benzene-ring x-ray lens. */
 export function HeroScene() {
@@ -90,10 +109,13 @@ function Inner({ progress }: { progress: MotionValue<number> }) {
     return () => cancelAnimationFrame(raf);
   }, []);
 
+  useEffect(() => loadRvAlpha(layer("rv").src), []);
+
   const moveLens = (e: ReactPointerEvent<HTMLButtonElement>) => {
     if (e.pointerType !== "mouse") return;
     const b = e.currentTarget.parentElement!.getBoundingClientRect();
-    setLens({ x: ((e.clientX - b.left) / b.width) * 100, y: ((e.clientY - b.top) / b.height) * 100, on: true, full: false });
+    const fx = (e.clientX - b.left) / b.width, fy = (e.clientY - b.top) / b.height;
+    setLens({ x: fx * 100, y: fy * 100, on: onRv(fx, fy), full: false });
   };
 
   const showRing = lens.on && !lens.full;
@@ -113,7 +135,8 @@ function Inner({ progress }: { progress: MotionValue<number> }) {
             ["--ly" as string]: `${lens.y}%`,
             ["--lr" as string]: lens.full ? "2400px" : lens.on ? `${LENS}px` : "0px",
             transition: `--lr 420ms ${EASE}`,
-            clipPath: `polygon(${HEX.join(", ")})`,
+            maskImage: VISOR,
+            WebkitMaskImage: VISOR,
           },
           tumbleweed: {
             transformOrigin: `${twCx * 100}% ${twCy * 100}%`,
@@ -144,15 +167,15 @@ function Inner({ progress }: { progress: MotionValue<number> }) {
         <div className="pointer-events-none absolute inset-0 bg-night mix-blend-multiply" style={{ opacity: night * 0.75 }} />
         <DesertFx tumble={tumble} night={nightRef} />
 
-        {/* lens outline: a benzene ring that follows the cursor over the RV */}
+        {/* visor outline: two gas-mask eyepieces that follow the cursor over the RV */}
         <svg
           aria-hidden
-          viewBox="-100 -100 200 200"
+          viewBox="-220 -100 440 200"
           className="pointer-events-none absolute overflow-visible"
           style={{
             left: `${lens.x}%`,
             top: `${lens.y}%`,
-            width: LENS * 2,
+            width: LENS * 4.4,
             height: LENS * 2,
             translate: "-50% -50%",
             scale: showRing ? 1 : 0,
@@ -160,13 +183,13 @@ function Inner({ progress }: { progress: MotionValue<number> }) {
             transition: `scale 420ms ${EASE}, opacity 200ms`,
           }}
         >
-          <polygon points="100,0 50,86.6 -50,86.6 -100,0 -50,-86.6 50,-86.6" fill="none" className="stroke-ink" strokeWidth="9" strokeLinejoin="round" />
-          <polygon points="100,0 50,86.6 -50,86.6 -100,0 -50,-86.6 50,-86.6" fill="none" className="stroke-paper" strokeWidth="4" strokeLinejoin="round" />
-          <g className="stroke-crystal" strokeWidth="3.5" strokeLinecap="round">
-            <line x1="82" y1="0" x2="41" y2="71" />
-            <line x1="-41" y1="71" x2="-82" y2="0" />
-            <line x1="-41" y1="-71" x2="41" y2="-71" />
-          </g>
+          {[-108, 108].map((cx) => (
+            <g key={cx}>
+              <circle cx={cx} cy="0" r="100" fill="none" className="stroke-ink" strokeWidth="7" />
+              <circle cx={cx} cy="0" r="100" fill="none" className="stroke-paper" strokeWidth="2.5" />
+              <path d={`M ${cx - 62} -58 A 84 84 0 0 1 ${cx + 10} -84`} fill="none" className="stroke-paper/70" strokeWidth="5" strokeLinecap="round" />
+            </g>
+          ))}
         </svg>
 
         <button
@@ -179,7 +202,7 @@ function Inner({ progress }: { progress: MotionValue<number> }) {
             if ((e.nativeEvent as PointerEvent).pointerType === "mouse") return;
             setLens((l) => ({ x: ((rv[0] + rv[2]) / 2) * 100, y: ((rv[1] + rv[3]) / 2) * 100, on: false, full: !l.full }));
           }}
-          className="absolute cursor-none focus-visible:outline-2 focus-visible:outline-crystal"
+          className={`absolute focus-visible:outline-2 focus-visible:outline-crystal ${lens.on ? "cursor-none" : "cursor-default"}`}
           style={bboxStyle(rv)}
         />
 
@@ -254,18 +277,15 @@ function Inner({ progress }: { progress: MotionValue<number> }) {
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
-        className="pointer-events-none absolute left-[50vw] right-[5vw] top-[15vh] flex flex-col items-start"
+        className="pointer-events-none absolute left-[52vw] right-[5vw] top-[17vh] flex flex-col items-center"
       >
-        <p className="mb-5 font-type text-[clamp(0.7rem,0.9vw,0.95rem)] uppercase tracking-[0.3em] text-paper [text-shadow:1px_1px_0_#111]">
-          A 24-hour hackathon · {EVENT.venue}
-        </p>
-        <PeriodicTitle className="text-[clamp(3rem,7.6vw,9.5rem)]" />
-        <p className="mt-6 bg-ink px-3 py-1.5 font-display text-[clamp(0.75rem,1vw,1.1rem)] uppercase tracking-[0.35em] text-hazmat">
+        <PeriodicTitle className="text-[clamp(2.75rem,6vw,7.25rem)]" />
+        <p className="mt-6 text-center font-display text-[clamp(0.8rem,1.1vw,1.25rem)] uppercase tracking-[0.4em] text-hazmat [text-shadow:2px_2px_0_#111]">
           {EVENT.tagline}
         </p>
-        <div className="pointer-events-auto mt-8">
-          <StampButton href="/dashboard">Enter the lab</StampButton>
-        </div>
+        <p className="mt-2 text-center font-type text-[clamp(0.65rem,0.8vw,0.9rem)] uppercase tracking-[0.3em] text-paper [text-shadow:1px_1px_0_#111]">
+          {EVENT.hours} hours · {EVENT.venue}
+        </p>
       </motion.div>
 
       <p className="pointer-events-none absolute bottom-3 right-4 font-type text-[10px] text-paper/60">

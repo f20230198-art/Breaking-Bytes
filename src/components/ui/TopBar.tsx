@@ -13,6 +13,12 @@ export function TopBar() {
         <span className="hidden bg-ink/80 px-2 py-1 text-xs md:inline">
           <Countdown to={EVENT.startsAt} compact />
         </span>
+        <Link
+          href="/dashboard"
+          className="border-2 border-ink bg-crystal px-3 py-1.5 font-display text-xs uppercase tracking-wide text-ink print-shadow transition-colors hover:bg-paper"
+        >
+          Enter the lab
+        </Link>
       </div>
     </header>
   );
