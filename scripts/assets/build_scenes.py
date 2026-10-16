@@ -21,27 +21,12 @@ MAX_W = int(sys.argv[1]) if len(sys.argv) > 1 else 3344
 
 # scene -> master file, [(layer id, source file, keyed?)] in back-to-front order
 SCENES = {
-    "s1-desert": ("S1-master", [
-        ("sky", "S1-L1-sky", True), ("ground", "S1-L2-ground", True), ("rv", "S1-L3-rv", True),
-        ("rv-cutaway", "S1-V1-L3-rv-cutaway", True), ("fg", "S1-L4-fg", True)]),
-    "s2-superlab": ("S2-master", [("back", "S2-L1-back", False), ("fg", "S2-L2-fg", True)]),
-    "s3-classroom": ("S3-master", [
-        ("room", "S3-L1-room", False), ("teacher", "S3-L2-teacher", True), ("desks", "S3-L3-desks", True)]),
-    "s4-money": ("S4-master", [
-        ("room", "S4-L1-room", False), ("cash", "S4-L2-cash", True), ("barrels", "S4-L3-barrels", True),
-        ("bulb", "S4-L4-bulb", True)]),
-    "s5-carwash": ("S5-master", [("back", "S5-L1-back", False), ("brushes", "S5-L2-brushes-aligned", True)]),
-    "s6-pollos": ("S6-master", [
-        ("room", "S6-L1-room", False), ("gus", "S6-L2-gus-aligned", True), ("counter", "S6-L3-counter", True)]),
-    "s7-saul": ("S7-master", [
-        ("room", "S7-L1-room", False), ("tv", "S7-L3-tv-aligned", True), ("desk", "S7-L2-desk-aligned", True)]),
-    "s8-night": ("S8-master", [
-        ("sky", "S8-L1-sky", True), ("ground", "S8-L2-ground", True), ("rv", "S8-L3-rv", True), ("fg", "S8-L4-fg", True)]),
+    "hero": ("H-master", [
+        ("sky", "H-sky", False), ("mesas", "H-mesas", True), ("ground", "H-ground", True),
+        ("tumbleweed", "H-tumbleweed", True), ("rv", "H-rv", True), ("rv-cutaway", "H-rv-cutaway", True),
+        ("chairs", "H-chairs", True), ("fg", "H-fg", True)]),
 }
 SINGLES = {  # standalone images (keyed?)
-    "s1-desert/mobile": ("s1-desert/S1-mobile-master", False),
-    "s2-superlab/strata": ("s2-superlab/S2-transition-strata", False),
-    "s5-carwash/car": ("s5-carwash/S5-car", True),
     "extras/og": ("extras/X-og", False),
     "extras/404": ("extras/X-404", False),
     "extras/dashboard-bg": ("extras/X-dashboard-bg", False),
@@ -49,7 +34,7 @@ SINGLES = {  # standalone images (keyed?)
 }
 
 # scenes/singles that get the unified print treatment (rolling out scene by scene)
-UNIFY = {"s1-desert", "s2-superlab", "s1-desert/mobile", "s2-superlab/strata"}
+UNIFY: set[str] = set()
 # ink, paper, orange, rust, crystal, hazmat (matches the @theme tokens in globals.css)
 PALETTE = np.array([[17, 17, 17], [239, 230, 210], [232, 106, 46], [150, 58, 34], [19, 200, 232], [232, 185, 49]], np.uint8)
 

@@ -29,6 +29,13 @@ body {
   overflow-x: hidden;
 }
 
+/* animatable lens radius for the hero RV x-ray */
+@property --lr {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+
 /* Lenis smooth scroll */
 html.lenis,
 html.lenis body {

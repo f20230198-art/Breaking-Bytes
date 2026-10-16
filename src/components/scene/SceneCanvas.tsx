@@ -12,15 +12,17 @@ type Props = {
   children?: ReactNode;
   priority?: boolean;
   className?: string;
-  /** Extra styles per layer id (e.g. a clip-path reveal), merged with the parallax transform. */
+  /** Extra styles per layer id (e.g. a clip-path reveal). A `transform` here replaces the parallax. */
   layerStyle?: Record<string, CSSProperties>;
+  /** Extra scale so parallax never shows an edge. Keep small: every bit of it is zoom. */
+  overscan?: number;
 };
 
 /**
  * Stacks a scene's full-canvas layers so they line up 1:1, scaled to cover the viewport
  * (like object-fit: cover). Mouse movement drives a subtle parallax via CSS variables.
  */
-export function SceneCanvas({ scene, hide = [], children, priority, className = "", layerStyle = {} }: Props) {
+export function SceneCanvas({ scene, hide = [], children, priority, className = "", layerStyle = {}, overscan = 1.06 }: Props) {
   const a = sceneAssets(scene);
   const depths = DEPTHS[scene];
   const ref = useRef<HTMLDivElement>(null);
@@ -58,7 +60,7 @@ export function SceneCanvas({ scene, hide = [], children, priority, className = 
         className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
         style={{ width: `max(100vw, ${100 * ratio}vh)`, height: `max(100vh, ${100 / ratio}vw)` }}
       >
-        <div className="absolute inset-0 scale-[1.06]">
+        <div className="absolute inset-0" style={{ scale: overscan }}>
           <img src={a.plate} alt="" className="absolute inset-0 h-full w-full select-none" draggable={false} />
           {a.layers
             .filter((l) => !hide.includes(l.id))
@@ -72,8 +74,8 @@ export function SceneCanvas({ scene, hide = [], children, priority, className = 
                 fetchPriority={priority ? "high" : "auto"}
                 className="absolute inset-0 h-full w-full select-none will-change-transform"
                 style={{
-                  ...layerStyle[l.id],
                   transform: `translate3d(calc(var(--mx, 0) * ${-(depths[l.id] ?? 0.3) * 18}px), calc(var(--my, 0) * ${-(depths[l.id] ?? 0.3) * 10}px), 0)`,
+                  ...layerStyle[l.id],
                 }}
               />
             ))}

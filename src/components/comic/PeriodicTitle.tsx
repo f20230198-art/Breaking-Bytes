@@ -1,7 +1,7 @@
 /** "[Br]eaking [B]ytes" lockup: element tiles + display type, linocut-styled. Placeholder until the linocut logo is drawn. */
 function Tile({ symbol, number, mass, name }: { symbol: string; number: number; mass: string; name: string }) {
   return (
-    <span className="carved relative mr-1 inline-flex [text-shadow:none] aspect-square w-[1.15em] flex-col justify-center border-[0.06em] border-ink bg-olive align-[-0.12em] text-paper print-shadow">
+    <span className="carved relative mr-1 inline-flex [text-shadow:none] h-[1.15em] min-w-[1.15em] flex-col items-center justify-center px-[0.1em] border-[0.06em] border-ink bg-olive align-[-0.12em] text-paper print-shadow">
       <span className="absolute left-[0.08em] top-[0.05em] font-type text-[0.16em] leading-none">{number}</span>
       <span className="absolute right-[0.08em] top-[0.05em] font-type text-[0.12em] leading-none">{mass}</span>
       <span className="text-center leading-none">{symbol}</span>
