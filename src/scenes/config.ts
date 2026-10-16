@@ -2,7 +2,7 @@ import generated from "./layers.generated.json";
 
 export type SceneId = keyof typeof generated.scenes;
 
-export type LayerDef = { id: string; src: string; bbox?: number[] };
+export type LayerDef = { id: string; src: string; srcset?: string; bbox?: number[] };
 export type SceneAssets = {
   width: number;
   height: number;

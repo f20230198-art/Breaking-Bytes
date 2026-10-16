@@ -74,6 +74,25 @@ def key_magenta(img: Image.Image) -> Image.Image:
     return Image.fromarray(rgba, "RGBA")
 
 
+def bleed_down(img: Image.Image, px: int) -> Image.Image:
+    """Smear a keyed layer's bottom edge downward, so it tucks under the layer in front (no sky gap)."""
+    a = np.asarray(img).copy()
+    filled = np.zeros(a.shape[:2], bool)
+    for _ in range(px):
+        below = np.roll(a, 1, axis=0)
+        below[0] = 0
+        hole = (a[..., 3] < 200) & (below[..., 3] >= 200)
+        a[hole] = below[hole]
+        filled |= hole
+    # smear sideways so the filled strip reads as flat horizon haze, not vertical streaks
+    soft = cv2.blur(a[..., :3], (151, 1))
+    a[filled, :3] = soft[filled]
+    return Image.fromarray(a, "RGBA")
+
+
+BLEED = {("hero", "mesas"): 70}  # px at source resolution
+
+
 def make_plate(master: Image.Image, keyed_layers) -> Image.Image:
     """Master with every keyed subject inpainted away: the bottom layer that fills gaps when layers move."""
     m = cv2.cvtColor(np.asarray(master.convert("RGB")), cv2.COLOR_RGB2BGR)
@@ -99,6 +118,21 @@ def export(img: Image.Image, size, dest: Path):
     return dest.with_suffix(".webp")
 
 
+WIDTHS = (1280, 1920)  # smaller copies for srcset, so phones and laptops don't pull the 4K file
+
+
+def export_responsive(img: Image.Image, size, dest: Path):
+    """Full-size layer plus smaller widths; returns a srcset string."""
+    export(img, size, dest)
+    parts = []
+    for w in WIDTHS:
+        if w < size[0]:
+            h = round(size[1] * w / size[0])
+            export(img.resize(size, Image.LANCZOS) if img.size != size else img, (w, h), dest.with_name(f"{dest.name}-{w}"))
+            parts.append(f"/scenes/{dest.parent.name}/{dest.name}-{w}.webp {w}w")
+    return ", ".join(parts + [f"/scenes/{dest.parent.name}/{dest.name}.webp {size[0]}w"])
+
+
 def fit(size):
     w, h = size
     return (MAX_W, round(h * MAX_W / w)) if w > MAX_W else size
@@ -119,10 +153,12 @@ for scene, (master, layers) in SCENES.items():
         im = key_magenta(im) if keyed else im.convert("RGB")
         if scene in UNIFY:
             im = unify(im)
+        if (scene, lid) in BLEED:
+            im = bleed_down(im, BLEED[(scene, lid)])
         if keyed:
             keyed_imgs.append(im)
-        export(im, size, OUT / scene / lid)
-        layer = {"id": lid, "src": f"/scenes/{scene}/{lid}.webp"}
+        srcset = export_responsive(im, size, OUT / scene / lid)
+        layer = {"id": lid, "src": f"/scenes/{scene}/{lid}.webp", "srcset": srcset}
         if keyed:  # bounding box of visible pixels, as fractions of the canvas (for hit areas / anchors)
             al = np.asarray(im)[..., 3]
             ys, xs = np.where(al > 30)

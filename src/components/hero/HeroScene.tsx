@@ -115,7 +115,7 @@ function Inner({ progress }: { progress: MotionValue<number> }) {
     return () => cancelAnimationFrame(raf);
   }, []);
 
-  useEffect(() => loadRvAlpha(layer("rv").src), []);
+  useEffect(() => loadRvAlpha(layer("rv").src.replace(".webp", "-1280.webp")), []);
 
   const moveLens = (e: ReactPointerEvent<HTMLButtonElement>) => {
     if (e.pointerType !== "mouse") return;
@@ -133,6 +133,8 @@ function Inner({ progress }: { progress: MotionValue<number> }) {
         priority
         overscan={1.02}
         bg="bg-dusk"
+        plate={false}
+        deferred={["rv-cutaway", "chairs", "tumbleweed"]}
         layerStyle={{
           sky: { transform: `translate3d(calc(${par("sky", "x")}), calc(${par("sky", "y")} + ${night * SUN_DROP}%), 0)` },
           "rv-cutaway": {
@@ -157,6 +159,8 @@ function Inner({ progress }: { progress: MotionValue<number> }) {
         {(
           <img
             src={layer("mesas").src}
+            srcSet={layer("mesas").srcset}
+            sizes={`(min-aspect-ratio: ${hero.width}/${hero.height}) 100vw, ${((100 * hero.width) / hero.height).toFixed(1)}vh`}
             alt=""
             aria-hidden
             className="pointer-events-none absolute inset-0 h-full w-full select-none motion-reduce:hidden"

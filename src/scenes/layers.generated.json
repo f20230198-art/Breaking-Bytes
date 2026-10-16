@@ -8,21 +8,24 @@
       "layers": [
         {
           "id": "sky",
-          "src": "/scenes/hero/sky.webp"
+          "src": "/scenes/hero/sky.webp",
+          "srcset": "/scenes/hero/sky-1280.webp 1280w, /scenes/hero/sky-1920.webp 1920w, /scenes/hero/sky.webp 3344w"
         },
         {
           "id": "mesas",
           "src": "/scenes/hero/mesas.webp",
+          "srcset": "/scenes/hero/mesas-1280.webp 1280w, /scenes/hero/mesas-1920.webp 1920w, /scenes/hero/mesas.webp 3344w",
           "bbox": [
             0.0,
             0.2078,
             0.9997,
-            0.6073
+            0.6445
           ]
         },
         {
           "id": "ground",
           "src": "/scenes/hero/ground.webp",
+          "srcset": "/scenes/hero/ground-1280.webp 1280w, /scenes/hero/ground-1920.webp 1920w, /scenes/hero/ground.webp 3344w",
           "bbox": [
             0.0006,
             0.6084,
@@ -33,6 +36,7 @@
         {
           "id": "tumbleweed",
           "src": "/scenes/hero/tumbleweed.webp",
+          "srcset": "/scenes/hero/tumbleweed-1280.webp 1280w, /scenes/hero/tumbleweed-1920.webp 1920w, /scenes/hero/tumbleweed.webp 3344w",
           "bbox": [
             0.3864,
             0.6233,
@@ -43,6 +47,7 @@
         {
           "id": "rv",
           "src": "/scenes/hero/rv.webp",
+          "srcset": "/scenes/hero/rv-1280.webp 1280w, /scenes/hero/rv-1920.webp 1920w, /scenes/hero/rv.webp 3344w",
           "bbox": [
             0.0141,
             0.3735,
@@ -53,6 +58,7 @@
         {
           "id": "rv-cutaway",
           "src": "/scenes/hero/rv-cutaway.webp",
+          "srcset": "/scenes/hero/rv-cutaway-1280.webp 1280w, /scenes/hero/rv-cutaway-1920.webp 1920w, /scenes/hero/rv-cutaway.webp 3344w",
           "bbox": [
             0.0141,
             0.3741,
@@ -63,6 +69,7 @@
         {
           "id": "chairs",
           "src": "/scenes/hero/chairs.webp",
+          "srcset": "/scenes/hero/chairs-1280.webp 1280w, /scenes/hero/chairs-1920.webp 1920w, /scenes/hero/chairs.webp 3344w",
           "bbox": [
             0.1214,
             0.593,
@@ -73,6 +80,7 @@
         {
           "id": "fg",
           "src": "/scenes/hero/fg.webp",
+          "srcset": "/scenes/hero/fg-1280.webp 1280w, /scenes/hero/fg-1920.webp 1920w, /scenes/hero/fg.webp 3344w",
           "bbox": [
             0.0,
             0.762,

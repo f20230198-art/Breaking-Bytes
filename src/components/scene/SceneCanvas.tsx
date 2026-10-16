@@ -18,13 +18,17 @@ type Props = {
   overscan?: number;
   /** Background shown wherever layers move off the canvas. */
   bg?: string;
+  /** Skip the inpainted plate when an opaque full-canvas layer (e.g. a sky) already fills the back. */
+  plate?: boolean;
+  /** Layers that can arrive after first paint (hover reveals, small props). */
+  deferred?: string[];
 };
 
 /**
  * Stacks a scene's full-canvas layers so they line up 1:1, scaled to cover the viewport
  * (like object-fit: cover). Mouse movement drives a subtle parallax via CSS variables.
  */
-export function SceneCanvas({ scene, hide = [], children, priority, className = "", layerStyle = {}, overscan = 1.06, bg = "bg-ink" }: Props) {
+export function SceneCanvas({ scene, hide = [], children, priority, className = "", layerStyle = {}, overscan = 1.06, bg = "bg-ink", plate = true, deferred = [] }: Props) {
   const a = sceneAssets(scene);
   const depths = DEPTHS[scene];
   const ref = useRef<HTMLDivElement>(null);
@@ -63,7 +67,7 @@ export function SceneCanvas({ scene, hide = [], children, priority, className = 
         style={{ width: `max(100vw, ${100 * ratio}vh)`, height: `max(100vh, ${100 / ratio}vw)` }}
       >
         <div className="absolute inset-0" style={{ scale: overscan }}>
-          <img src={a.plate} alt="" className="absolute inset-0 h-full w-full select-none" draggable={false} />
+          {plate && <img src={a.plate} alt="" className="absolute inset-0 h-full w-full select-none" draggable={false} />}
           {a.layers
             .filter((l) => !hide.includes(l.id))
             .map((l) => (
@@ -73,7 +77,10 @@ export function SceneCanvas({ scene, hide = [], children, priority, className = 
                 alt=""
                 data-layer={l.id}
                 draggable={false}
-                fetchPriority={priority ? "high" : "auto"}
+                srcSet={l.srcset}
+                sizes={`(min-aspect-ratio: ${a.width}/${a.height}) 100vw, ${(100 * ratio).toFixed(1)}vh`}
+                decoding="async"
+                fetchPriority={deferred.includes(l.id) ? "low" : priority ? "high" : "auto"}
                 className="absolute inset-0 h-full w-full select-none will-change-transform"
                 style={{
                   transform: `translate3d(calc(var(--mx, 0) * ${-(depths[l.id] ?? 0.3) * 18}px), calc(var(--my, 0) * ${-(depths[l.id] ?? 0.3) * 10}px), 0)`,
