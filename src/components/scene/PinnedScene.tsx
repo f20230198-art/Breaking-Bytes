@@ -10,14 +10,16 @@ type Props = {
   /** Children receive scroll progress 0→1 across the pinned stretch. */
   children: (progress: MotionValue<number>) => ReactNode;
   label: string;
+  /** Resting points (progress 0→1). Between the first and last, one scroll gesture plays to the next one (see SmoothScroll). */
+  beats?: number[];
 };
 
 /** A full-screen scene that stays pinned while the scroll plays its animation. */
-export function PinnedScene({ id, length = 2, children, label }: Props) {
+export function PinnedScene({ id, length = 2, children, label, beats }: Props) {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
   return (
-    <section ref={ref} id={id} aria-label={label} data-scene className="relative" style={{ height: `${length * 100}vh` }}>
+    <section ref={ref} id={id} aria-label={label} data-scene data-beats={beats?.join(",")} className="relative" style={{ height: `${length * 100}vh` }}>
       <div className="sticky top-0 h-screen overflow-hidden">{children(scrollYProgress)}</div>
     </section>
   );

@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import { Archivo_Black, Inter, Special_Elite } from "next/font/google";
+import { Archivo_Black, Inter, Special_Elite, Stardos_Stencil } from "next/font/google";
 import "./globals.css";
 
 const archivoBlack = Archivo_Black({ variable: "--font-archivo-black", weight: "400", subsets: ["latin"] });
 const specialElite = Special_Elite({ variable: "--font-special-elite", weight: "400", subsets: ["latin"] });
+const stencil = Stardos_Stencil({ variable: "--font-stardos", weight: ["400", "700"], subsets: ["latin"] });
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${archivoBlack.variable} ${specialElite.variable} ${inter.variable} antialiased`}>
+    <html lang="en" className={`${archivoBlack.variable} ${specialElite.variable} ${inter.variable} ${stencil.variable} antialiased`}>
       <body className="paper-grain min-h-full">
         {/* Shared SVG filters: "carve" gives UI blocks a hand-cut linocut edge */}
         <svg width="0" height="0" className="absolute" aria-hidden>

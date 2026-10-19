@@ -4,6 +4,7 @@ The problem we're solving: separately generated small assets are hard to place a
 The fix: **every scene starts as ONE big composed painting** (the "master plate"). All layers are **cut from that same image** and exported **at the full canvas size**, so they line up automatically: we just stack them. Nobody "places" anything.
 
 ## Per scene, step by step
+0. **Safe area (from S3 on):** screens crop the art (cover fit), so keep everything important (UI blanks, props, lights, the subject) inside the middle ~70% width × ~75% height. Fill the outer border with throwaway continuation (more wall, more floor, more sky). Say this in every master prompt.
 1. **Master plate:** generate the whole scene composed as a single image (16:9), with **empty space where the UI/text will sit** (say so in the prompt).
 2. **Upscale** 2–4× to ~3840×2160 (Higgsfield `upscale_image`, Upscayl, or Topaz). GPT outputs (~1536px) are too soft for full-screen otherwise.
 3. **Split into 3–5 depth layers, made by ChatGPT, not cut by hand.** In the same chat, edit the master: "identical framing, keep ONLY X, everything else flat #00FF00 (or #FF00FF if the scene has green)". Claude only chroma-keys that exact colour and checks the alignment. Prompts: `asset-prompts/GENERATION-CHECKLIST.md`. Each layer is a full-canvas transparent PNG:

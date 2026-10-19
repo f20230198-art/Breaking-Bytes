@@ -106,21 +106,10 @@
           "src": "/scenes/lab/clipboard.webp",
           "srcset": "/scenes/lab/clipboard-1280.webp 1280w, /scenes/lab/clipboard-1920.webp 1920w, /scenes/lab/clipboard.webp 3344w",
           "bbox": [
-            0.0574,
-            0.1068,
-            0.4605,
-            0.6323
-          ]
-        },
-        {
-          "id": "pipe",
-          "src": "/scenes/lab/pipe.webp",
-          "srcset": "/scenes/lab/pipe-1280.webp 1280w, /scenes/lab/pipe-1920.webp 1920w, /scenes/lab/pipe.webp 3344w",
-          "bbox": [
-            0.0,
-            0.6807,
-            0.9997,
-            0.898
+            0.061,
+            0.1052,
+            0.459,
+            0.8077
           ]
         },
         {
@@ -128,21 +117,163 @@
           "src": "/scenes/lab/glow.webp",
           "srcset": "/scenes/lab/glow-1280.webp 1280w, /scenes/lab/glow-1920.webp 1920w, /scenes/lab/glow.webp 3344w",
           "bbox": [
-            0.4907,
-            0.152,
-            0.9943,
-            0.6089
+            0.4913,
+            0.153,
+            0.9937,
+            0.6095
+          ]
+        }
+      ]
+    },
+    "prizes-office": {
+      "width": 3344,
+      "height": 1882,
+      "master": "/scenes/prizes-office/master.webp",
+      "plate": "/scenes/prizes-office/plate.webp",
+      "layers": [
+        {
+          "id": "back",
+          "src": "/scenes/prizes-office/back.webp",
+          "srcset": "/scenes/prizes-office/back-1280.webp 1280w, /scenes/prizes-office/back-1920.webp 1920w, /scenes/prizes-office/back.webp 3344w"
+        },
+        {
+          "id": "walter",
+          "src": "/scenes/prizes-office/walter.webp",
+          "srcset": "/scenes/prizes-office/walter-1280.webp 1280w, /scenes/prizes-office/walter-1920.webp 1920w, /scenes/prizes-office/walter.webp 3344w",
+          "bbox": [
+            0.4516,
+            0.3268,
+            0.5924,
+            0.4798
+          ]
+        },
+        {
+          "id": "gus",
+          "src": "/scenes/prizes-office/gus.webp",
+          "srcset": "/scenes/prizes-office/gus-1280.webp 1280w, /scenes/prizes-office/gus-1920.webp 1920w, /scenes/prizes-office/gus.webp 3344w",
+          "bbox": [
+            0.0957,
+            0.3401,
+            0.2647,
+            0.7455
+          ]
+        },
+        {
+          "id": "saul",
+          "src": "/scenes/prizes-office/saul.webp",
+          "srcset": "/scenes/prizes-office/saul-1280.webp 1280w, /scenes/prizes-office/saul-1920.webp 1920w, /scenes/prizes-office/saul.webp 3344w",
+          "bbox": [
+            0.721,
+            0.1498,
+            0.9163,
+            0.7535
+          ]
+        },
+        {
+          "id": "case-1",
+          "src": "/scenes/prizes-office/case-1.webp",
+          "srcset": "/scenes/prizes-office/case-1-1280.webp 1280w, /scenes/prizes-office/case-1-1920.webp 1920w, /scenes/prizes-office/case-1.webp 3344w",
+          "bbox": [
+            0.4085,
+            0.5978,
+            0.5963,
+            0.7901
+          ]
+        },
+        {
+          "id": "case-2",
+          "src": "/scenes/prizes-office/case-2.webp",
+          "srcset": "/scenes/prizes-office/case-2-1280.webp 1280w, /scenes/prizes-office/case-2-1920.webp 1920w, /scenes/prizes-office/case-2.webp 3344w",
+          "bbox": [
+            0.1761,
+            0.6668,
+            0.3161,
+            0.7997
+          ]
+        },
+        {
+          "id": "case-3",
+          "src": "/scenes/prizes-office/case-3.webp",
+          "srcset": "/scenes/prizes-office/case-3-1280.webp 1280w, /scenes/prizes-office/case-3-1920.webp 1920w, /scenes/prizes-office/case-3.webp 3344w",
+          "bbox": [
+            0.6941,
+            0.6939,
+            0.7898,
+            0.8114
+          ]
+        }
+      ]
+    },
+    "prizes-student": {
+      "width": 3344,
+      "height": 1882,
+      "master": "/scenes/prizes-student/master.webp",
+      "plate": "/scenes/prizes-student/plate.webp",
+      "layers": [
+        {
+          "id": "back",
+          "src": "/scenes/prizes-student/back.webp",
+          "srcset": "/scenes/prizes-student/back-1280.webp 1280w, /scenes/prizes-student/back-1920.webp 1920w, /scenes/prizes-student/back.webp 3344w"
+        },
+        {
+          "id": "jesse",
+          "src": "/scenes/prizes-student/jesse.webp",
+          "srcset": "/scenes/prizes-student/jesse-1280.webp 1280w, /scenes/prizes-student/jesse-1920.webp 1920w, /scenes/prizes-student/jesse.webp 3344w",
+          "bbox": [
+            0.1971,
+            0.3092,
+            0.3651,
+            0.6987
+          ]
+        },
+        {
+          "id": "flynn",
+          "src": "/scenes/prizes-student/flynn.webp",
+          "srcset": "/scenes/prizes-student/flynn-1280.webp 1280w, /scenes/prizes-student/flynn-1920.webp 1920w, /scenes/prizes-student/flynn.webp 3344w",
+          "bbox": [
+            0.6142,
+            0.161,
+            0.735,
+            0.7317
+          ]
+        },
+        {
+          "id": "case-1",
+          "src": "/scenes/prizes-student/case-1.webp",
+          "srcset": "/scenes/prizes-student/case-1-1280.webp 1280w, /scenes/prizes-student/case-1-1920.webp 1920w, /scenes/prizes-student/case-1.webp 3344w",
+          "bbox": [
+            0.1283,
+            0.7088,
+            0.4073,
+            0.898
+          ]
+        },
+        {
+          "id": "case-2",
+          "src": "/scenes/prizes-student/case-2.webp",
+          "srcset": "/scenes/prizes-student/case-2-1280.webp 1280w, /scenes/prizes-student/case-2-1920.webp 1920w, /scenes/prizes-student/case-2.webp 3344w",
+          "bbox": [
+            0.5075,
+            0.7088,
+            0.785,
+            0.8985
+          ]
+        },
+        {
+          "id": "more",
+          "src": "/scenes/prizes-student/more.webp",
+          "srcset": "/scenes/prizes-student/more-1280.webp 1280w, /scenes/prizes-student/more-1920.webp 1920w, /scenes/prizes-student/more.webp 3344w",
+          "bbox": [
+            0.7925,
+            0.7641,
+            0.9608,
+            0.9426
           ]
         }
       ]
     }
   },
   "singles": {
-    "lab/dirt": {
-      "src": "/scenes/lab/dirt.webp",
-      "width": 3344,
-      "height": 1882
-    },
     "extras/og": {
       "src": "/scenes/extras/og.webp",
       "width": 1672,

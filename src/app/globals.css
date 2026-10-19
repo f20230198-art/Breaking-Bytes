@@ -14,10 +14,12 @@
   --color-night: #2b3442;
   --color-dusk: #4f2768;
   --color-siren: #e63946;
+  --color-neon: #ff4fa3; /* the strip-mall sign outside Saul's blinds */
 
   --font-display: var(--font-archivo-black), "Arial Black", sans-serif;
   --font-type: var(--font-special-elite), "Courier New", monospace;
   --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-stencil: var(--font-stardos), "Courier New", monospace; /* crate / drum stencilling */
 }
 
 html {
@@ -144,6 +146,80 @@ html.lenis body {
   100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(143, 240, 255, 0) inset; }
 }
 .lab-fx { animation-timing-function: linear; animation-iteration-count: infinite; }
+.fx-paused .lab-fx { animation-play-state: paused; }
+
+/* The shaft below the lab (all transform/opacity) */
+@keyframes shaft-dust {
+  0% { transform: translate3d(0, 0, 0); opacity: 0; }
+  15% { opacity: 0.8; }
+  100% { transform: translate3d(var(--dx, 0), var(--fall, 20cqw), 0); opacity: 0; }
+}
+@keyframes shaft-lamp {
+  0%, 100% { opacity: 0.85; }
+  40% { opacity: 1; }
+  41% { opacity: 0.3; }
+  42% { opacity: 0.95; }
+  44% { opacity: 0.4; }
+  45% { opacity: 1; }
+  70% { opacity: 0.8; }
+}
+@keyframes shaft-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.15; }
+}
+@keyframes shaft-scroll {
+  to { transform: translateY(-50%); }
+}
+@keyframes shaft-drip {
+  0% { transform: translate3d(0, 0, 0) scaleY(1); opacity: 0; }
+  10% { opacity: 1; }
+  85% { transform: translate3d(0, var(--fall, 10cqw), 0) scaleY(1.6); opacity: 1; }
+  100% { transform: translate3d(0, var(--fall, 10cqw), 0) scaleY(0.4); opacity: 0; }
+}
+@keyframes shaft-ripple {
+  0%, 80% { transform: translate(-50%, -50%) scale(0.1); opacity: 0; }
+  84% { opacity: 0.9; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+}
+@keyframes shaft-steam {
+  0% { transform: translate3d(0, 0, 0) scale(0.6); opacity: 0; }
+  25% { opacity: 0.8; }
+  100% { transform: translate3d(var(--dx, 0.8cqw), -7cqw, 0) scale(1.7); opacity: 0; }
+}
+@keyframes shaft-pour {
+  from { transform: translateY(-50%); }
+  to { transform: translateY(0); }
+}
+@keyframes shaft-hatch {
+  0%, 100% { opacity: 0.55; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.04); }
+}
+
+/* Saul's office: the desk lamp buzzes, the neon outside the blinds pulses. Opacity only. */
+.office-lamp {
+  translate: -50% -50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--color-hazmat) 45%, transparent), transparent 60%);
+  animation: office-lamp 6s steps(1, end) infinite;
+}
+@keyframes office-lamp {
+  0%, 100% { opacity: 0.8; }
+  41% { opacity: 0.35; }
+  43% { opacity: 0.85; }
+  44% { opacity: 0.25; }
+  47% { opacity: 0.8; }
+}
+.office-neon {
+  background: radial-gradient(ellipse at 50% 50%, color-mix(in srgb, var(--color-neon) 45%, transparent), transparent 70%);
+  animation: office-neon 3.2s ease-in-out infinite;
+}
+@keyframes office-neon {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.9; }
+  71% { opacity: 0.9; }
+  72% { opacity: 0.2; }
+  74% { opacity: 0.8; }
+  77% { opacity: 0.9; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .lab-fx, .lab-glow { animation: none !important; }
@@ -153,4 +229,20 @@ html.lenis body {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* the fuse spark: a flickering glow, short rays shooting off, smoke curling up, an ember behind it */
+@keyframes fuse-flicker {
+  50% { opacity: 0.55; transform: scale(0.85); }
+}
+@keyframes fuse-ray {
+  0% { opacity: 1; stroke-dasharray: 4 30; stroke-dashoffset: 0; }
+  100% { opacity: 0; stroke-dasharray: 4 30; stroke-dashoffset: -14; }
+}
+@keyframes fuse-smoke {
+  0% { opacity: 0.35; transform: translate(0, 0) scale(0.6); }
+  100% { opacity: 0; transform: translate(10px, -46px) scale(2.6); }
+}
+@keyframes fuse-ember {
+  50% { stroke: var(--color-rust); }
 }

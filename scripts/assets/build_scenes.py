@@ -27,10 +27,15 @@ SCENES = {
         ("chairs", "H-chairs", True), ("fg", "H-fg", True)]),
     "lab": ("L-master", [
         ("back", "L-back", False), ("clipboard", "L-clipboard", "green"),
-        ("pipe", "L-pipe", "green"), ("glow", "L-glow", "green")]),
+        ("glow", "L-glow", "green")]),
+    "prizes-office": ("O-master", [
+        ("back", "O-back", False), ("walter", "O-walter", True), ("gus", "O-gus", True), ("saul", "O-saul", True),
+        ("case-1", "O-case-1", True), ("case-2", "O-case-2", True), ("case-3", "O-case-3", True)]),
+    "prizes-student": ("S-master", [
+        ("back", "S-back", False), ("jesse", "S-jesse", True), ("flynn", "S-flynn", True),
+        ("case-1", "S-case-1", True), ("case-2", "S-case-2", True), ("more", "S-more", True)]),
 }
 SINGLES = {  # standalone images (keyed?)
-    "lab/dirt": ("lab/L-dirt", False),
     "extras/og": ("extras/X-og", False),
     "extras/404": ("extras/X-404", False),
     "extras/dashboard-bg": ("extras/X-dashboard-bg", False),

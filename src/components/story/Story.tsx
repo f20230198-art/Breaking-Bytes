@@ -1,6 +1,6 @@
 "use client";
 
-import { useMotionValueEvent, useTransform, type MotionValue } from "motion/react";
+import { motion, useMotionValueEvent, useTransform, type MotionValue } from "motion/react";
 import { useCallback, useEffect, useState } from "react";
 import { FALL_FROM, HeroStage, fallAt, fallScale, type LensPx } from "@/components/hero/HeroScene";
 import { LabStage } from "@/components/lab/LabScene";
@@ -9,10 +9,12 @@ import { PinnedScene } from "@/components/scene/PinnedScene";
 // scroll lengths, in viewport heights of pinned travel
 const HERO_PIN = 1.1; // RV leaves, night falls, title lifts
 const FALL_PIN = 2; // the fall into the lens: its own long stretch, so it never feels rushed
-const LAB_PIN = 2.2;
-const TOTAL = HERO_PIN + FALL_PIN + LAB_PIN;
+const LAB_PIN = 1; // a hold on the lab before the fuse timeline scrolls in below
+const OUTRO_PIN = 1; // the lab goes dark while the timeline slides up over it (it overlaps this stretch)
+const TOTAL = HERO_PIN + FALL_PIN + LAB_PIN + OUTRO_PIN;
 const A = HERO_PIN / TOTAL; // end of the desert phase
 const B = (HERO_PIN + FALL_PIN) / TOTAL; // the lab fills the screen
+const C = (HERO_PIN + FALL_PIN + LAB_PIN) / TOTAL; // the lights start to go
 const ART_RATIO = 3344 / 1882;
 
 const c01 = (x: number) => Math.min(1, Math.max(0, x));
@@ -45,7 +47,7 @@ function blobPath(cx: number, cy: number, R: number, wobble: number, t: number) 
  */
 export function Story() {
   return (
-    <PinnedScene id="desert" label="The desert and the superlab" length={TOTAL + 1}>
+    <PinnedScene id="desert" label="The desert and the superlab" length={TOTAL + 1} beats={[0, A, B, C]}>
       {(p) => <Stage progress={p} />}
     </PinnedScene>
   );
@@ -54,7 +56,8 @@ export function Story() {
 function Stage({ progress }: { progress: MotionValue<number> }) {
   // the hero's own 0..1 timeline: desert phase up to FALL_FROM, then the fall, then it stays at 1
   const heroP = useTransform(progress, [0, A, B], [0, FALL_FROM, 1], { clamp: true });
-  const labP = useTransform(progress, [B, 1], [0, 1], { clamp: true });
+  const labP = useTransform(progress, [B, C], [0, 1], { clamp: true });
+  const lightsOut = useTransform(progress, [C, 1], [0, 0.9], { clamp: true });
   const [fall, setFall] = useState(() => fallAt(heroP.get()));
   const [lens, setLens] = useState<LensPx | null>(null); // measured by the hero: where the lens is on screen
   const [vp, setVp] = useState<{ w: number; h: number } | null>(null);
@@ -67,7 +70,7 @@ function Stage({ progress }: { progress: MotionValue<number> }) {
   useEffect(() => {
     if (!warm) return;
     // decode the lab art before the lens opens, so it never pops in
-    for (const src of ["back", "clipboard", "pipe", "glow"].map((id) => `/scenes/lab/${id}-1920.webp`)) {
+    for (const src of ["back", "clipboard", "glow"].map((id) => `/scenes/lab/${id}-1920.webp`)) {
       const img = new Image();
       img.src = src;
       img.decode?.().catch(() => {});
@@ -117,17 +120,19 @@ function Stage({ progress }: { progress: MotionValue<number> }) {
       )}
       {(warm || peeking) && (
         <>
-          {/* a blue vapour rim around the opening */}
+          {/* a yellow toxic-vapour rim around the opening */}
           {peeking && !covered && grow < 0.55 && (
             <div aria-hidden className="absolute inset-0" style={{ filter: "blur(10px)", opacity: 0.9 * (1 - grow * 0.75) }}>
-              <div className="absolute inset-0 bg-crystal" style={{ clipPath: rim }} />
+              <div className="absolute inset-0 bg-hazmat" style={{ clipPath: rim }} />
             </div>
           )}
-          <div className="absolute inset-0" style={{ display: peeking ? "block" : "none", clipPath: clip }}>
+          <div className="absolute inset-0 overflow-hidden" style={{ display: peeking ? "block" : "none", clipPath: clip }}>
             <LabStage progress={labP} reveal={reveal} />
           </div>
         </>
       )}
+      {/* the lights cut out as the next print is laid over the lab */}
+      <motion.div aria-hidden className="pointer-events-none absolute inset-0 bg-ink" style={{ opacity: lightsOut }} />
     </>
   );
 }

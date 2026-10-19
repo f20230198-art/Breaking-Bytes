@@ -24,13 +24,17 @@ type Props = {
   deferred?: string[];
   /** Which part of the art stays in view when the window is wider/narrower than the art: 0 = top edge, 0.5 = centre, 1 = bottom edge. */
   anchorY?: number;
+  /** Extra style on the art box (e.g. a scroll-driven camera zoom: `scale` + `transformOrigin` in canvas %). */
+  innerStyle?: CSSProperties;
+  /** "cover" fills the screen (crops); "height" always shows the full height, and on wide screens a blurred copy of the first layer fills the sides. */
+  fit?: "cover" | "height";
 };
 
 /**
  * Stacks a scene's full-canvas layers so they line up 1:1, scaled to cover the viewport
  * (like object-fit: cover). Mouse movement drives a subtle parallax via CSS variables.
  */
-export function SceneCanvas({ scene, hide = [], children, priority, className = "", layerStyle = {}, overscan = 1.06, bg = "bg-ink", plate = true, deferred = [], anchorY = 0.5 }: Props) {
+export function SceneCanvas({ scene, hide = [], children, priority, className = "", layerStyle = {}, overscan = 1.06, bg = "bg-ink", plate = true, deferred = [], anchorY = 0.5, innerStyle, fit = "cover" }: Props) {
   const a = sceneAssets(scene);
   const depths = DEPTHS[scene];
   const ref = useRef<HTMLDivElement>(null);
@@ -67,13 +71,20 @@ export function SceneCanvas({ scene, hide = [], children, priority, className = 
 
   return (
     <div ref={ref} className={`absolute inset-0 overflow-hidden ${bg} ${className}`}>
+      {fit === "height" && (
+        <img src={a.layers[0].src} alt="" aria-hidden draggable={false} className="absolute inset-0 h-full w-full scale-110 select-none object-cover opacity-50 blur-2xl" />
+      )}
       {/* cover box: always fills the viewport while keeping the art's aspect ratio */}
       <div
         data-canvas
         className="absolute left-1/2"
-        style={{ top: `${anchorY * 100}%`, transform: `translate(-50%, -${anchorY * 100}%)`, width: `max(100vw, ${100 * ratio}vh)`, height: `max(100vh, ${100 / ratio}vw)` }}
+        style={
+          fit === "height"
+            ? { top: 0, transform: "translateX(-50%)", width: `${100 * ratio}vh`, height: "100vh" }
+            : { top: `${anchorY * 100}%`, transform: `translate(-50%, -${anchorY * 100}%)`, width: `max(100vw, ${100 * ratio}vh)`, height: `max(100vh, ${100 / ratio}vw)` }
+        }
       >
-        <div className="absolute inset-0" style={{ scale: overscan }}>
+        <div className="absolute inset-0" style={{ scale: overscan, ...innerStyle }}>
           {plate && <img src={a.plate} alt="" className="absolute inset-0 h-full w-full select-none" draggable={false} />}
           {a.layers
             .filter((l) => !hide.includes(l.id))
