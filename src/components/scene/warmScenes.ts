@@ -38,6 +38,13 @@ export function warmLater(el: HTMLElement) {
   }
   started = true;
   const go = () => {
+    // wait for the first-visit loader to finish: decoding big art would stutter its drawing
+    if (document.documentElement.hasAttribute("data-loading")) {
+      const later = () => { clearTimeout(cap); window.removeEventListener("bb:ready", later); go(); };
+      const cap = setTimeout(later, 9000);
+      window.addEventListener("bb:ready", later);
+      return;
+    }
     ready = true;
     void idle().then(run);
   };

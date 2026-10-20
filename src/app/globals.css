@@ -322,6 +322,10 @@ html[data-loaded] .bb-loader { display: none; }
 /* failsafe: if the loader's script never runs (JS error, stale bundle), CSS alone lifts it after 8 s */
 .bb-loader { animation: ld-failsafe 0.4s 8s forwards; }
 @keyframes ld-failsafe { to { opacity: 0; visibility: hidden; pointer-events: none; } }
+/* the drawing holds until the page is quiet (Loader adds .go), and the page under it isn't painted meanwhile */
+.bb-loader:not(.go) * { animation-play-state: paused; }
+html[data-loading] body > :not(.bb-loader):not(script) { visibility: hidden; animation: ld-unhide 0s 8s forwards; }
+@keyframes ld-unhide { to { visibility: visible; } }
 .bb-loader rect, .bb-loader polygon { fill: none; }
 .ld-pencil {
   stroke: color-mix(in srgb, var(--color-ink) 35%, transparent);
