@@ -15,6 +15,8 @@
   --color-dusk: #4f2768;
   --color-siren: #e63946;
   --color-neon: #ff4fa3; /* the strip-mall sign outside Saul's blinds */
+  --color-haze: #e2e2d5; /* the overcast sky over the FAQ pool */
+  --color-midnight: #111236; /* the finale's night sky, top edge */
   /* GDG brand (Google) colours: used sparingly for the club's own marks */
   --color-gdg-blue: #4285f4;
   --color-gdg-red: #ea4335;
@@ -277,12 +279,51 @@ html.lenis body {
   100% { transform: scale(1.05, 0.9) skewX(-3deg); opacity: 0.8; }
 }
 
+/* FAQ pool: the evidence bobs, each piece rings the water, numbered yellow tents float above them */
+@keyframes pool-bob {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 0.35%; }
+}
+.pool-ripple {
+  position: absolute;
+  left: 50%;
+  top: 72%;
+  width: 70%;
+  aspect-ratio: 3 / 1;
+  translate: -50% -50%;
+  border: 2px solid color-mix(in srgb, var(--color-paper) 70%, transparent);
+  border-radius: 50%;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  animation: pool-ripple 3.2s ease-out infinite;
+}
+@keyframes pool-ripple {
+  0% { scale: 0.6; opacity: 0; }
+  20% { opacity: 0.9; }
+  100% { scale: 1.35; opacity: 0; }
+}
+.evidence-tent {
+  left: 50%;
+  top: -0.4em;
+  margin-left: -0.85em;
+  width: 1.7em;
+  height: 1.45em;
+  display: grid;
+  place-items: end center;
+  padding-bottom: 0.08em;
+  font-size: clamp(0.85rem, 1.25vw, 1.4rem);
+  line-height: 1;
+  background: var(--color-hazmat);
+  clip-path: polygon(22% 0, 78% 0, 100% 100%, 0 100%);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .lab-fx, .lab-glow { animation: none !important; }
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important; /* infinite loops at 0.01ms would strobe; play once and stop */
     transition-duration: 0.01ms !important;
   }
 }

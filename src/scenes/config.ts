@@ -19,6 +19,7 @@ export const DEPTHS: Record<SceneId, Record<string, number>> = {
   "prizes-office": { back: 0.15, walter: 0.3, gus: 0.5, saul: 0.5, "case-1": 0.6, "case-2": 0.75, "case-3": 0.75 },
   "prizes-student": { back: 0.15, jesse: 0.4, flynn: 0.4, "case-1": 0.7, "case-2": 0.7, more: 0.8 },
   classroom: { back: 0.15, teacher: 0.3, desks: 0.85 },
+  pool: { back: 0.1, "item-1": 0.3, "item-2": 0.3, "item-3": 0.3, "item-4": 0.3, "item-5": 0.3, "item-6": 0.3 },
 };
 
 export function sceneAssets(id: SceneId): SceneAssets {

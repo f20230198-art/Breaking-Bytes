@@ -120,11 +120,12 @@ function PortholeFx({ x, y, r }: { x: number; y: number; r: number }) {
 }
 
 /** Writing on one of the plates' paper insets. */
-function Plate({ at, label, children }: { at: (typeof CARDS)[number]; label: string; children: ReactNode }) {
+function Plate({ at, label, side, children }: { at: (typeof CARDS)[number]; label: string; side: "l" | "r"; children: ReactNode }) {
   return (
     <div
-      className="absolute flex flex-col justify-center text-ink"
-      style={{ left: `${at.left}%`, top: `${at.top}%`, width: `${at.width}%`, height: `${at.height}%`, padding: "0 1.4cqw" }}
+      // phones: the outer edge of each plate is off screen, so its writing moves in from that side
+      className={`absolute flex flex-col justify-center px-[1.4cqw] text-ink ${side === "l" ? "portrait:pl-[4.6cqw]" : "portrait:pr-[4.6cqw]"}`}
+      style={{ left: `${at.left}%`, top: `${at.top}%`, width: `${at.width}%`, height: `${at.height}%` }}
     >
       <p className="font-type text-[0.85cqw] uppercase tracking-[0.25em] text-brick">{label}</p>
       {children}
@@ -147,6 +148,7 @@ export function LabStage({ progress, reveal = 1 }: { progress: MotionValue<numbe
   return (
     <SceneCanvas
       scene="lab"
+      className="portrait:[--focus:0.247]" // phones: the clipboard and its plates (paper centre, after the 1.05 overscan)
       plate={false}
       hide={["pipe"]}
       overscan={1.05}
@@ -207,8 +209,9 @@ export function LabStage({ progress, reveal = 1 }: { progress: MotionValue<numbe
         {/* clipboard plane: what the hackathon is, and the When / Where plates bolted below */}
         <div className="pointer-events-none absolute inset-0" style={plane(0.7)}>
         <article
-          className="absolute flex flex-col justify-center overflow-hidden text-ink"
-          style={{ left: `${PAPER.left}%`, top: `${PAPER.top}%`, width: `${PAPER.width}%`, height: `${PAPER.height}%`, padding: "1.2cqw 2.4cqw" }}
+          // phones: the paper is a little wider than the screen, so the text keeps clear of both edges
+          className="absolute flex flex-col justify-center overflow-hidden px-[2.4cqw] py-[1.2cqw] text-ink portrait:px-[4.6cqw]"
+          style={{ left: `${PAPER.left}%`, top: `${PAPER.top}%`, width: `${PAPER.width}%`, height: `${PAPER.height}%` }}
         >
           <p className="font-type text-[0.85cqw] uppercase tracking-[0.25em] text-brick">Form BB-24 · The brief</p>
           <h2 className="mt-[0.4cqw] font-display text-[2.3cqw] uppercase leading-[0.95]">What is {EVENT.name}?</h2>
@@ -219,7 +222,7 @@ export function LabStage({ progress, reveal = 1 }: { progress: MotionValue<numbe
             Real problems from real companies drop at the start. Cook from scratch, ship before the timer hits zero, and put your batch in front of the judges. The purest build takes the money.
           </p>
         </article>
-        <Plate at={CARDS[0]} label="When">
+        <Plate at={CARDS[0]} label="When" side="l">
           <p className="mt-[0.3cqw] font-display text-[2.3cqw] uppercase leading-none">{cookDay}</p>
           <p className="mt-[0.4cqw] font-type text-[0.95cqw] leading-snug">
             {cookWeekday} {startTime} → {endDay} {startTime}
@@ -227,7 +230,7 @@ export function LabStage({ progress, reveal = 1 }: { progress: MotionValue<numbe
             {EVENT.hours} hours, non-stop
           </p>
         </Plate>
-        <Plate at={CARDS[1]} label="Where">
+        <Plate at={CARDS[1]} label="Where" side="r">
           <p className="mt-[0.3cqw] font-display text-[1.9cqw] uppercase leading-none">{venuePlace}</p>
           <p className="mt-[0.4cqw] font-type text-[0.95cqw] leading-snug">{venueCampus}</p>
         </Plate>

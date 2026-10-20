@@ -36,6 +36,21 @@ const STEP = 0.22; // scroll between one suitcase and the next, within a scene
 const FIRST = 0.1;
 /** where the student print's carved divider sits (canvas x %); the office splits on the same line */
 const SEAM = 49.5;
+const PAN_LEAD = 0.06; // phones: the camera starts panning to a suitcase this much scroll before it lands
+
+/**
+ * Phones only see about a third of the print, so the camera pans to each suitcase as it lands: the cash point goes a
+ * little off centre, away from the side its callout runs to, so the number fits on screen too.
+ */
+function panFor(scene: SceneId, cases: CaseDef[]) {
+  const focus = cases.map((c) => {
+    const [x0, , x1] = bbox(scene, c.layer);
+    return x0 + (x1 - x0) * c.at[0] + (c.prize === null ? 0 : c.to[0] * 0.08);
+  });
+  const at = focus.flatMap((_, i) => (i === 0 ? [0] : [FIRST + i * STEP - PAN_LEAD, FIRST + i * STEP]));
+  const to = focus.flatMap((f, i) => (i === 0 ? [f] : [focus[i - 1], f]));
+  return { at, to };
+}
 
 /**
  * ④ The payout, clearing out of the boom's white flash: Saul's office. The suitcases land one at a time, 3rd first,
@@ -100,9 +115,11 @@ function Stage({ p }: { p: MotionValue<number> }) {
 function Scene({ scene, cases, p, still, kicker, stamp, children }: { scene: SceneId; cases: CaseDef[]; p: MotionValue<number>; still: boolean; kicker: string; stamp: string; children?: ReactNode }) {
   const headOn = useTransform(p, [0.02, 0.05], [0, 1]);
   const headScale = useTransform(p, [0.02, 0.05, 0.06], [1.8, 0.95, 1]);
+  const { at, to } = panFor(scene, cases);
+  const pan = useTransform(p, at, to);
   return (
-    <div className="absolute inset-0">
-      <SceneCanvas scene={scene} bg="bg-night" anchorY={0.6} hide={still ? [] : cases.map((c) => c.layer)}>
+    <motion.div className="absolute inset-0" style={{ ["--pan" as string]: pan }}>
+      <SceneCanvas scene={scene} bg="bg-night" anchorY={0.6} className="portrait:[--focus:var(--pan)]" hide={still ? [] : cases.map((c) => c.layer)}>
         {children}
         {cases.map((c, i) => (
           <Case key={c.layer} scene={scene} p={p} at={FIRST + i * STEP} c={c} still={still} />
@@ -119,7 +136,7 @@ function Scene({ scene, cases, p, still, kicker, stamp, children }: { scene: Sce
           {stamp}
         </p>
       </motion.div>
-    </div>
+    </motion.div>
   );
 }
 

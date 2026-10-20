@@ -186,6 +186,7 @@ export function HeroStage({ progress, onLens }: { progress: MotionValue<number>;
       <SceneCanvas
         scene="hero"
         priority
+        className="portrait:[--focus:0.19]" // phones: the RV and the gas mask, not the empty desert to the right
         overscan={1.02}
         bg="bg-dusk"
         plate={false}
@@ -303,9 +304,9 @@ export function HeroStage({ progress, onLens }: { progress: MotionValue<number>;
       </svg>
       </div>
 
-      <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-[60vw] bg-[radial-gradient(ellipse_at_60%_35%,rgba(17,17,17,0.45),transparent_65%)]" />
+      <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-[60vw] bg-[radial-gradient(ellipse_at_60%_35%,rgba(17,17,17,0.45),transparent_65%)] portrait:inset-x-0 portrait:w-auto portrait:bg-[radial-gradient(ellipse_at_50%_25%,rgba(17,17,17,0.45),transparent_60%)]" />
       <div
-        className="pointer-events-none absolute left-[52vw] right-[5vw] top-[17vh]"
+        className="pointer-events-none absolute left-[52vw] right-[5vw] top-[17vh] portrait:inset-x-4 portrait:top-[13vh]"
         style={{ translate: `0 ${-lift * 55}vh`, opacity: 1 - lift }}
       >
       <motion.div

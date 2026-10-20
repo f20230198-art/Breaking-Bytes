@@ -36,8 +36,11 @@ SCENES = {
         ("case-1", "S-case-1", True), ("case-2", "S-case-2", True), ("more", "S-more", True)]),
     "classroom": ("C-master", [
         ("back", "C-back", False), ("teacher", "C-teacher", True), ("desks", "C-desks", True)]),
+    # floating evidence split per object by split_items.py (green key: magenta would eat the pink bear)
+    "pool": ("P-master", [("back", "P-back", False), *[(f"item-{i}", f"P-item-{i}", "green") for i in range(1, 7)]]),
 }
 SINGLES = {  # standalone images (keyed?)
+    "finale/sky": ("night/N-sky", False),  # moonlit mesa line, green ground cropped off at the horizon
     "extras/og": ("extras/X-og", False),
     "extras/404": ("extras/X-404", False),
     "extras/dashboard-bg": ("extras/X-dashboard-bg", False),

@@ -306,9 +306,93 @@
           ]
         }
       ]
+    },
+    "pool": {
+      "width": 3344,
+      "height": 1882,
+      "master": "/scenes/pool/master.webp",
+      "plate": "/scenes/pool/plate.webp",
+      "layers": [
+        {
+          "id": "back",
+          "src": "/scenes/pool/back.webp",
+          "srcset": "/scenes/pool/back-1280.webp 1280w, /scenes/pool/back-1920.webp 1920w, /scenes/pool/back.webp 3344w"
+        },
+        {
+          "id": "item-1",
+          "src": "/scenes/pool/item-1.webp",
+          "srcset": "/scenes/pool/item-1-1280.webp 1280w, /scenes/pool/item-1-1920.webp 1920w, /scenes/pool/item-1.webp 3344w",
+          "bbox": [
+            0.0102,
+            0.7295,
+            0.1214,
+            0.7906
+          ]
+        },
+        {
+          "id": "item-2",
+          "src": "/scenes/pool/item-2.webp",
+          "srcset": "/scenes/pool/item-2-1280.webp 1280w, /scenes/pool/item-2-1920.webp 1920w, /scenes/pool/item-2.webp 3344w",
+          "bbox": [
+            0.0147,
+            0.5558,
+            0.2001,
+            0.6865
+          ]
+        },
+        {
+          "id": "item-3",
+          "src": "/scenes/pool/item-3.webp",
+          "srcset": "/scenes/pool/item-3-1280.webp 1280w, /scenes/pool/item-3-1920.webp 1920w, /scenes/pool/item-3.webp 3344w",
+          "bbox": [
+            0.1334,
+            0.7269,
+            0.1992,
+            0.8039
+          ]
+        },
+        {
+          "id": "item-4",
+          "src": "/scenes/pool/item-4.webp",
+          "srcset": "/scenes/pool/item-4-1280.webp 1280w, /scenes/pool/item-4-1920.webp 1920w, /scenes/pool/item-4.webp 3344w",
+          "bbox": [
+            0.2004,
+            0.5866,
+            0.4683,
+            0.8055
+          ]
+        },
+        {
+          "id": "item-5",
+          "src": "/scenes/pool/item-5.webp",
+          "srcset": "/scenes/pool/item-5-1280.webp 1280w, /scenes/pool/item-5-1920.webp 1920w, /scenes/pool/item-5.webp 3344w",
+          "bbox": [
+            0.3735,
+            0.6105,
+            0.4686,
+            0.6583
+          ]
+        },
+        {
+          "id": "item-6",
+          "src": "/scenes/pool/item-6.webp",
+          "srcset": "/scenes/pool/item-6-1280.webp 1280w, /scenes/pool/item-6-1920.webp 1920w, /scenes/pool/item-6.webp 3344w",
+          "bbox": [
+            0.4028,
+            0.7258,
+            0.5957,
+            0.8666
+          ]
+        }
+      ]
     }
   },
   "singles": {
+    "finale/sky": {
+      "src": "/scenes/finale/sky.webp",
+      "width": 3344,
+      "height": 1386
+    },
     "extras/og": {
       "src": "/scenes/extras/og.webp",
       "width": 1672,

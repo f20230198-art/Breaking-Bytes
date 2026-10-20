@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "motion/react";
+import { TornEdge } from "@/components/fuse/FuseTimeline";
 import { SUPPLIERS } from "@/data/site";
 
 // card shadows rotate through the GDG colours: the one nod to the club's palette in this section
@@ -15,8 +16,11 @@ export function Sponsors() {
   return (
     <section
       id="sponsors"
-      className="relative z-10 overflow-hidden bg-gradient-to-b from-ink via-night to-ink px-4 py-28 text-paper sm:px-8 md:py-36"
+      className="relative z-10 bg-gradient-to-b from-ink via-night to-ink px-4 py-28 text-paper sm:px-8 md:py-36"
     >
+      <TornEdge fill="var(--color-ink)" />
+      {/* the backdrop is clipped on its own so the torn edge can poke out above the section */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
       {/* backdrop: a faint periodic-table grid, two lamp glows and a stencilled crate word, all behind the cards */}
       <div aria-hidden className="sponsor-grid pointer-events-none absolute inset-0" />
       <div aria-hidden className="pointer-events-none absolute -left-40 top-10 size-[36rem] rounded-full bg-rust/15 blur-3xl" />
@@ -24,6 +28,7 @@ export function Sponsors() {
       <span aria-hidden className="pointer-events-none absolute -right-6 top-16 select-none font-stencil text-[22vw] leading-none text-paper/[0.04] md:text-[16vw]">
         SUPPLY
       </span>
+      </div>
       <div className="relative mx-auto max-w-5xl">
         <p className="font-type text-sm uppercase tracking-[0.3em] text-rust">Supply chain</p>
         <h2 className="mt-3 font-display text-4xl leading-none sm:text-6xl">Our suppliers</h2>

@@ -32,10 +32,12 @@ function Stage({ p }: { p: MotionValue<number> }) {
   const still = !!useReducedMotion();
   const tileAt = (i: number) => 0.12 + i * 0.055;
   const ruleAt = (i: number) => 0.5 + i * 0.08;
+  // phones: the main board is wider than the screen, so the camera follows the chalk across it, then on to the rules
+  const pan = useTransform(p, [0, 0.12, 0.42, 0.5], [0.4, 0.4, 0.66, 0.84]);
   return (
-    <div className="absolute inset-0 bg-ink">
+    <motion.div className="absolute inset-0 bg-ink" style={{ ["--pan" as string]: pan }}>
       {/* asset classroom: back (empty room, blank boards), teacher, desks (foreground) */}
-      <SceneCanvas scene="classroom" anchorY={0.45}>
+      <SceneCanvas scene="classroom" anchorY={0.45} className="portrait:[--focus:var(--pan)]">
         {/* the bunsen burner's little blue flame */}
         <span aria-hidden className="class-flame pointer-events-none absolute" style={{ left: "60.4%", top: "57.4%", width: "0.9%", aspectRatio: "1 / 2" }} />
 
@@ -73,7 +75,7 @@ function Stage({ p }: { p: MotionValue<number> }) {
         </div>
       </SceneCanvas>
       <h2 className="sr-only">Tracks and rules</h2>
-    </div>
+    </motion.div>
   );
 }
 

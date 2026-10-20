@@ -24,6 +24,12 @@ type Props = {
   deferred?: string[];
   /** Which part of the art stays in view when the window is wider/narrower than the art: 0 = top edge, 0.5 = centre, 1 = bottom edge. */
   anchorY?: number;
+  /**
+   * Which point of the art (0 = left edge, 1 = right edge) sits in the middle of the screen when the art is wider than the
+   * window, clamped so an edge never shows. Matters on portrait screens. A parent can animate it with the `--focus` CSS
+   * variable (e.g. pan to each prize as it lands).
+   */
+  focusX?: number;
   /** Extra style on the art box (e.g. a scroll-driven camera zoom: `scale` + `transformOrigin` in canvas %). */
   innerStyle?: CSSProperties;
   /** "cover" fills the screen (crops); "height" always shows the full height, and on wide screens a blurred copy of the first layer fills the sides. */
@@ -34,11 +40,12 @@ type Props = {
  * Stacks a scene's full-canvas layers so they line up 1:1, scaled to cover the viewport
  * (like object-fit: cover). Mouse movement drives a subtle parallax via CSS variables.
  */
-export function SceneCanvas({ scene, hide = [], children, priority, className = "", layerStyle = {}, overscan = 1.06, bg = "bg-ink", plate = true, deferred = [], anchorY = 0.5, innerStyle, fit = "cover" }: Props) {
+export function SceneCanvas({ scene, hide = [], children, priority, className = "", layerStyle = {}, overscan = 1.06, bg = "bg-ink", plate = true, deferred = [], anchorY = 0.5, focusX = 0.5, innerStyle, fit = "cover" }: Props) {
   const a = sceneAssets(scene);
   const depths = DEPTHS[scene];
   const ref = useRef<HTMLDivElement>(null);
   const ratio = a.width / a.height;
+  const coverW = `max(100cqw, ${100 * ratio}cqh)`;
 
   useEffect(() => {
     const el = ref.current;
@@ -70,18 +77,25 @@ export function SceneCanvas({ scene, hide = [], children, priority, className = 
   }, []);
 
   return (
-    <div ref={ref} className={`absolute inset-0 overflow-hidden ${bg} ${className}`}>
+    // container units (cqw/cqh) size the art to this box, so a scene also works in boxes that aren't the full screen
+    <div ref={ref} className={`absolute inset-0 overflow-hidden ${bg} ${className}`} style={{ containerType: "size" }}>
       {fit === "height" && (
         <img src={a.layers[0].src} alt="" aria-hidden draggable={false} className="absolute inset-0 h-full w-full scale-110 select-none object-cover opacity-50 blur-2xl" />
       )}
       {/* cover box: always fills the viewport while keeping the art's aspect ratio */}
       <div
         data-canvas
-        className="absolute left-1/2"
+        className="absolute"
         style={
           fit === "height"
-            ? { top: 0, transform: "translateX(-50%)", width: `${100 * ratio}vh`, height: "100vh" }
-            : { top: `${anchorY * 100}%`, transform: `translate(-50%, -${anchorY * 100}%)`, width: `max(100vw, ${100 * ratio}vh)`, height: `max(100vh, ${100 / ratio}vw)` }
+            ? { top: 0, left: "50%", transform: "translateX(-50%)", width: `${100 * ratio}cqh`, height: "100cqh" }
+            : {
+                top: `${anchorY * 100}%`,
+                left: `clamp(calc(100cqw - ${coverW}), calc(50cqw - var(--focus, ${focusX}) * ${coverW}), 0px)`,
+                transform: `translateY(-${anchorY * 100}%)`,
+                width: coverW,
+                height: `max(100cqh, ${100 / ratio}cqw)`,
+              }
         }
       >
         <div className="absolute inset-0" style={{ scale: overscan, ...innerStyle }}>
