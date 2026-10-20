@@ -7,6 +7,8 @@ import { NextResponse, type NextRequest } from "next/server";
  */
 export async function refreshSession(request: NextRequest) {
   let response = NextResponse.next({ request });
+  // no Supabase configured (e.g. a quick preview deploy of the landing page): step aside instead of failing every page
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) return { user: null, response: () => response };
   const supabase = createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
     cookies: {
       getAll: () => request.cookies.getAll(),

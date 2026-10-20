@@ -3,6 +3,14 @@ begin;
 create extension if not exists pgtap with schema extensions;
 select plan(60);
 
+-- start from a clean slate, whatever is in the local database (all inside this transaction, rolled back at the end)
+delete from public.admin_emails;
+delete from public.admin_audit;
+truncate public.teams cascade;
+delete from auth.users;
+delete from public.partner_universities;
+insert into public.partner_universities (name, domain_pattern) values ('BITS Pilani, Dubai Campus', 'dubai.bits-pilani.ac.in');
+
 -- ─── cast ──────────────────────────────────────────────────────────────────────────────────────────────────────
 insert into public.admin_emails (email) values ('gus@lospollos.test');
 insert into public.partner_universities (name, domain_pattern) values ('Test U', '%.testu.edu');

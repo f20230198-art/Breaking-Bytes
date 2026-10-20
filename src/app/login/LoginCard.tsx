@@ -2,6 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
+import { safeNext } from "@/lib/safeNext";
 import { supabaseBrowser } from "@/lib/supabase/client";
 
 /** Google is the only door in. University Google accounts are detected as Jesse (student) on the server. */
@@ -12,7 +13,7 @@ export function LoginCard() {
 
   const signIn = async () => {
     setBusy(true);
-    const next = params.get("next") ?? "/dashboard";
+    const next = safeNext(params.get("next"));
     const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
     const { error } = await supabaseBrowser().auth.signInWithOAuth({ provider: "google", options: { redirectTo } });
     if (error) setBusy(false);
@@ -35,7 +36,8 @@ export function LoginCard() {
       >
         {busy ? "Opening Google…" : "Sign in with Google"}
       </button>
-      {process.env.NEXT_PUBLIC_DEV_LOGIN === "1" && <DevLogin next={params.get("next") ?? "/dashboard"} />}
+      {/* never in a production build, whatever the flag says */}
+      {process.env.NODE_ENV !== "production" && process.env.NEXT_PUBLIC_DEV_LOGIN === "1" && <DevLogin next={safeNext(params.get("next"))} />}
     </div>
   );
 }
