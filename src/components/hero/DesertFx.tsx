@@ -64,6 +64,8 @@ export function DesertFx({ tumble, night }: { tumble: MutableRefObject<TumbleSta
     };
 
     const tick = (now: number) => {
+      // ~30 fps: birds, sand and dust read the same, at half the cost of repainting a full-screen canvas
+      if (now - last < 31) { raf = requestAnimationFrame(tick); return; }
       const dt = Math.min((now - last) / 1000, 0.05);
       last = now;
       ctx.clearRect(0, 0, W, H);

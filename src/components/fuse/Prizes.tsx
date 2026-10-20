@@ -172,7 +172,7 @@ function Case({ scene, p, at, c, still }: { scene: SceneId; p: MotionValue<numbe
   return (
     <>
       {!still && (
-        <motion.img src={layer.src} srcSet={layer.srcset} alt="" draggable={false} className="absolute inset-0 size-full select-none" style={{ opacity: fade, y: drop }} />
+        <motion.img src={layer.src} srcSet={layer.srcset} sizes="(min-aspect-ratio: 3344/1882) 100vw, 177.7vh" loading="lazy" decoding="async" alt="" draggable={false} className="absolute inset-0 size-full select-none" style={{ opacity: fade, y: drop }} />
       )}
       <Callout p={p} at={at + 0.04} prize={c.prize} x={(x0 + (x1 - x0) * c.at[0]) * 100} y={(y0 + (y1 - y0) * c.at[1]) * 100} to={c.to} still={still} />
     </>

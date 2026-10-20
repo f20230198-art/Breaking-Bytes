@@ -3,6 +3,7 @@
 import { motion, useMotionValueEvent, useReducedMotion, useScroll, useTransform } from "motion/react";
 import { useLayoutEffect, useRef, useState } from "react";
 import { Tile } from "@/components/comic/PeriodicTitle";
+import { useNearView } from "@/components/scene/useNearView";
 import { EVENT, FOOD_NOTE, SCHEDULE } from "@/data/site";
 
 const FUSE_GAP = 0.1; // the fuse runs this far (fraction of the column) beside a card, on its free side
@@ -47,6 +48,7 @@ type Geo = { w: number; h: number; d: string; ticks: { x1: number; x2: number; y
  */
 export function FuseTimeline() {
   const ref = useRef<HTMLElement>(null);
+  const near = useNearView(ref, "20%"); // spark, smoke and explosion loops pause once the timeline is off screen
   const col = useRef<HTMLDivElement>(null);
   const cards = useRef<(HTMLLIElement | null)[]>([]);
   const path = useRef<SVGPathElement>(null);
@@ -156,6 +158,7 @@ export function FuseTimeline() {
   return (
     <section
       ref={ref}
+      data-idle={near ? undefined : ""}
       id="schedule"
       aria-labelledby="schedule-title"
       className="relative z-10 -mt-[100vh] overflow-x-clip bg-paper pb-[100vh] pt-28 text-ink"

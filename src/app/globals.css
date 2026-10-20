@@ -317,6 +317,13 @@ html.lenis body {
   clip-path: polygon(22% 0, 78% 0, 100% 100%, 0 100%);
 }
 
+/* off-screen sections sleep: their looping effects stop costing frames (set by useNearView / IdleWhenOffscreen) */
+[data-idle] *,
+[data-idle] *::before,
+[data-idle] *::after {
+  animation-play-state: paused !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .lab-fx, .lab-glow { animation: none !important; }
   *,

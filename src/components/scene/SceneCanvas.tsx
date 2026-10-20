@@ -3,6 +3,7 @@
 
 import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
 import { DEPTHS, sceneAssets, type SceneId } from "@/scenes/config";
+import { useNearView } from "./useNearView";
 
 type Props = {
   scene: SceneId;
@@ -18,7 +19,8 @@ type Props = {
   overscan?: number;
   /** Background shown wherever layers move off the canvas. */
   bg?: string;
-  /** Skip the inpainted plate when an opaque full-canvas layer (e.g. a sky) already fills the back. */
+  /** Draw the inpainted plate behind the layers. Defaults to on only when the back layer is a cut-out (has a bbox); an
+   * opaque full-canvas back layer already hides it completely, so it would be a wasted download. */
   plate?: boolean;
   /** Layers that can arrive after first paint (hover reveals, small props). */
   deferred?: string[];
@@ -40,16 +42,19 @@ type Props = {
  * Stacks a scene's full-canvas layers so they line up 1:1, scaled to cover the viewport
  * (like object-fit: cover). Mouse movement drives a subtle parallax via CSS variables.
  */
-export function SceneCanvas({ scene, hide = [], children, priority, className = "", layerStyle = {}, overscan = 1.06, bg = "bg-ink", plate = true, deferred = [], anchorY = 0.5, focusX = 0.5, innerStyle, fit = "cover" }: Props) {
+export function SceneCanvas({ scene, hide = [], children, priority, className = "", layerStyle = {}, overscan = 1.06, bg = "bg-ink", plate, deferred = [], anchorY = 0.5, focusX = 0.5, innerStyle, fit = "cover" }: Props) {
   const a = sceneAssets(scene);
   const depths = DEPTHS[scene];
   const ref = useRef<HTMLDivElement>(null);
+  const near = useNearView(ref);
+  const showPlate = plate ?? !!a.layers[0]?.bbox;
   const ratio = a.width / a.height;
   const coverW = `max(100cqw, ${100 * ratio}cqh)`;
 
   useEffect(() => {
     const el = ref.current;
-    if (!el || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    // off-screen scenes don't follow the pointer at all (every update restyles the whole layer stack)
+    if (!el || !near || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     let raf = 0;
     let tx = 0, ty = 0, x = 0, y = 0;
     let running = false;
@@ -74,11 +79,11 @@ export function SceneCanvas({ scene, hide = [], children, priority, className = 
       window.removeEventListener("pointermove", onMove);
       cancelAnimationFrame(raf);
     };
-  }, []);
+  }, [near]);
 
   return (
     // container units (cqw/cqh) size the art to this box, so a scene also works in boxes that aren't the full screen
-    <div ref={ref} className={`absolute inset-0 overflow-hidden ${bg} ${className}`} style={{ containerType: "size" }}>
+    <div ref={ref} data-idle={near ? undefined : ""} className={`absolute inset-0 overflow-hidden ${bg} ${className}`} style={{ containerType: "size" }}>
       {fit === "height" && (
         <img src={a.layers[0].src} alt="" aria-hidden draggable={false} className="absolute inset-0 h-full w-full scale-110 select-none object-cover opacity-50 blur-2xl" />
       )}
@@ -99,7 +104,7 @@ export function SceneCanvas({ scene, hide = [], children, priority, className = 
         }
       >
         <div className="absolute inset-0" style={{ scale: overscan, ...innerStyle }}>
-          {plate && <img src={a.plate} alt="" className="absolute inset-0 h-full w-full select-none" draggable={false} />}
+          {showPlate && <img src={a.plate} alt="" loading={priority ? "eager" : "lazy"} className="absolute inset-0 h-full w-full select-none" draggable={false} />}
           {a.layers
             .filter((l) => !hide.includes(l.id))
             .map((l) => (
@@ -112,8 +117,10 @@ export function SceneCanvas({ scene, hide = [], children, priority, className = 
                 srcSet={l.srcset}
                 sizes={`(min-aspect-ratio: ${a.width}/${a.height}) 100vw, ${(100 * ratio).toFixed(1)}vh`}
                 decoding="async"
+                loading={priority ? "eager" : "lazy"}
                 fetchPriority={deferred.includes(l.id) ? "low" : priority ? "high" : "auto"}
-                className="absolute inset-0 h-full w-full select-none will-change-transform"
+                // GPU layers only while the scene is near the screen: each one holds a full-size texture
+                className={`absolute inset-0 h-full w-full select-none ${near ? "will-change-transform" : ""}`}
                 style={{
                   transform: `translate3d(calc(var(--mx, 0) * ${-(depths[l.id] ?? 0.3) * 18}px), calc(var(--my, 0) * ${-(depths[l.id] ?? 0.3) * 10}px), 0)`,
                   ...layerStyle[l.id],

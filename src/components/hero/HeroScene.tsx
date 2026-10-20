@@ -118,12 +118,17 @@ export function HeroStage({ progress, onLens }: { progress: MotionValue<number>;
       window.removeEventListener("resize", measure);
     };
   }, [zoomed, onLens]);
-  const [roll, setRoll] = useState({ x: 0, y: 0, rot: 0, t: 0 });
+  // the churning gas cloud's clock; only ticks (and re-renders the hero) while the lens is actually open
+  const [gasT, setGasT] = useState(0);
   const fallRef = useRef(0);
   useEffect(() => {
     fallRef.current = fall;
   }, [fall]);
   const [lens, setLens] = useState({ x: 50, y: 50, on: false, full: false });
+  const lensOpen = useRef(false);
+  useEffect(() => {
+    lensOpen.current = lens.on || lens.full;
+  }, [lens]);
   const [chairTip, setChairTip] = useState(false);
 
   useMotionValueEvent(progress, "change", (v) => {
@@ -135,10 +140,12 @@ export function HeroStage({ progress, onLens }: { progress: MotionValue<number>;
     setFall(fallAt(v));
   });
 
-  // roll the tumbleweed across the desert: spin matches distance travelled, small hops, wind gusts
+  // roll the tumbleweed across the desert: spin matches distance travelled, small hops, wind gusts. Written straight to
+  // the layer's style, not through React state, so the whole hero doesn't re-render 30 times a second just for this.
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     let raf = 0, last = performance.now(), lastPaint = 0, dx = ROLL_FROM, rest = 0, t = 0;
+    let weed: HTMLElement | null = null;
     const tick = (now: number) => {
       const dt = Math.min((now - last) / 1000, 0.05);
       last = now; t += dt;
@@ -149,10 +156,12 @@ export function HeroStage({ progress, onLens }: { progress: MotionValue<number>;
       }
       const hop = Math.abs(Math.sin((ROLL_FROM - dx) / (twR * 2.6))); // 0 = touching the ground
       tumble.current = rest > 0 ? null : { x: twCx + dx, y: twY1, r: twR, landed: hop < 0.12 };
-      // the whole hero re-renders on every setRoll, so cap it at ~30 fps, and stop it once the fall into the mask starts
+      // ~30 fps is plenty for a tumbleweed; it stops once the fall into the mask starts
       if (fallRef.current === 0 && now - lastPaint >= 33) {
         lastPaint = now;
-        setRoll({ x: dx * 100, y: -hop * 1.4, rot: (dx / twR) * (180 / Math.PI), t });
+        weed ??= zoomRef.current?.querySelector<HTMLElement>('img[data-layer="tumbleweed"]') ?? null;
+        if (weed) weed.style.transform = `translate3d(${dx * 100}%, ${-hop * 1.4}%, 0) rotate(${(dx / twR) * (180 / Math.PI)}deg)`;
+        if (lensOpen.current) setGasT(t);
       }
       raf = requestAnimationFrame(tick);
     };
@@ -204,12 +213,13 @@ export function HeroStage({ progress, onLens }: { progress: MotionValue<number>;
             ["--ly" as string]: `${lens.y}%`,
             ["--lr" as string]: lens.full ? "2400px" : lens.on ? `${LENS}px` : "0px",
             transition: `--lr 420ms ${EASE}`,
-            maskImage: gasCloud(lens.on || lens.full ? roll.t : 0),
-            WebkitMaskImage: gasCloud(lens.on || lens.full ? roll.t : 0),
+            maskImage: gasCloud(lens.on || lens.full ? gasT : 0),
+            WebkitMaskImage: gasCloud(lens.on || lens.full ? gasT : 0),
           },
           tumbleweed: {
             transformOrigin: `${twCx * 100}% ${twCy * 100}%`,
-            transform: `translate3d(${roll.x}%, ${roll.y}%, 0) rotate(${roll.rot}deg)`,
+            // constant, so React never overwrites the roll the animation loop writes onto the element
+            transform: `translate3d(${ROLL_FROM * 100}%, 0, 0)`,
           },
           chairs: {
             transformOrigin: `${CH.ox * 100}% ${CH.oy * 100}%`,
@@ -295,7 +305,8 @@ export function HeroStage({ progress, onLens }: { progress: MotionValue<number>;
       </SceneCanvas>
 
       <svg aria-hidden className="absolute size-0">
-        <filter id="heat" x="0" y="0" width="100%" height="100%">
+        {/* the filter region is just the visible strip (same box as the clip-path), not the whole full-screen image */}
+        <filter id="heat" x={`${(rv[2] + 0.01) * 100}%`} y="47%" width={`${(0.99 - rv[2]) * 100}%`} height="14%">
           <feTurbulence type="fractalNoise" baseFrequency="0.004 0.06" numOctaves="1" seed="3" result="n">
             <animate attributeName="baseFrequency" dur="7s" values="0.004 0.06;0.004 0.075;0.004 0.06" repeatCount="indefinite" />
           </feTurbulence>
