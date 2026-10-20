@@ -24,3 +24,6 @@ npm-debug.log*
 *.tsbuildinfo
 next-env.d.ts
 upscayl_png_digital-art-4x_2x/
+
+# the template is safe to commit
+!.env.example

@@ -1,4 +1,13 @@
-# Supabase Schema (draft)
+# Supabase Schema
+
+> **Built 2026-10-20.** The source of truth is now `supabase/migrations/` (schema, RLS, hacker RPCs, admin + audit) with
+> `supabase/seed.sql` for placeholder content and `supabase/tests/database/rules.test.sql` (pgTAP, 56 checks).
+> Differences from the draft below: admins write tables directly (RLS `is_admin()` + an audit trigger on every table)
+> instead of one RPC per admin action; teammates are read through `my_crew()` (no emails/phones); join attempts are
+> rate-limited 10/min; the crew cap is enforced by a trigger on every write path. Local: `npx supabase start`,
+> `npx supabase db reset`, `npx supabase test db`, `npx supabase gen types typescript --local > src/types/database.ts`.
+
+## Original draft
 
 ## Tables
 ```
