@@ -26,7 +26,7 @@ const smooth = (x: number) => x * x * (3 - 2 * x);
  */
 function blobPath(cx: number, cy: number, R: number, wobble: number, t: number) {
   const pts: string[] = [];
-  const N = 200;
+  const N = 96; // plenty for a smooth edge at screen size; the path is rebuilt and re-rasterised every frame
   for (let i = 0; i < N; i++) {
     const a = (i / N) * Math.PI * 2;
     const k =
@@ -61,21 +61,9 @@ function Stage({ progress }: { progress: MotionValue<number> }) {
   const [fall, setFall] = useState(() => fallAt(heroP.get()));
   const [lens, setLens] = useState<LensPx | null>(null); // measured by the hero: where the lens is on screen
   const [vp, setVp] = useState<{ w: number; h: number } | null>(null);
-  // the lab's images start loading a little before the fall begins, so the lens never opens on an empty room
-  const [warm, setWarm] = useState(() => heroP.get() > FALL_FROM - 0.25);
   useMotionValueEvent(heroP, "change", (v) => {
     setFall(fallAt(v));
-    setWarm((w) => w || v > FALL_FROM - 0.25);
   });
-  useEffect(() => {
-    if (!warm) return;
-    // decode the lab art before the lens opens, so it never pops in
-    for (const src of ["back", "clipboard", "glow"].map((id) => `/scenes/lab/${id}-1920.webp`)) {
-      const img = new Image();
-      img.src = src;
-      img.decode?.().catch(() => {});
-    }
-  }, [warm]);
   const onLens = useCallback((l: LensPx) => setLens(l), []);
 
   useEffect(() => {
@@ -91,6 +79,7 @@ function Stage({ progress }: { progress: MotionValue<number> }) {
   let clip = "none";
   let rim = "none";
   let grow = 0;
+  let filled = false;
   if (peeking && !covered) {
     const scale = fallScale(fall);
     const open = smooth(c01(fall / 0.3)); // the lab fills the lens ring first...
@@ -99,16 +88,23 @@ function Stage({ progress }: { progress: MotionValue<number> }) {
     const R = lens.r * scale * 0.85 * open + 1.9 * coverW * grow;
     const wobble = smooth(c01((fall - 0.12) / 0.4));
     const t = fall * 7;
-    clip = blobPath(lens.x, lens.y, R, wobble, t);
-    rim = blobPath(lens.x, lens.y, R + 6 + 26 * open, wobble, t + 0.25);
+    // once even the blob's deepest dent (the wobble terms sum to 0.38) clears every corner of the screen, the lab
+    // already fills it: drop the clip and the zoomed desert instead of redrawing both, unseen, for the rest of the fall
+    const far = Math.max(Math.hypot(lens.x, lens.y), Math.hypot(vp.w - lens.x, lens.y), Math.hypot(lens.x, vp.h - lens.y), Math.hypot(vp.w - lens.x, vp.h - lens.y));
+    filled = R * (1 - 0.38 * wobble) > far;
+    if (!filled) {
+      clip = blobPath(lens.x, lens.y, R, wobble, t);
+      rim = blobPath(lens.x, lens.y, R + 6 + 26 * open, wobble, t + 0.25);
+    }
   }
+  const gone = covered || filled; // the desert is fully hidden behind the lab
   const reveal = smooth(c01((fall - 0.12) / 0.4)); // the lab's moving parts fade in as the lens opens
   const dark = smooth(c01(fall / 0.7)); // the desert sinks into shadow toward the lens as you fall
 
   return (
     <>
-      {!covered && <HeroStage progress={heroP} onLens={onLens} />}
-      {peeking && !covered && lens && (
+      {!gone && <HeroStage progress={heroP} onLens={onLens} />}
+      {peeking && !gone && lens && (
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0"
@@ -118,10 +114,12 @@ function Stage({ progress }: { progress: MotionValue<number> }) {
           }}
         />
       )}
-      {(warm || peeking) && (
+      {/* the lab is always mounted (hidden until the lens opens), so its art is fetched and decoded in idle time
+          long before the fall, and the lens never opens on an undecoded room */}
+      {(
         <>
           {/* a yellow toxic-vapour rim around the opening */}
-          {peeking && !covered && grow < 0.55 && (
+          {peeking && !gone && grow < 0.55 && (
             <div aria-hidden className="absolute inset-0" style={{ filter: "blur(10px)", opacity: 0.9 * (1 - grow * 0.75) }}>
               <div className="absolute inset-0 bg-hazmat" style={{ clipPath: rim }} />
             </div>

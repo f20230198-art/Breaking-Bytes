@@ -4,6 +4,7 @@
 import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
 import { DEPTHS, sceneAssets, type SceneId } from "@/scenes/config";
 import { useNearView } from "./useNearView";
+import { unwarm, warmLater } from "./warmScenes";
 
 type Props = {
   scene: SceneId;
@@ -49,6 +50,13 @@ export function SceneCanvas({ scene, hide = [], children, priority, className = 
   const near = useNearView(ref);
   const showPlate = plate ?? !!a.layers[0]?.bbox;
   const ratio = a.width / a.height;
+  // lazy at first, then fetched and decoded in idle time after load, before you scroll to it
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || priority) return;
+    warmLater(el);
+    return () => unwarm(el);
+  }, [priority]);
   const coverW = `max(100cqw, ${100 * ratio}cqh)`;
 
   useEffect(() => {
