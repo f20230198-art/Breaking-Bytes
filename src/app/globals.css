@@ -319,6 +319,9 @@ html.lenis body {
 
 /* first-visit loader: the Br tile draws itself (see Loader.tsx). Repeat visits hide it before first paint. */
 html[data-loaded] .bb-loader { display: none; }
+/* failsafe: if the loader's script never runs (JS error, stale bundle), CSS alone lifts it after 8 s */
+.bb-loader { animation: ld-failsafe 0.4s 8s forwards; }
+@keyframes ld-failsafe { to { opacity: 0; visibility: hidden; pointer-events: none; } }
 .bb-loader rect, .bb-loader polygon { fill: none; }
 .ld-pencil {
   stroke: color-mix(in srgb, var(--color-ink) 35%, transparent);
