@@ -27,7 +27,6 @@ Security Advisor, backup, dry run with fake crews.
 ## 4. Small code bits
 - [ ] Classroom chalkboard tracks + rules are still placeholders in `src/data/site.ts` (`TRACKS`, `RULES`).
 - [ ] `src/app/opengraph-image.jpg` / `twitter-image.jpg` have "16–17 Nov 2026" baked in: regenerate if dates change.
-- [ ] Stray file in the repo root (not tracked): `Sparse New Mexico Desert Tracks_upscayl_2x_digital-art-4x.png`.
 
 ## Local dev reminders
 - `npm run dev` (add `-- -H 0.0.0.0` for phones on the LAN); `.env.local` points at the LAN IP 10.30.67.85.
