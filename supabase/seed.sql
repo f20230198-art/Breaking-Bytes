@@ -1,16 +1,16 @@
 -- Placeholder content, mirroring src/data/site.ts until the club confirms the real values (all editable in /admin).
--- Times are UTC; the venue is Gulf time (UTC+4): pick 10:00, drop 12:00 on 2 Nov, Dead Drop 08:00–12:00 on 3 Nov.
+-- Times are UTC; the venue is Gulf time (UTC+4): pick 10:00, drop 12:00 on 16 Nov, Dead Drop 08:00–12:00 on 17 Nov.
 -- Admin emails are NOT seeded (no personal addresses in git): add yours locally with
 --   insert into public.admin_emails (email) values ('you@example.com');
 
 update public.event_config set
   registration_open = true,
-  starts_at = '2026-11-02 08:00+00',
-  supplier_pick_at = '2026-11-02 06:00+00',
-  problems_release_at = '2026-11-02 08:00+00',
-  roster_lock_at = '2026-11-02 08:00+00',
-  submissions_open_at = '2026-11-03 04:00+00',
-  deadline_at = '2026-11-03 08:00+00',
+  starts_at = '2026-11-16 08:00+00',
+  supplier_pick_at = '2026-11-16 06:00+00',
+  problems_release_at = '2026-11-16 08:00+00',
+  roster_lock_at = '2026-11-16 08:00+00',
+  submissions_open_at = '2026-11-17 04:00+00',
+  deadline_at = '2026-11-17 08:00+00',
   team_max = 4,
   supplier_cap_slack = 1,
   prize_pool_aed = 7000

@@ -67,9 +67,9 @@ export type Database = {
                   ]
                 },"event_config": {
                   Row: {
-                    "deadline_at": string | null,"id": number,"prize_pool_aed": number | null,"problems_release_at": string | null,"registration_open": boolean,"roster_lock_at": string | null,"starts_at": string | null,"submissions_open_at": string | null,"supplier_cap_slack": number,"supplier_pick_at": string | null,"team_max": number,"updated_at": string,"_roster_open": boolean | null
+                    "deadline_at": string | null,"id": number,"prize_pool_aed": number | null,"problems_release_at": string | null,"registration_open": boolean,"roster_lock_at": string | null,"starts_at": string | null,"submissions_open_at": string | null,"supplier_cap_slack": number,"supplier_pick_at": string | null,"team_max": number,"updated_at": string
                   }
-                  ComputedFields: "_roster_open"
+                  ComputedFields: never
                   Insert: {
                     "deadline_at"?: string | null,"id"?: number,"prize_pool_aed"?: number | null,"problems_release_at"?: string | null,"registration_open"?: boolean,"roster_lock_at"?: string | null,"starts_at"?: string | null,"submissions_open_at"?: string | null,"supplier_cap_slack"?: number,"supplier_pick_at"?: string | null,"team_max"?: number,"updated_at"?: string
                   }
@@ -380,7 +380,7 @@ isOneToOne: false
 { Args: Record<PropertyKey, never>; Returns: string
                            },
 "_roster_open":
-{ Args: { "c": Omit<Database["public"]['Tables']["event_config"]['Row'], Database["public"]['Tables']["event_config"]['ComputedFields']> }; Returns: boolean
+{ Args: { "p_lock": string }; Returns: boolean
                            },
 "_supplier_cap":
 { Args: Record<PropertyKey, never>; Returns: number

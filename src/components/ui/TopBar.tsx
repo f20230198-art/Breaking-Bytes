@@ -31,7 +31,8 @@ export function TopBar() {
       </Link>
       </div>
       <div className="flex items-center gap-3">
-        <span className="hidden bg-ink/80 px-2 py-1 text-xs md:inline">
+        {/* phones too: the countdown is the one thing everyone checks */}
+        <span className="bg-ink/80 px-1.5 py-1 text-[10px] sm:px-2 sm:text-xs">
           <Countdown to={EVENT.startsAt} compact />
         </span>
         <Link

@@ -387,6 +387,16 @@ html[data-loading] body > :not(.bb-loader):not(script) { visibility: hidden; ani
 @keyframes ld-grow { to { scale: 1; } }
 @keyframes ld-blink { 50% { opacity: 0.35; } }
 
+/* dashboard: blue crystal shards when a batch ships */
+.crystal-shard {
+  clip-path: polygon(50% 0, 100% 35%, 70% 100%, 20% 90%, 0 30%);
+  translate: 0 -20px;
+  animation: crystal-fall 1.6s cubic-bezier(.3,.6,.4,1) forwards;
+}
+@keyframes crystal-fall {
+  to { translate: var(--drift) 420px; rotate: var(--spin); opacity: 0; }
+}
+
 /* off-screen sections sleep: their looping effects stop costing frames (set by useNearView / IdleWhenOffscreen) */
 [data-idle] *,
 [data-idle] *::before,

@@ -35,6 +35,37 @@ export function LoginCard() {
       >
         {busy ? "Opening Google…" : "Sign in with Google"}
       </button>
+      {process.env.NEXT_PUBLIC_DEV_LOGIN === "1" && <DevLogin next={params.get("next") ?? "/dashboard"} />}
+    </div>
+  );
+}
+
+/**
+ * Local development only (NEXT_PUBLIC_DEV_LOGIN=1 in .env.local, against the local Supabase stack): email + password,
+ * creating the account on first use, so the portal can be tested without Google. The hosted project has the email
+ * provider switched off, so this form could not sign anyone in there even if the flag leaked.
+ */
+function DevLogin({ next }: { next: string }) {
+  const [email, setEmail] = useState("walt@gmail.com");
+  const [error, setError] = useState<string | null>(null);
+  const go = async () => {
+    const supabase = supabaseBrowser();
+    const creds = { email, password: "say-my-name-dev" };
+    let { error } = await supabase.auth.signInWithPassword(creds);
+    if (error) ({ error } = await supabase.auth.signUp(creds));
+    if (error) return setError(error.message);
+    window.location.assign(next);
+  };
+  return (
+    <div className="mt-6 border-t-2 border-dashed border-ink/30 pt-4">
+      <p className="font-type text-xs uppercase tracking-[0.2em] text-ink/60">Dev login (local only)</p>
+      <div className="mt-2 flex gap-2">
+        <input value={email} onChange={(e) => setEmail(e.target.value)} aria-label="Dev email"
+          className="min-w-0 flex-1 border-2 border-ink bg-paper-dim/40 px-2 py-1.5 font-type text-sm" />
+        <button type="button" onClick={go} className="border-2 border-ink bg-paper-dim px-3 font-display text-xs uppercase">Go</button>
+      </div>
+      <p className="mt-1 font-type text-[11px] text-ink/50">Try a @dubai.bits-pilani.ac.in address for a Jesse.</p>
+      {error && <p className="mt-1 font-type text-xs text-brick">{error}</p>}
     </div>
   );
 }

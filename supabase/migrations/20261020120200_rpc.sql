@@ -36,9 +36,10 @@ begin
 end;
 $$;
 
-create function public._roster_open(c public.event_config) returns boolean
+-- takes the timestamp, not the event_config row: a function of a row type would show up as a computed column in the API
+create function public._roster_open(p_lock timestamptz) returns boolean
 language sql stable as $$
-  select c.roster_lock_at is null or now() < c.roster_lock_at;
+  select p_lock is null or now() < p_lock;
 $$;
 
 -- 'ABQ-' + 5 characters from an alphabet without look-alikes (no 0/O, 1/I): 32^5 ≈ 33.5 million codes
@@ -90,7 +91,7 @@ declare
   tid uuid;
 begin
   if not c.registration_open then raise exception 'registration_closed' using errcode = 'P0001'; end if;
-  if not public._roster_open(c) then raise exception 'rosters_frozen' using errcode = 'P0001'; end if;
+  if not public._roster_open(c.roster_lock_at) then raise exception 'rosters_frozen' using errcode = 'P0001'; end if;
   if exists (select 1 from public.team_members where user_id = me.id) then raise exception 'already_in_crew' using errcode = 'P0001'; end if;
   if length(n) not between 3 and 40 or n !~ '^[[:alnum:] .''&!?_-]+$' then raise exception 'bad_name' using errcode = 'P0001'; end if;
   begin
@@ -124,7 +125,7 @@ begin
   if not hit then return null; end if;
 
   if not c.registration_open then raise exception 'registration_closed' using errcode = 'P0001'; end if;
-  if not public._roster_open(c) then raise exception 'rosters_frozen' using errcode = 'P0001'; end if;
+  if not public._roster_open(c.roster_lock_at) then raise exception 'rosters_frozen' using errcode = 'P0001'; end if;
   if exists (select 1 from public.team_members where user_id = me.id) then raise exception 'already_in_crew' using errcode = 'P0001'; end if;
   if t.status <> 'active' then raise exception 'disqualified' using errcode = 'P0001'; end if;
   if t.roster_locked then raise exception 'crew_locked' using errcode = 'P0001'; end if;
@@ -147,7 +148,7 @@ declare
   t public.teams := public._my_team(false);
   heir uuid;
 begin
-  if not public._roster_open(c) then raise exception 'rosters_frozen' using errcode = 'P0001'; end if;
+  if not public._roster_open(c.roster_lock_at) then raise exception 'rosters_frozen' using errcode = 'P0001'; end if;
   delete from public.team_members where team_id = t.id and user_id = me.id;
   if t.leader_id = me.id then
     select user_id into heir from public.team_members where team_id = t.id order by joined_at, user_id limit 1;
@@ -167,7 +168,7 @@ declare
   c public.event_config := public._cfg();
   t public.teams := public._my_team(true);
 begin
-  if not public._roster_open(c) then raise exception 'rosters_frozen' using errcode = 'P0001'; end if;
+  if not public._roster_open(c.roster_lock_at) then raise exception 'rosters_frozen' using errcode = 'P0001'; end if;
   if p_user = me.id then raise exception 'use_leave_team' using errcode = 'P0001'; end if;
   delete from public.team_members where team_id = t.id and user_id = p_user;
   if not found then raise exception 'not_member' using errcode = 'P0001'; end if;
@@ -181,7 +182,7 @@ declare
   c public.event_config := public._cfg();
   t public.teams := public._my_team(true);
 begin
-  if not p_locked and not public._roster_open(c) then raise exception 'rosters_frozen' using errcode = 'P0001'; end if;
+  if not p_locked and not public._roster_open(c.roster_lock_at) then raise exception 'rosters_frozen' using errcode = 'P0001'; end if;
   update public.teams set roster_locked = p_locked where id = t.id;
 end;
 $$;

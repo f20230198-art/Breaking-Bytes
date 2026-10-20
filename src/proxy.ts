@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { refreshSession } from "@/lib/supabase/proxy";
 
 // signed-in areas: no session → off to /login, then straight back here afterwards
-const PRIVATE = ["/dashboard", "/admin"];
+const PRIVATE = ["/dashboard", "/admin", "/onboarding"];
 
 export async function proxy(request: NextRequest) {
   const { user, response } = await refreshSession(request);

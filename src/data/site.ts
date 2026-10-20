@@ -24,8 +24,9 @@ export const CLUB = {
 export const EVENT = {
   name: "Breaking Bytes",
   tagline: "The Underground Hackathon",
-  // TODO(admin): confirm the start time. 2–3 Nov, 12:00 → 12:00 Gulf time (UTC+4).
-  startsAt: "2026-11-02T08:00:00Z",
+  // TODO(admin): confirm the start time. Moved to 16–17 Nov (2026-10-20), 12:00 → 12:00 Gulf time (UTC+4).
+  startsAt: "2026-11-16T08:00:00Z",
+  dates: "16–17 Nov 2026",
   venue: "BITS Pilani, Dubai Campus",
   hours: 24,
   expectedCooks: 200,

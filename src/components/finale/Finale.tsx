@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import { PeriodicTitle } from "@/components/comic/PeriodicTitle";
+import { Countdown } from "@/components/ui/Countdown";
 import { TornEdge } from "@/components/fuse/FuseTimeline";
 import { CLUB, EVENT } from "@/data/site";
 
@@ -45,15 +46,20 @@ export function Finale() {
             Presented by <span className="text-paper">{CLUB.name}</span>
           </motion.p>
           <motion.p {...rise(0.15)} className="mt-2 max-w-md font-type text-sm text-paper-dim sm:text-base">
-            {EVENT.hours} hours · {EVENT.venue} · 2–3 Nov 2026 · {EVENT.entry}
+            {EVENT.hours} hours · {EVENT.venue} · {EVENT.dates} · {EVENT.entry}
           </motion.p>
-          <motion.div {...rise(0.25)} className="mt-6 sm:mt-8">
+          <motion.div {...rise(0.25)} className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-5 sm:mt-8">
             <Link
               href="/dashboard"
               className="inline-block -rotate-2 border-[3px] border-ink bg-crystal px-6 py-3 font-display text-base sm:px-7 sm:py-3.5 sm:text-lg uppercase tracking-wider text-ink print-shadow transition-transform hover:rotate-0 hover:scale-105"
             >
               Register your crew
             </Link>
+            {/* phones: one line, so the finale still fits on a single screen */}
+            <div className="hidden sm:block"><Countdown to={EVENT.startsAt} label="The cook starts in" /></div>
+            <p className="font-type text-sm text-paper-dim sm:hidden">
+              Starts in <Countdown to={EVENT.startsAt} compact label="The cook starts in" />
+            </p>
           </motion.div>
         </div>
       </div>
