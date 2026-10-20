@@ -62,7 +62,9 @@ export function Loader() {
       setState("draw");
       const t0 = performance.now();
       await loaded;
-      setTimeout(finish, Math.max(0, DRAW_MS - (performance.now() - t0)));
+      // reduced motion shows the finished tile at once, so there is no drawing to wait for
+      const draw = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 600 : DRAW_MS;
+      setTimeout(finish, Math.max(0, draw - (performance.now() - t0)));
     })();
     const cap = setTimeout(finish, MAX_MS);
     return () => { alive = false; clearTimeout(cap); html.style.overflow = ""; html.removeAttribute("data-loading"); };
