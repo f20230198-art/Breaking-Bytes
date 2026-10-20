@@ -1,6 +1,7 @@
 import { FuseTimeline } from "@/components/fuse/FuseTimeline";
 import { Prizes } from "@/components/fuse/Prizes";
 import { Classroom } from "@/components/classroom/Classroom";
+import { Sponsors } from "@/components/sponsors/Sponsors";
 import { Story } from "@/components/story/Story";
 import { SmoothScroll } from "@/components/scene/SmoothScroll";
 import { TopBar } from "@/components/ui/TopBar";
@@ -15,6 +16,7 @@ export default function Home() {
         <FuseTimeline />
         <Prizes />
         <Classroom />
+        <Sponsors />
       </main>
     </>
   );

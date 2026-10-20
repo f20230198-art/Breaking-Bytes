@@ -3,6 +3,24 @@
  * (event_config, prizes, sponsors, faqs, schedule_items, contacts). Keep the shapes in sync with docs/DATABASE.md.
  */
 
+/** The organising club (from gdghacathon26.vercel.app). */
+export const CLUB = {
+  name: "GDG on Campus BITS Pilani Dubai",
+  short: "GDG BPDC",
+  about: "A student-run community for builders, learners and future engineers.",
+  email: "gdsc@dubai.bits-pilani.ac.in",
+  contacts: [
+    { name: "Nishvan Anbumani", phone: "+971 50 488 5778" },
+    { name: "Anannya Pareek", phone: "+971 50 352 1407" },
+  ],
+  links: {
+    website: "https://www.gdgocbpdc.tech/",
+    instagram: "https://www.instagram.com/gdg_bpdc/",
+    linkedin: "https://www.linkedin.com/company/google-developer-group-bits-dubai/",
+    community: "https://gdg.community.dev/gdg-on-campus-bits-pilani-dubai-united-arab-emirates/",
+  },
+};
+
 export const EVENT = {
   name: "Breaking Bytes",
   tagline: "The Underground Hackathon",

@@ -15,6 +15,11 @@
   --color-dusk: #4f2768;
   --color-siren: #e63946;
   --color-neon: #ff4fa3; /* the strip-mall sign outside Saul's blinds */
+  /* GDG brand (Google) colours: used sparingly for the club's own marks */
+  --color-gdg-blue: #4285f4;
+  --color-gdg-red: #ea4335;
+  --color-gdg-yellow: #fbbc04;
+  --color-gdg-green: #34a853;
 
   --font-display: var(--font-archivo-black), "Arial Black", sans-serif;
   --font-type: var(--font-special-elite), "Courier New", monospace;
@@ -296,4 +301,13 @@ html.lenis body {
 }
 @keyframes fuse-ember {
   50% { stroke: var(--color-rust); }
+}
+
+/* sponsors backdrop: faint periodic-table cells, fading out towards the edges */
+.sponsor-grid {
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--color-paper) 6%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--color-paper) 6%, transparent) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(ellipse at 50% 45%, #000 30%, transparent 75%);
 }
