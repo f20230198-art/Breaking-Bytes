@@ -4,7 +4,7 @@ Hand-drawn (sketchbook/notebook, NOT comic) Breaking-Bad-*parody* website for a 
 - `/` — scroll-driven comic hero/story page (desert RV → prizes → cook schedule → vault CTA)
 - `/dashboard` — functional portal (team formation, problem statements, submissions, live countdown)
 
-**Status:** Landing page complete (hero → lab → fuse schedule → prizes → classroom → sponsors → FAQ pool → finale/footer), desktop + mobile (portrait screens pan each scene via `--focus`, see SceneCanvas). `/dashboard` is a placeholder. Next: dashboard, admin panel, Supabase backend (docs/PLAN.md).
+**Status (2026-10-20):** Everything is built and tested: landing (DB-driven content), dashboard, admin, Supabase backend (RLS, RPCs, 60 pgTAP tests), web basics, easter eggs, security review. Only deployment and real content are left: see **`docs/NEXT-STEPS.md`**. Event is 16–17 Nov 2026.
 
 **Run:** `npm run dev`. **Art:** ChatGPT batch -> `python scripts/assets/organize.py` (sort + alignment report) -> `register.py` for any misaligned layer -> `python scripts/assets/build_scenes.py` (keys magenta, builds plates, writes `public/scenes/` + `src/scenes/layers.generated.json`). Next.js is v16: read `node_modules/next/dist/docs/` before using unfamiliar APIs (middleware is now `proxy.ts`).
 
@@ -12,6 +12,7 @@ Hand-drawn (sketchbook/notebook, NOT comic) Breaking-Bad-*parody* website for a 
 | File | What |
 |---|---|
 | `docs/BRIEF.md` | Original product brief (Gemini-generated, kept verbatim for reference) |
+| `docs/NEXT-STEPS.md` | **What's left**: deploy, launch checklist, content from the club |
 | `docs/VISION.md` | **Start here**: the whole website vision on one page |
 | `docs/CONCEPT.md` | **Creative concept "Heisenberg's Notebook"**: hand-drawn realist style + mechanics (purity meter, periodic table of problems) |
 | `docs/PLAN.md` | Refined plan: architecture, page-by-page design, build phases, open questions |
