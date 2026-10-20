@@ -32,9 +32,10 @@ Student teams can also win the top 3; prizes 4 and 5 make sure students get some
 - [x] **Student team** = *every* member is a verified student (if one non-student joins, the whole team is not eligible). Show this live in the Crew tab: "Student-eligible ✓/✗".
 - [x] If a student team wins a top-3 prize, the student prizes go to the next-best student teams (no double prizes).
 - [x] **Student verification = university email domain.** Admins keep a `partner_universities` allowlist of domain patterns (e.g. `*.bits-pilani.ac.in` for BITS Dubai; the user will provide the rest). A matching email means verified student automatically; any other email (Gmail etc.) means **Open category**. The registration page and FAQ must explain clearly: "Sign in with your university Google account to qualify for the Student Stash prizes."
+- [x] **Student email fallback (decided 2026-10-19):** add the one-time-code fallback below for universities not on Google.
 - [ ] ⚠ Google-login caveat: this only works if the university email is a **Google account** (Google Workspace for Education). For partner unis on Microsoft 365, the fallback is: log in with any Google account, then **verify the uni email with a one-time code** sent to it (Supabase email OTP or Resend). Ask each partner uni which they use.
-- [ ] Problem allocation mode: first-come with a cap, or admin-assigned? See §2c.
-- [ ] Registration cap (~200 people ≈ 50–70 teams)? Do admins approve registrations, or can anyone join?
+- [x] Problem allocation: **first-come with a dynamic cap** (§2c default). Decided 2026-10-19.
+- [x] Registration: **anyone can join, no cap**; admin closes it via `registration_open`. Decided 2026-10-19.
 - [ ] Should problem statements stay hidden until the 10:00 AM drop? (Default: yes, gated on the server.)
 - [ ] Reference-site video for the design benchmark.
 

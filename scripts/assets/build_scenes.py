@@ -34,6 +34,8 @@ SCENES = {
     "prizes-student": ("S-master", [
         ("back", "S-back", False), ("jesse", "S-jesse", True), ("flynn", "S-flynn", True),
         ("case-1", "S-case-1", True), ("case-2", "S-case-2", True), ("more", "S-more", True)]),
+    "classroom": ("C-master", [
+        ("back", "C-back", False), ("teacher", "C-teacher", True), ("desks", "C-desks", True)]),
 }
 SINGLES = {  # standalone images (keyed?)
     "extras/og": ("extras/X-og", False),

@@ -47,7 +47,7 @@ function blobPath(cx: number, cy: number, R: number, wobble: number, t: number) 
  */
 export function Story() {
   return (
-    <PinnedScene id="desert" label="The desert and the superlab" length={TOTAL + 1} beats={[0, A, B, C]}>
+    <PinnedScene id="desert" label="The desert and the superlab" length={TOTAL + 1}>
       {(p) => <Stage progress={p} />}
     </PinnedScene>
   );

@@ -54,6 +54,16 @@ export const PRIZES = [
 const RATIO_SUM = PRIZES.reduce((s, p) => s + p.ratio, 0);
 export const prizeAmount = (ratio: number) => Math.round((PRIZE_POOL_AED * ratio) / RATIO_SUM / 50) * 50;
 
+/** Tracks, chalked on the classroom board as element tiles (placeholders until confirmed; the board fits 6). */
+export const TRACKS = [
+  { symbol: "Ft", number: 1, name: "FinTech" },
+  { symbol: "Ai", number: 2, name: "AI & Agents" },
+  { symbol: "Hc", number: 3, name: "Health" },
+  { symbol: "Sy", number: 4, name: "Sustainability" },
+  { symbol: "Sc", number: 5, name: "Security" },
+  { symbol: "Op", number: 6, name: "Open" },
+];
+
 /** Sponsors double as the periodic table of problems: symbol + atomic number. */
 export const SUPPLIERS = [
   { symbol: "Dv", name: "Deriv", number: 1, track: "FinTech" },

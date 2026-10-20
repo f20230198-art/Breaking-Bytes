@@ -62,7 +62,8 @@ export function FuseTimeline() {
   // after the spark reaches the bomb (fuse end at mid-screen): the next 1.5 screens of scroll are the blast. The section
   // runs on a screen past the fuse (pb), so the flash holds white over that and clears just as the payout reaches the top
   const { scrollYProgress: blast } = useScroll({ target: col, offset: ["end center", "end -100%"] });
-  const boomScale = useTransform(blast, [0, 0.3], [0, 14]);
+  const boomScale = useTransform(blast, [0, 0.2], [0, 2.2]);
+  const boomFade = useTransform(blast, [0.12, 0.28], [1, 0]);
   const flash = useTransform(blast, [0.18, 0.32, 0.8, 1], [0, 1, 1, 0]);
   const boomShown = useTransform(blast, (v) => (v > 0 && v < 1 && !still ? "visible" : "hidden"));
 
@@ -297,7 +298,7 @@ export function FuseTimeline() {
       </div>
       {/* the boom: a jagged burst from the bomb fills the screen, then a white flash clears onto the payout */}
       <motion.div aria-hidden className="pointer-events-none fixed inset-0 z-30" style={{ visibility: boomShown }}>
-        <motion.svg viewBox="-100 -100 200 200" className="absolute left-1/2 top-1/2 w-[30vmax] -translate-x-1/2 -translate-y-1/2 overflow-visible" style={{ scale: boomScale }}>
+        <motion.svg viewBox="-100 -100 200 200" className="absolute left-1/2 top-1/2 w-[30vmax] -translate-x-1/2 -translate-y-1/2 overflow-visible" style={{ scale: boomScale, opacity: boomFade }}>
           <defs>
             {/* a ragged fireball, not a comic star: soft hot core, burnt smoky rim, edge broken up by noise */}
             <radialGradient id="boom-fill">
@@ -320,12 +321,12 @@ export function FuseTimeline() {
   );
 }
 
-/** The ragged top of a fresh print being laid over the lab (the section slides up over the pinned lab scene). */
-function TornEdge() {
+/** The ragged top of a fresh print being laid over the scene before it (the section slides up over a pinned scene). */
+export function TornEdge({ fill = "var(--color-paper)" }: { fill?: string }) {
   const pts = Array.from({ length: 61 }, (_, i) => `${(i / 60) * 1000},${(14 + Math.sin(i * 2.7) * 7 + Math.sin(i * 7.3) * 4).toFixed(1)}`);
   return (
     <svg aria-hidden viewBox="0 0 1000 30" preserveAspectRatio="none" className="pointer-events-none absolute inset-x-0 bottom-full h-6 w-full translate-y-px">
-      <polygon points={`0,30 ${pts.join(" ")} 1000,30`} fill="var(--color-paper)" />
+      <polygon points={`0,30 ${pts.join(" ")} 1000,30`} fill={fill} />
     </svg>
   );
 }

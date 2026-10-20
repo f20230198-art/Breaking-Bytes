@@ -36,8 +36,6 @@ const STEP = 0.22; // scroll between one suitcase and the next, within a scene
 const FIRST = 0.1;
 /** where the student print's carved divider sits (canvas x %); the office splits on the same line */
 const SEAM = 49.5;
-/** resting points: the office empty, the office paid out, the student print revealed, the students paid out */
-const BEATS = [0, 0.32, 0.6, 1];
 
 /**
  * ④ The payout, clearing out of the boom's white flash: Saul's office. The suitcases land one at a time, 3rd first,
@@ -46,7 +44,7 @@ const BEATS = [0, 0.32, 0.6, 1];
  */
 export function Prizes() {
   return (
-    <PinnedScene id="prizes" label="The payout" length={6} beats={BEATS}>
+    <PinnedScene id="prizes" label="The payout" length={7}>
       {(p) => <Stage p={p} />}
     </PinnedScene>
   );
@@ -54,16 +52,19 @@ export function Prizes() {
 
 function Stage({ p }: { p: MotionValue<number> }) {
   const still = !!useReducedMotion();
-  const op = useTransform(p, [0, 0.45], [0, 1]);
-  const sp = useTransform(p, [0.58, 0.92], [0, 1]);
-  const cut = useTransform(p, [0.34, 0.42], [0, 1]);
-  const left = useTransform(p, [0.42, 0.58], ["0vw", "-55vw"]);
-  const right = useTransform(p, [0.42, 0.58], ["0vw", "55vw"]);
-  const gone = useTransform(p, [0.5, 0.58], [1, 0]); // reduced motion: a plain fade instead
+  // the last screen of travel is left for the classroom sliding up over the finished student print
+  const op = useTransform(p, [0, 0.38], [0, 1]);
+  const sp = useTransform(p, [0.5, 0.78], [0, 1]);
+  const cut = useTransform(p, [0.29, 0.35], [0, 1]);
+  const left = useTransform(p, [0.36, 0.5], ["0vw", "-55vw"]);
+  const right = useTransform(p, [0.36, 0.5], ["0vw", "55vw"]);
+  const gone = useTransform(p, [0.43, 0.5], [1, 0]); // reduced motion: a plain fade instead
   const all = PRIZES.map((z) => `${z.name} (${z.place}) AED ${prizeAmount(z.ratio)}`).join(", ");
   return (
     <div className="absolute inset-0 bg-night text-paper">
-      <Scene scene="prizes-student" cases={STUDENT} p={sp} still={still} kicker="Students only" stamp="The side hustle" />
+      <Scene scene="prizes-student" cases={STUDENT} p={sp} still={still} kicker="Students only" stamp="The side hustle">
+        <StudentLights />
+      </Scene>
 
       {/* the office, as two halves that part along the seam */}
       {(["l", "r"] as const).map((side) => (
@@ -128,6 +129,19 @@ function OfficeLights() {
     <div aria-hidden className="pointer-events-none absolute inset-0">
       <div className="office-neon absolute" style={{ left: 0, top: 0, width: "18%", height: "42%" }} />
       <div className="office-lamp absolute" style={{ left: "37.7%", top: "33%", width: "30%", aspectRatio: "1" }} />
+    </div>
+  );
+}
+
+/** Jesse's TV flickering blue and his lava lamp breathing (left); steam off Flynn's coffee (right). Canvas %. */
+function StudentLights() {
+  return (
+    <div aria-hidden className="pointer-events-none absolute inset-0">
+      <div className="side-tv absolute" style={{ left: "-6%", top: "12%", width: "22%", height: "50%" }} />
+      <div className="side-lava absolute" style={{ left: "6.9%", top: "40%", width: "8%", aspectRatio: "1" }} />
+      {[0, 1, 2].map((i) => (
+        <span key={i} className="side-steam absolute" style={{ left: `${89.6 + i * 0.7}%`, top: "44%", animationDelay: `${i * 0.9}s` }} />
+      ))}
     </div>
   );
 }

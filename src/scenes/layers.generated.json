@@ -271,6 +271,41 @@
           ]
         }
       ]
+    },
+    "classroom": {
+      "width": 3344,
+      "height": 1882,
+      "master": "/scenes/classroom/master.webp",
+      "plate": "/scenes/classroom/plate.webp",
+      "layers": [
+        {
+          "id": "back",
+          "src": "/scenes/classroom/back.webp",
+          "srcset": "/scenes/classroom/back-1280.webp 1280w, /scenes/classroom/back-1920.webp 1920w, /scenes/classroom/back.webp 3344w"
+        },
+        {
+          "id": "teacher",
+          "src": "/scenes/classroom/teacher.webp",
+          "srcset": "/scenes/classroom/teacher-1280.webp 1280w, /scenes/classroom/teacher-1920.webp 1920w, /scenes/classroom/teacher.webp 3344w",
+          "bbox": [
+            0.2219,
+            0.3332,
+            0.3403,
+            0.7492
+          ]
+        },
+        {
+          "id": "desks",
+          "src": "/scenes/classroom/desks.webp",
+          "srcset": "/scenes/classroom/desks-1280.webp 1280w, /scenes/classroom/desks-1920.webp 1920w, /scenes/classroom/desks.webp 3344w",
+          "bbox": [
+            0.0,
+            0.6865,
+            0.9997,
+            0.9995
+          ]
+        }
+      ]
     }
   },
   "singles": {
