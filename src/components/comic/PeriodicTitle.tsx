@@ -10,9 +10,9 @@ export function Tile({ symbol, number, mass, name }: { symbol: string; number: n
   );
 }
 
-export function PeriodicTitle({ className = "" }: { className?: string }) {
+export function PeriodicTitle({ className = "", as: Tag = "h1" }: { className?: string; as?: "h1" | "p" }) {
   return (
-    <h1 className={`font-display leading-[1.02] text-paper [text-shadow:0.05em_0.05em_0_#111] ${className}`}>
+    <Tag className={`font-display leading-[1.02] text-paper [text-shadow:0.05em_0.05em_0_#111] ${className}`}>
       <span className="block">
         <Tile symbol="Br" number={35} mass="79.904" name="Bromine" />
         eaking
@@ -21,6 +21,6 @@ export function PeriodicTitle({ className = "" }: { className?: string }) {
         <Tile symbol="B" number={5} mass="10.81" name="Boron" />
         ytes
       </span>
-    </h1>
+    </Tag>
   );
 }

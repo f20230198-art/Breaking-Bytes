@@ -77,7 +77,7 @@ function Stage({ p }: { p: MotionValue<number> }) {
   const all = PRIZES.map((z) => `${z.name} (${z.place}) AED ${prizeAmount(z.ratio)}`).join(", ");
   return (
     <div className="absolute inset-0 bg-night text-paper">
-      <Scene scene="prizes-student" cases={STUDENT} p={sp} still={still} kicker="Students only" stamp="The side hustle">
+      <Scene scene="prizes-student" cases={STUDENT} p={sp} still={still} kicker="The side hustle" stamp="Students only">
         <StudentLights />
       </Scene>
 
@@ -92,7 +92,7 @@ function Stage({ p }: { p: MotionValue<number> }) {
             opacity: still ? gone : 1,
           }}
         >
-          <Scene scene="prizes-office" cases={OFFICE} p={op} still={still} kicker="The deal is done" stamp="Paid in full">
+          <Scene scene="prizes-office" cases={OFFICE} p={op} still={still} kicker="Paid in full" stamp="Open to everyone">
             <OfficeLights />
           </Scene>
         </motion.div>

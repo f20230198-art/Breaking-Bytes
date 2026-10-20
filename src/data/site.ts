@@ -96,7 +96,10 @@ export const SPECIAL_AWARDS = [
 
 export const FAQS = [
   { q: "Who can join?", a: "Anyone who can cook code. Students, grads, professionals. Crews of 1–4." },
-  { q: "Walter or Jesse?", a: "Sign in with a partner-university Google account and you're a Jesse: eligible for the student stash. Everyone else is a Walter." },
+  {
+    q: "Walter or Jesse?",
+    a: "Just our nicknames for the two prize pools. Students are Jesses: sign in with your partner-university Google account and you also compete for the student prizes. Everyone else is a Walter. Same hackathon, same rules, same 24 hours.",
+  },
   { q: "Does it cost anything?", a: "No. Free to enter. Food stalls are run by our sponsors." },
   { q: "Can I bring pre-built code?", a: "No pre-cooked repos. Libraries and boilerplate are fine; the product must be built during the 24 hours." },
   { q: "When do problems drop?", a: "Pick a supplier from 10:00. Problem statements unseal at 12:00 sharp for everyone at once." },

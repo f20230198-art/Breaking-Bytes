@@ -54,7 +54,8 @@ export function Faq() {
               onBlur={() => setHover(null)}
               onClick={() => setOpen((o) => (o === i ? null : i))}
               className="group absolute cursor-zoom-in rounded-[40%] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-crystal"
-              style={bboxStyle(e.layer.bbox!)}
+              // the open piece rises above its neighbours, so their markers never show through its tag
+              style={{ ...bboxStyle(e.layer.bbox!), zIndex: on ? 20 : 1 }}
             >
               {/* a slow ripple on the water around the piece */}
               <span aria-hidden className={`pool-ripple ${on ? "opacity-0" : ""}`} style={{ animationDelay: `${-i * 0.9}s` }} />
@@ -87,16 +88,16 @@ export function Faq() {
       </SceneCanvas>
       </div>
 
-      {/* the case file, in the empty sky above the pool (the trees sit at the far left) */}
-      <div className="pointer-events-none relative order-first px-4 pb-4 pt-20 text-center landscape:absolute landscape:inset-x-4 landscape:top-24 landscape:p-0">
-        <p className="font-type text-xs uppercase tracking-[0.3em] text-brick">Case file · open</p>
-        <h2 id="faq-title" className="mt-2 font-display text-4xl leading-none text-ink sm:text-6xl">
+      {/* the case file, high in the empty sky; it steps aside while a tag is open so the two never overlap */}
+      <div
+        className={`pointer-events-none relative order-first px-4 pb-4 pt-20 text-center transition-opacity duration-300 landscape:absolute landscape:inset-x-4 landscape:top-14 landscape:p-0 ${shown !== null ? "landscape:opacity-0" : ""}`}
+      >
+        <h2 id="faq-title" className="font-display text-4xl leading-none text-ink sm:text-5xl">
           Questions?
         </h2>
-        <p className="mx-auto mt-3 max-w-sm font-type text-sm text-ink/80 sm:text-base">
-          Inspect the evidence.{" "}
-          <span className="hidden pointer-fine:inline">Hover a numbered marker for the question, click it for the answer.</span>
-          <span className="pointer-fine:hidden">Tap a numbered marker.</span>
+        <p className="mt-2 font-type text-sm text-ink/80">
+          <span className="hidden pointer-fine:inline">Hover the numbered evidence.</span>
+          <span className="pointer-fine:hidden">Tap the numbered evidence.</span>
         </p>
       </div>
 

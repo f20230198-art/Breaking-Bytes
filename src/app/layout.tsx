@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${archivoBlack.variable} ${specialElite.variable} ${inter.variable} ${stencil.variable} antialiased`}>
+    <html lang="en" suppressHydrationWarning /* the loader script may flag repeat visits on <html> before React loads */ className={`${archivoBlack.variable} ${specialElite.variable} ${inter.variable} ${stencil.variable} antialiased`}>
       <body className="paper-grain min-h-full">
         {/* Shared SVG filters: "carve" gives UI blocks a hand-cut linocut edge */}
         <svg width="0" height="0" className="absolute" aria-hidden>

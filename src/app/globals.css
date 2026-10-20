@@ -317,6 +317,69 @@ html.lenis body {
   clip-path: polygon(22% 0, 78% 0, 100% 100%, 0 100%);
 }
 
+/* first-visit loader: the Br tile draws itself (see Loader.tsx). Repeat visits hide it before first paint. */
+html[data-loaded] .bb-loader { display: none; }
+.bb-loader rect, .bb-loader polygon { fill: none; }
+.ld-pencil {
+  stroke: color-mix(in srgb, var(--color-ink) 35%, transparent);
+  stroke-width: 0.8;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: ld-draw 0.7s ease-in-out forwards;
+}
+.ld-ink {
+  stroke: var(--color-ink);
+  stroke-width: 5;
+  stroke-linejoin: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: ld-draw 0.6s 0.55s cubic-bezier(.5,0,.3,1) forwards;
+}
+.bb-loader .ld-fill {
+  fill: var(--color-olive);
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  scale: 1 0;
+  animation: ld-flood 0.5s 1.05s cubic-bezier(.3,0,.2,1) forwards;
+}
+.ld-text {
+  font-family: var(--font-display);
+  font-size: 54px;
+  fill: transparent;
+  stroke: var(--color-ink);
+  stroke-width: 1.4;
+  stroke-dasharray: 260;
+  stroke-dashoffset: 260;
+  paint-order: stroke fill;
+  animation: ld-draw 0.6s 1.45s ease-out forwards, ld-ink-fill 0.3s 1.9s forwards;
+}
+.ld-num {
+  font-family: var(--font-type);
+  font-size: 9px;
+  fill: var(--color-paper);
+  opacity: 0;
+  animation: ld-fade 0.3s 2s forwards;
+}
+.bb-loader .ld-crystal polygon {
+  fill: var(--color-crystal);
+  stroke: var(--color-ink);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+}
+.ld-crystal {
+  transform-box: fill-box;
+  transform-origin: 20% 90%;
+  scale: 0;
+  animation: ld-grow 0.45s 2.15s cubic-bezier(.3,1.6,.5,1) forwards;
+}
+.ld-caption { animation: ld-blink 1.2s ease-in-out infinite; }
+@keyframes ld-draw { to { stroke-dashoffset: 0; } }
+@keyframes ld-flood { to { scale: 1 1; } }
+@keyframes ld-ink-fill { to { fill: var(--color-paper); stroke-width: 0; } }
+@keyframes ld-fade { to { opacity: 1; } }
+@keyframes ld-grow { to { scale: 1; } }
+@keyframes ld-blink { 50% { opacity: 0.35; } }
+
 /* off-screen sections sleep: their looping effects stop costing frames (set by useNearView / IdleWhenOffscreen) */
 [data-idle] *,
 [data-idle] *::before,

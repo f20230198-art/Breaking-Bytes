@@ -6,11 +6,13 @@ import { Faq } from "@/components/faq/Faq";
 import { Finale } from "@/components/finale/Finale";
 import { Story } from "@/components/story/Story";
 import { SmoothScroll } from "@/components/scene/SmoothScroll";
+import { Loader } from "@/components/ui/Loader";
 import { TopBar } from "@/components/ui/TopBar";
 
 export default function Home() {
   return (
     <>
+      <Loader />
       <SmoothScroll />
       <TopBar />
       <main>
