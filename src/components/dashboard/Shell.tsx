@@ -37,6 +37,9 @@ export function Shell({ children }: { children: ReactNode }) {
             <span className="hidden sm:inline">The Lab</span>
           </Link>
           {crew && <InviteCode crew={crew.name} code={crew.invite_code} />}
+          {me.role === "admin" && (
+            <Link href="/admin" className="border-2 border-hazmat px-1.5 font-type text-xs uppercase tracking-wider text-hazmat hover:bg-hazmat hover:text-ink">Admin</Link>
+          )}
           <div className="ml-auto text-right">
             {next ? (
               <>

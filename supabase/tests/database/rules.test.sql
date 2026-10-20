@@ -1,7 +1,7 @@
 -- The server-side rules, tested as real users. Run with: npx supabase test db
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(56);
+select plan(60);
 
 -- ─── cast ──────────────────────────────────────────────────────────────────────────────────────────────────────
 insert into public.admin_emails (email) values ('gus@lospollos.test');
@@ -83,6 +83,7 @@ select isnt((select deadline_at from public.event_config), now() + interval '100
 set local role authenticated;
 
 -- ─── leader-only actions and suppliers ────────────────────────────────────────────────────────────────────────
+select throws_ok($$ select public.admin_crews() $$, 'P0001', 'not_admin', 'hackers can''t list crews');
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000b","role":"authenticated"}', true);
 select throws_ok($$ select public.set_roster_locked(true) $$, 'P0001', 'not_leader', 'only the leader locks the roster');
 select throws_ok($$ select public.pick_supplier((select id from public.sponsors where name = 'Deriv')) $$, 'P0001', 'not_leader', 'only the leader picks a supplier');
@@ -131,6 +132,9 @@ select is((select count(*)::int from public.teams), 2, 'admins see every crew');
 update public.event_config set deadline_at = now() + interval '1 hour';
 select is((select count(*)::int from public.admin_audit where target_table = 'event_config'), 1, 'admin edits are audited');
 select throws_ok($$ update public.profiles set role = 'admin' where email = 'walt@gmail.com' $$, 'P0001', 'role_is_managed_by_admin_emails', 'the admin role only comes from the allowlist');
+select is((public.admin_overview() ->> 'crews')::int, 2, 'admin overview counts crews');
+select is((select count(*)::int from public.admin_crews()), 2, 'admin crew list returns every crew');
+select is((select jsonb_array_length(members) from public.admin_crews() where name = 'Blue Sky'), 3, 'with their rosters');
 
 -- ─── leaving ───────────────────────────────────────────────────────────────────────────────────────────────────
 reset role;

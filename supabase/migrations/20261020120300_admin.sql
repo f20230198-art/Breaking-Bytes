@@ -79,6 +79,8 @@ create function public.admin_crews() returns table (
   submitted_at timestamptz, late boolean
 )
 language plpgsql stable security definer set search_path = '' as $$
+#variable_conflict use_column
+-- (the output columns are named like table columns: id, name, ... so plain names mean the columns)
 begin
   if not public.is_admin() then raise exception 'not_admin' using errcode = 'P0001'; end if;
   return query
