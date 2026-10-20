@@ -4,12 +4,11 @@ import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { TornEdge } from "@/components/fuse/FuseTimeline";
 import { SceneCanvas, bboxStyle } from "@/components/scene/SceneCanvas";
-import { FAQS } from "@/data/site";
+import { useSite } from "@/components/site/SiteContext";
 import { sceneAssets } from "@/scenes/config";
 
 // the floating evidence, one layer per object (numbered left to right by split_items.py); one question each
 const ITEMS = sceneAssets("pool").layers.filter((l) => l.id.startsWith("item-"));
-const EVIDENCE = FAQS.slice(0, ITEMS.length).map((f, i) => ({ ...f, n: i + 1, layer: ITEMS[i] }));
 // each piece bobs on its own beat, so the pool never moves in lockstep
 const BOB = ["4.2s", "5.1s", "3.7s", "5.8s", "4.6s", "3.9s"];
 
@@ -18,6 +17,8 @@ const BOB = ["4.2s", "5.1s", "3.7s", "5.8s", "4.6s", "3.9s"];
  * hover (or tap) one to pull up its evidence tag with the question, click for the answer.
  */
 export function Faq() {
+  const FAQS = useSite().faqs;
+  const EVIDENCE = FAQS.slice(0, ITEMS.length).map((f, i) => ({ ...f, n: i + 1, layer: ITEMS[i] }));
   const [hover, setHover] = useState<number | null>(null);
   const [open, setOpen] = useState<number | null>(null);
   const shown = hover ?? open;

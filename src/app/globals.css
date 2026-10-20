@@ -397,6 +397,25 @@ html[data-loading] body > :not(.bb-loader):not(script) { visibility: hidden; ani
   to { translate: var(--drift) 420px; rotate: var(--spin); opacity: 0; }
 }
 
+/* easter eggs (EasterEggs.tsx) */
+.egg-heisenberg { background: color-mix(in srgb, var(--color-ink) 55%, transparent); animation: egg-fade 3s ease forwards; }
+.egg-stamp { rotate: -6deg; box-shadow: 8px 8px 0 var(--color-ink); animation: egg-slam 0.45s cubic-bezier(.3,1.6,.5,1) both; }
+.egg-right { opacity: 0; animation: egg-in 0.4s 0.7s ease forwards; }
+@keyframes egg-slam { from { scale: 2.6; opacity: 0; } to { scale: 1; opacity: 1; } }
+@keyframes egg-in { to { opacity: 1; } }
+@keyframes egg-fade { 0%, 80% { opacity: 1; } 100% { opacity: 0; } }
+/* blacklight: a UV wash over everything, and the crystal blue lights up */
+html.blacklight body::before { /* ::after is the paper grain */
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 40%, rgba(90, 20, 160, 0.35), rgba(30, 0, 60, 0.6));
+  mix-blend-mode: multiply;
+}
+html.blacklight .text-crystal, html.blacklight .bg-crystal { filter: drop-shadow(0 0 6px var(--color-crystal)) drop-shadow(0 0 14px var(--color-crystal)); }
+
 /* off-screen sections sleep: their looping effects stop costing frames (set by useNearView / IdleWhenOffscreen) */
 [data-idle] *,
 [data-idle] *::before,

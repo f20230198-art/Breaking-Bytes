@@ -4,7 +4,8 @@ import { motion, useMotionValueEvent, useReducedMotion, useScroll, useTransform 
 import { useLayoutEffect, useRef, useState } from "react";
 import { Tile } from "@/components/comic/PeriodicTitle";
 import { useNearView } from "@/components/scene/useNearView";
-import { EVENT, FOOD_NOTE, SCHEDULE } from "@/data/site";
+import { useSite } from "@/components/site/SiteContext";
+import { EVENT, FOOD_NOTE } from "@/data/site";
 
 const FUSE_GAP = 0.1; // the fuse runs this far (fraction of the column) beside a card, on its free side
 const MOBILE_X = 20; // px: on phones the fuse is one straight run down the left edge
@@ -18,8 +19,8 @@ const clock = (t: string) => {
   const h12 = h % 12 || 12;
   return `${h12}${m ? `:${String(m).padStart(2, "0")}` : ""} ${h < 12 ? "AM" : "PM"}`;
 };
-const dayLabel = (offset: number) =>
-  new Date(new Date(EVENT.startsAt).getTime() + offset * 86400000).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "Asia/Dubai" }).toUpperCase();
+const dayLabel = (startsAt: string, offset: number) =>
+  new Date(new Date(startsAt).getTime() + offset * 86400000).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "Asia/Dubai" }).toUpperCase();
 
 // a small hand-drawn waver along each straight run, so the fuse never looks ruled
 function wobbly(pts: [number, number][]) {
@@ -47,6 +48,7 @@ type Geo = { w: number; h: number; d: string; ticks: { x1: number; x2: number; y
  * the screen is, each card catches as the spark reaches it, and at the bottom the fuse runs into the bomb and it goes off.
  */
 export function FuseTimeline() {
+  const { schedule: SCHEDULE, startsAt } = useSite();
   const ref = useRef<HTMLElement>(null);
   const near = useNearView(ref, "20%"); // spark, smoke and explosion loops pause once the timeline is off screen
   const col = useRef<HTMLDivElement>(null);
@@ -273,7 +275,7 @@ export function FuseTimeline() {
                   >
                     {newDay && (
                       <span className="absolute right-3 top-2.5 -rotate-6 border-2 border-brick px-1.5 py-0.5 font-stencil text-[11px] font-bold uppercase tracking-widest text-brick">
-                        Day {s.day + 1} · {dayLabel(s.day)}
+                        Day {s.day + 1} · {dayLabel(startsAt, s.day)}
                       </span>
                     )}
                     <p className="font-display text-2xl leading-none tabular-nums sm:text-3xl">

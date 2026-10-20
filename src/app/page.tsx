@@ -8,10 +8,18 @@ import { Story } from "@/components/story/Story";
 import { SmoothScroll } from "@/components/scene/SmoothScroll";
 import { Loader } from "@/components/ui/Loader";
 import { TopBar } from "@/components/ui/TopBar";
+import { SiteProvider } from "@/components/site/SiteContext";
+import { getSite } from "@/lib/siteContent";
 
-export default function Home() {
+// the page is still prerendered and revalidated; this only silences the dev-time "instant navigation" check, which
+// flags the cached content read when you navigate here from the dashboard
+export const instant = false;
+
+// dates, schedule, prizes, sponsors and FAQ come from the database (cached ~1 min; built-in fallback if unreachable)
+export default async function Home() {
+  const site = await getSite();
   return (
-    <>
+    <SiteProvider value={site}>
       <Loader />
       <SmoothScroll />
       <TopBar />
@@ -24,6 +32,6 @@ export default function Home() {
         <Faq />
       </main>
       <Finale />
-    </>
+    </SiteProvider>
   );
 }

@@ -1,8 +1,9 @@
 "use client";
+/* eslint-disable @next/next/no-img-element -- sponsor logos live in Supabase Storage, sizes unknown */
 
 import { motion, useReducedMotion } from "motion/react";
 import { TornEdge } from "@/components/fuse/FuseTimeline";
-import { SUPPLIERS } from "@/data/site";
+import { useSite } from "@/components/site/SiteContext";
 
 // card shadows rotate through the GDG colours: the one nod to the club's palette in this section
 const SHADOWS = ["shadow-[5px_5px_0_var(--color-gdg-blue)]", "shadow-[5px_5px_0_var(--color-gdg-red)]", "shadow-[5px_5px_0_var(--color-gdg-yellow)]", "shadow-[5px_5px_0_var(--color-gdg-green)]"];
@@ -13,6 +14,7 @@ const SHADOWS = ["shadow-[5px_5px_0_var(--color-gdg-blue)]", "shadow-[5px_5px_0_
  */
 export function Sponsors() {
   const still = !!useReducedMotion();
+  const SUPPLIERS = useSite().sponsors;
   return (
     <section
       id="sponsors"
@@ -52,8 +54,12 @@ export function Sponsors() {
               <span className="absolute left-4 top-3 font-type text-lg">{s.number}</span>
               <span className="absolute right-4 top-3 font-type text-xs uppercase tracking-widest text-brick">{s.track}</span>
               <div className="flex h-full flex-col items-center justify-center">
-                {/* asset sponsors/<name>-logo: swap the symbol for the real logo once we have it */}
-                <span className="font-display text-5xl leading-none">{s.symbol}</span>
+                {/* the uploaded logo (admin → Sponsors), else the element symbol stands in */}
+                {s.logo ? (
+                  <img src={s.logo} alt={s.name} loading="lazy" className="h-14 max-w-[70%] object-contain" />
+                ) : (
+                  <span className="font-display text-5xl leading-none">{s.symbol}</span>
+                )}
                 <span className="mt-2 font-type text-base uppercase tracking-wider">{s.name}</span>
               </div>
             </motion.li>

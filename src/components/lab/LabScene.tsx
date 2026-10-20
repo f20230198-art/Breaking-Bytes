@@ -3,6 +3,7 @@
 import { useMotionValueEvent, type MotionValue } from "motion/react";
 import { useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { SceneCanvas } from "@/components/scene/SceneCanvas";
+import { useSite } from "@/components/site/SiteContext";
 import { EVENT } from "@/data/site";
 
 // measured from the art (percent of the canvas unless noted)
@@ -13,12 +14,8 @@ const LAMP = { x: 5.6, y: 7.2 }; // the hanging lamp, top left
 // the blank paper insets of the two plates below the clipboard: When (left) and Where (right)
 const CARDS = [{ left: 7.15, top: 66.1, width: 16.85, height: 12.3 }, { left: 27.15, top: 66.1, width: 17.1, height: 12.3 }];
 
-const fmt = (o: Intl.DateTimeFormatOptions, offsetHours = 0) =>
-  new Date(new Date(EVENT.startsAt).getTime() + offsetHours * 3600000).toLocaleString("en-GB", { timeZone: "Asia/Dubai", ...o });
-const cookDay = fmt({ day: "numeric", month: "short" });
-const cookWeekday = fmt({ weekday: "short" });
-const startTime = fmt({ hour: "2-digit", minute: "2-digit", hour12: false });
-const endDay = fmt({ weekday: "short" }, EVENT.hours);
+const fmt = (startsAt: string, o: Intl.DateTimeFormatOptions, offsetHours = 0) =>
+  new Date(new Date(startsAt).getTime() + offsetHours * 3600000).toLocaleString("en-GB", { timeZone: "Asia/Dubai", ...o });
 const [venuePlace, venueCampus = ""] = EVENT.venue.split(/,\s*/);
 const clamp01 = (n: number) => Math.min(1, Math.max(0, n));
 
@@ -138,6 +135,12 @@ export function LabStage({ progress, reveal = 1 }: { progress: MotionValue<numbe
   const q = (v: number) => Math.round(clamp01((v - 0.08) / 0.8) * 300) / 300;
   const [t, setT] = useState(() => q(progress.get()));
   useMotionValueEvent(progress, "change", (v) => setT(q(v)));
+  // the When plate follows the event clock in the database
+  const { startsAt } = useSite();
+  const cookDay = fmt(startsAt, { day: "numeric", month: "short" });
+  const cookWeekday = fmt(startsAt, { weekday: "short" });
+  const startTime = fmt(startsAt, { hour: "2-digit", minute: "2-digit", hour12: false });
+  const endDay = fmt(startsAt, { weekday: "short" }, EVENT.hours);
 
   // each plane drifts with the mouse and, a little, with scroll; nearer planes move more. Overlays are grouped onto a plane
   // so text and effects stay glued to the art they belong to.

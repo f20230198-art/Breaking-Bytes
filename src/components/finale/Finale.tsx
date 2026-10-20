@@ -6,6 +6,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { PeriodicTitle } from "@/components/comic/PeriodicTitle";
 import { Countdown } from "@/components/ui/Countdown";
 import { TornEdge } from "@/components/fuse/FuseTimeline";
+import { useSite } from "@/components/site/SiteContext";
 import { CLUB, EVENT } from "@/data/site";
 
 const GDG_BAR = ["bg-gdg-blue", "bg-gdg-red", "bg-gdg-yellow", "bg-gdg-green"];
@@ -23,6 +24,7 @@ const LINKS = [
  */
 export function Finale() {
   const still = !!useReducedMotion();
+  const { startsAt, dates } = useSite();
   const rise = (delay: number) =>
     still
       ? {}
@@ -46,7 +48,7 @@ export function Finale() {
             Presented by <span className="text-paper">{CLUB.name}</span>
           </motion.p>
           <motion.p {...rise(0.15)} className="mt-2 max-w-md font-type text-sm text-paper-dim sm:text-base">
-            {EVENT.hours} hours · {EVENT.venue} · {EVENT.dates} · {EVENT.entry}
+            {EVENT.hours} hours · {EVENT.venue} · {dates} · {EVENT.entry}
           </motion.p>
           <motion.div {...rise(0.25)} className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-5 sm:mt-8">
             <Link
@@ -56,9 +58,9 @@ export function Finale() {
               Register your crew
             </Link>
             {/* phones: one line, so the finale still fits on a single screen */}
-            <div className="hidden sm:block"><Countdown to={EVENT.startsAt} label="The cook starts in" /></div>
+            <div className="hidden sm:block"><Countdown to={startsAt} label="The cook starts in" /></div>
             <p className="font-type text-sm text-paper-dim sm:hidden">
-              Starts in <Countdown to={EVENT.startsAt} compact label="The cook starts in" />
+              Starts in <Countdown to={startsAt} compact label="The cook starts in" />
             </p>
           </motion.div>
         </div>

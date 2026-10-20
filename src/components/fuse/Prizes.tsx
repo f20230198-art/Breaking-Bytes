@@ -5,11 +5,11 @@ import { motion, useReducedMotion, useTransform, type MotionValue } from "motion
 import { PinnedScene } from "@/components/scene/PinnedScene";
 import { SceneCanvas } from "@/components/scene/SceneCanvas";
 import { sceneAssets } from "@/scenes/config";
-import { PRIZES, prizeAmount } from "@/data/site";
+import { useSite } from "@/components/site/SiteContext";
 
 type Dir = [-1 | 1, -1 | 1];
 type CaseDef = {
-  /** index into PRIZES; null = no amount, just the stamp (the "more prizes" duffel) */
+  /** index into the site prizes (by rank); null = no amount, just the stamp (the "more prizes" duffel) */
   prize: number | null;
   layer: string;
   /** which way the leader line runs from the cash to its number */
@@ -74,7 +74,7 @@ function Stage({ p }: { p: MotionValue<number> }) {
   const left = useTransform(p, [0.36, 0.5], ["0vw", "-55vw"]);
   const right = useTransform(p, [0.36, 0.5], ["0vw", "55vw"]);
   const gone = useTransform(p, [0.43, 0.5], [1, 0]); // reduced motion: a plain fade instead
-  const all = PRIZES.map((z) => `${z.name} (${z.place}) AED ${prizeAmount(z.ratio)}`).join(", ");
+  const all = useSite().prizes.map((z) => `${z.name} (${z.place}) AED ${z.amount}`).join(", ");
   return (
     <div className="absolute inset-0 bg-night text-paper">
       <Scene scene="prizes-student" cases={STUDENT} p={sp} still={still} kicker="The side hustle" stamp="Students only">
@@ -187,8 +187,9 @@ const RUN = 150; // px of the flat leg the number sits on
  * Draws itself in once the case lands, then the stamp slams down and the amount rises in. No prize = just the stamp.
  */
 function Callout({ p, at, prize: idx, x, y, to: [dx, dy], still }: { p: MotionValue<number>; at: number; prize: number | null; x: number; y: number; to: Dir; still: boolean }) {
-  const prize = idx === null ? null : PRIZES[idx];
-  const amount = prize ? prizeAmount(prize.ratio) : 0;
+  const prizes = useSite().prizes;
+  const prize = idx === null ? null : (prizes[idx] ?? null);
+  const amount = prize?.amount ?? 0;
   const draw = useTransform(p, [at, at + 0.05], [0, 1]);
   const show = useTransform(p, [at + 0.04, at + 0.07], [0, 1]);
   // the stamp slams down from big and tilted; the number punches up from under the line

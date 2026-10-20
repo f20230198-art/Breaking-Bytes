@@ -3,12 +3,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { CLUB, EVENT } from "@/data/site";
+import { useSite } from "@/components/site/SiteContext";
+import { CLUB } from "@/data/site";
 import { Countdown } from "./Countdown";
 
 export function TopBar() {
   // the finale carries both logos itself, so the bar slides away while it's on screen
   const [away, setAway] = useState(false);
+  const { startsAt } = useSite();
   useEffect(() => {
     const end = document.getElementById("register");
     if (!end) return;
@@ -33,7 +35,7 @@ export function TopBar() {
       <div className="flex items-center gap-3">
         {/* phones too: the countdown is the one thing everyone checks */}
         <span className="bg-ink/80 px-1.5 py-1 text-[10px] sm:px-2 sm:text-xs">
-          <Countdown to={EVENT.startsAt} compact />
+          <Countdown to={startsAt} compact />
         </span>
         <Link
           href="/dashboard"
