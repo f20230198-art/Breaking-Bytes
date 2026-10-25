@@ -50,18 +50,25 @@ export function LabProvider({ children }: { children: ReactNode }) {
 
   const load = useCallback(async () => {
     const supabase = supabaseBrowser();
-    const { data: auth } = await supabase.auth.getUser();
-    if (!auth.user) {
-      router.replace("/login?next=/dashboard");
+    // Supabase unreachable makes the client throw rather than return an error: show the message, not "Cooking" forever
+    let auth, me, crew, cfg, clock, t0;
+    try {
+      ({ data: auth } = await supabase.auth.getUser());
+      if (!auth.user) {
+        router.replace("/login?next=/dashboard");
+        return;
+      }
+      t0 = Date.now();
+      [me, crew, cfg, clock] = await Promise.all([
+        supabase.from("profiles").select("*").eq("id", auth.user.id).single(),
+        supabase.rpc("my_crew"),
+        supabase.from("event_config").select("*").eq("id", 1).single(),
+        supabase.rpc("server_time"),
+      ]);
+    } catch {
+      setFailed(true);
       return;
     }
-    const t0 = Date.now();
-    const [me, crew, cfg, clock] = await Promise.all([
-      supabase.from("profiles").select("*").eq("id", auth.user.id).single(),
-      supabase.rpc("my_crew"),
-      supabase.from("event_config").select("*").eq("id", 1).single(),
-      supabase.rpc("server_time"),
-    ]);
     if (me.error || cfg.error) {
       setFailed(true);
       return;
