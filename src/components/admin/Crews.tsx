@@ -3,30 +3,38 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Btn, ErrorLine, H1, adminDb, gulf, inputCls } from "./AdminShell";
 
-type Member = { id: string; name: string; email: string; category: string; leader: boolean };
+type Member = { id: string; name: string; email: string; category: string; leader: boolean; linkedin: string | null; github: string | null };
+type Reg = "pending" | "accepted" | "waitlisted";
 type CrewRow = {
-  id: string; name: string; invite_code: string; status: "active" | "disqualified"; roster_locked: boolean; category: string;
+  id: string; name: string; invite_code: string; status: "active" | "disqualified"; registration_status: Reg; roster_locked: boolean; category: string;
   sponsor: string | null; problem_id: string | null; members: Member[]; repo_url: string | null; live_url: string | null;
   video_url: string | null; notes: string | null; submitted_at: string | null; late: boolean;
 };
 type Opt = { id: string; name: string };
 
-/** Every crew with roster and submission; fix-ups (rename, move, reassign, disqualify) and the CSV export. */
+const REG_LABEL: Record<Reg, string> = { pending: "pending", accepted: "accepted", waitlisted: "waitlist" };
+const REG_TONE: Record<Reg, string> = { pending: "text-hazmat", accepted: "text-crystal", waitlisted: "text-paper-dim" };
+
+/** Every crew with roster and submission; the pre-registration review (accept / waitlist), fix-ups and the CSV export. */
 export function AdminCrews() {
   const [rows, setRows] = useState<CrewRow[] | null>(null);
   const [sponsors, setSponsors] = useState<Opt[]>([]);
   const [problems, setProblems] = useState<(Opt & { sponsor_id: string })[]>([]);
   const [q, setQ] = useState("");
   const [onlySubmitted, setOnlySubmitted] = useState(false);
+  const [reg, setReg] = useState<Reg | "all">("all");
+  const [seats, setSeats] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const db = adminDb();
-    const [c, s, p] = await Promise.all([
+    const [c, s, p, cfg] = await Promise.all([
       db.rpc("admin_crews"),
       db.from("sponsors").select("id, name").eq("is_supplier", true).order("sort_order"),
       db.from("problems").select("id, title, sponsor_id").order("id"),
+      db.from("event_config").select("seat_cap").eq("id", 1).single(),
     ]);
+    setSeats(cfg.data?.seat_cap ?? null);
     if (c.error) setError(c.error.message);
     setRows((c.data as CrewRow[]) ?? []);
     setSponsors((s.data as Opt[]) ?? []);
@@ -48,9 +56,16 @@ export function AdminCrews() {
   const shown = useMemo(() => {
     const s = q.trim().toLowerCase();
     return (rows ?? []).filter((r) =>
-      (!onlySubmitted || r.repo_url || r.live_url || r.video_url) &&
+      (!onlySubmitted || r.repo_url || r.live_url || r.video_url) && (reg === "all" || r.registration_status === reg) &&
       (!s || r.name.toLowerCase().includes(s) || r.invite_code.toLowerCase().includes(s) || r.members.some((m) => `${m.name} ${m.email}`.toLowerCase().includes(s))));
-  }, [rows, q, onlySubmitted]);
+  }, [rows, q, onlySubmitted, reg]);
+
+  // people (not crews) per status: the hall's limit is a headcount
+  const heads = useMemo(() => {
+    const n: Record<Reg, number> = { pending: 0, accepted: 0, waitlisted: 0 };
+    for (const r of rows ?? []) if (r.status === "active") n[r.registration_status] += r.members.length;
+    return n;
+  }, [rows]);
 
   const moveMember = async (m: Member) => {
     const code = window.prompt(`Move ${m.name} to which crew? Enter its invite code.`)?.trim().toUpperCase();
@@ -62,9 +77,21 @@ export function AdminCrews() {
 
   return (
     <div>
-      <H1 sub="Rename, move people, reassign suppliers or problems, disqualify. Every change is in the audit log.">Crews</H1>
+      <H1 sub="Review pre-registrations (accept or waitlist), rename, move people, reassign suppliers or problems, disqualify. Every change is in the audit log.">Crews</H1>
+      <p className="mb-4 text-sm">
+        <span className="text-crystal">{heads.accepted}{seats ? ` / ${seats}` : ""} seats accepted</span>
+        <span className="text-paper-dim"> · {heads.pending} people pending · {heads.waitlisted} waitlisted</span>
+        {seats && heads.accepted > seats ? <span className="text-siren"> · over capacity by {heads.accepted - seats}</span> : null}
+        {!seats && <span className="text-paper-dim"> · set the hall&apos;s seats on the Event page</span>}
+      </p>
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <input className={`${inputCls} max-w-xs`} placeholder="Search crew, code, name, email" value={q} onChange={(e) => setQ(e.target.value)} />
+        <select className={`${inputCls} w-auto`} value={reg} onChange={(e) => setReg(e.target.value as Reg | "all")} aria-label="Registration status">
+          <option value="all">All statuses</option>
+          <option value="pending">Pending</option>
+          <option value="accepted">Accepted</option>
+          <option value="waitlisted">Waitlist</option>
+        </select>
         <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={onlySubmitted} onChange={(e) => setOnlySubmitted(e.target.checked)} className="accent-crystal" /> Submitted only</label>
         <Btn onClick={() => exportCsv(shown)}>Export CSV ({shown.length})</Btn>
       </div>
@@ -75,6 +102,7 @@ export function AdminCrews() {
             <summary className="flex cursor-pointer flex-wrap items-center gap-x-4 gap-y-1 px-4 py-3 text-sm">
               <span className="font-display text-base">{r.name}</span>
               <span className="text-crystal">{r.invite_code}</span>
+              <span className={REG_TONE[r.registration_status]}>{REG_LABEL[r.registration_status]}</span>
               <span className="text-paper-dim">{r.members.length} cooks · {r.category}</span>
               <span className="text-paper-dim">{r.sponsor ?? "no supplier"} · {r.problem_id ?? "no problem"}</span>
               {r.status === "disqualified" && <span className="text-siren">disqualified</span>}
@@ -88,6 +116,8 @@ export function AdminCrews() {
                     <li key={m.id} className="flex flex-wrap items-center gap-2">
                       <span>{m.name || "—"}{m.leader ? " (leader)" : ""}</span>
                       <span className="text-paper-dim">{m.email} · {m.category}</span>
+                      {m.linkedin && <a href={m.linkedin} target="_blank" rel="noopener noreferrer" className="text-crystal underline">LinkedIn</a>}
+                      {m.github && <a href={m.github} target="_blank" rel="noopener noreferrer" className="text-crystal underline">GitHub</a>}
                       <Btn onClick={() => moveMember(m)}>Move</Btn>
                       <Btn tone="danger" onClick={() => run(adminDb().from("team_members").delete().eq("user_id", m.id), `Remove ${m.name} from ${r.name}?`)}>Remove</Btn>
                     </li>
@@ -102,6 +132,13 @@ export function AdminCrews() {
                 </ul>
               </div>
               <div className="space-y-3 text-sm">
+                <div className="flex flex-wrap gap-2">
+                  {(["accepted", "waitlisted", "pending"] as const).filter((x) => x !== r.registration_status).map((x) => (
+                    <Btn key={x} tone={x === "accepted" ? "primary" : undefined} onClick={() => run(teams().update({ registration_status: x }).eq("id", r.id))}>
+                      {x === "accepted" ? "Accept" : x === "waitlisted" ? "Waitlist" : "Back to pending"}
+                    </Btn>
+                  ))}
+                </div>
                 <div className="flex flex-wrap gap-2">
                   <Btn onClick={() => { const n = window.prompt("New crew name", r.name); if (n) void run(teams().update({ name: n.trim() }).eq("id", r.id)); }}>Rename</Btn>
                   <Btn onClick={() => run(teams().update({ roster_locked: !r.roster_locked }).eq("id", r.id))}>{r.roster_locked ? "Unlock roster" : "Lock roster"}</Btn>
@@ -137,15 +174,17 @@ export function AdminCrews() {
 }
 
 function exportCsv(rows: CrewRow[]) {
-  const head = ["crew", "invite_code", "status", "category", "supplier", "problem", "members", "emails", "repo", "live", "video", "notes", "submitted_at_utc", "late"];
+  const head = ["crew", "invite_code", "registration", "status", "category", "people", "supplier", "problem", "members", "emails", "linkedin", "github",
+    "repo", "live", "video", "notes", "submitted_at_utc", "late"];
   const cell = (v: unknown) => {
     const s = v === null || v === undefined ? "" : String(v);
     // quote everything; neutralise leading = + - @ so a spreadsheet never runs a submitted value as a formula
     return `"${(/^[=+\-@]/.test(s) ? `'${s}` : s).replace(/"/g, '""')}"`;
   };
   const lines = rows.map((r) => [
-    r.name, r.invite_code, r.status, r.category, r.sponsor, r.problem_id,
+    r.name, r.invite_code, r.registration_status, r.status, r.category, r.members.length, r.sponsor, r.problem_id,
     r.members.map((m) => m.name).join("; "), r.members.map((m) => m.email).join("; "),
+    r.members.map((m) => m.linkedin ?? "").join("; "), r.members.map((m) => m.github ?? "").join("; "),
     r.repo_url, r.live_url, r.video_url, r.notes, r.submitted_at, r.late,
   ].map(cell).join(","));
   const blob = new Blob([[head.join(","), ...lines].join("\n")], { type: "text/csv" });

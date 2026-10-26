@@ -1,7 +1,7 @@
 # Supabase Schema
 
 > **Built 2026-10-20.** The source of truth is now `supabase/migrations/` (schema, RLS, hacker RPCs, admin + audit) with
-> `supabase/seed.sql` for placeholder content and `supabase/tests/database/rules.test.sql` (pgTAP, 56 checks).
+> `supabase/seed.sql` for placeholder content and `supabase/tests/database/rules.test.sql` (pgTAP, 70 checks).
 > Differences from the draft below: admins write tables directly (RLS `is_admin()` + an audit trigger on every table)
 > instead of one RPC per admin action; teammates are read through `my_crew()` (no emails/phones); join attempts are
 > rate-limited 10/min; the crew cap is enforced by a trigger on every write path. Local: `npx supabase start`,
@@ -68,3 +68,16 @@ Subscribe to `team_members` filtered by `team_id` for live roster; RLS applies t
 - **Prizes:** `event_config.prize_pool_aed`; `prizes.ratio` (6,4,2,1,1 default), `amount_aed` override, `kind` ('cash'|'perk'), `perk_description`, `category_only` ('jesse' | null).
 - **Site content tables:** `faqs`, `schedule_items`, `contacts`, `announcements`, all public-read, admin-write.
 - **Admins:** `admin_emails` allowlist table; `role='admin'` granted only if the email is in it.
+
+## Pre-registration (2026-10-26, migration `20261026120000_preregistration.sql`)
+- **`event_config.portal_open`** (default false): the lab shows only Crew + Profile; Overview, Formula, Dead Drop and the
+  countdowns stay hidden until an admin flips it on the Event page. **`event_config.seat_cap`**: the hall's headcount,
+  shown as a tally on the admin Crews page.
+- **`profiles.linkedin_url` / `github_url`**: canonical profile URLs only (`https://www.linkedin.com/in/<slug>`,
+  `https://github.com/<user>`), enforced by check constraints via `_linkedin_ok()` / `_github_ok()`. The app normalises
+  what people paste (`src/lib/profileLinks.ts`). `update_profile(name, phone, linkedin, github)` requires at least one
+  (`need_a_link`); `create_team` / `join_team` refuse anyone without one.
+- **`teams.registration_status`** (`pending` | `accepted` | `waitlisted`, default pending): set by admins only (no
+  hacker write path). `join_team` refuses an accepted crew (`crew_accepted`): its seats are already counted. Leaving is
+  still allowed. `my_crew()` returns the status; `admin_crews()` returns it plus every member's links.
+- Walter/Jesse is no longer shown during pre-registration: student IDs are checked at the door.

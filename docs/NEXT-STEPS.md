@@ -16,6 +16,12 @@ security headers, and a security review (see `SECURITY.md`). What remains:
 See `SECURITY.md` → "Before launch": email provider off, redirect URLs, admin emails, real event times,
 Security Advisor, backup, dry run with fake crews.
 
+## 2b. Pre-registration (live until the event)
+- [ ] Admin → Event: set **Seats in the hall**; keep the portal on "pre-registration".
+- [ ] Review crews in Admin → Crews (filter Pending, open LinkedIn/GitHub), Accept or Waitlist; export CSV.
+- [ ] Tell accepted crews (the status shows on their Crew page; there are no emails yet).
+- [ ] Event day: Admin → Event → **Open the full portal**; check student IDs at the door.
+
 ## 3. Content from the club (entered in /admin, no code)
 - [ ] Final event times (16–17 Nov 2026 is in; Gulf time).
 - [ ] Sponsors + logos (PNG/WebP/JPEG ≤ 2 MB), which ones are suppliers.

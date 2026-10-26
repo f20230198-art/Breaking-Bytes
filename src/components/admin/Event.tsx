@@ -39,6 +39,7 @@ export function AdminEvent() {
       registration_open: cfg.registration_open, starts_at: cfg.starts_at, supplier_pick_at: cfg.supplier_pick_at,
       problems_release_at: cfg.problems_release_at, roster_lock_at: cfg.roster_lock_at, submissions_open_at: cfg.submissions_open_at,
       deadline_at: cfg.deadline_at, team_max: cfg.team_max, supplier_cap_slack: cfg.supplier_cap_slack, prize_pool_aed: cfg.prize_pool_aed,
+      seat_cap: cfg.seat_cap,
     });
   };
   const now = new Date().toISOString();
@@ -50,6 +51,12 @@ export function AdminEvent() {
       <div className="mb-6 flex flex-wrap gap-2">
         <Btn tone={cfg.registration_open ? "danger" : "primary"} onClick={() => patch({ registration_open: !cfg.registration_open }, cfg.registration_open ? "Close registration? Nobody can start or join a crew." : undefined)}>
           {cfg.registration_open ? "Close registration" : "Open registration"}
+        </Btn>
+        <Btn tone={cfg.portal_open ? "danger" : "primary"}
+          onClick={() => patch({ portal_open: !cfg.portal_open }, cfg.portal_open
+            ? "Back to pre-registration? Hackers only see Crew and Profile."
+            : "Open the full portal? Hackers see the Overview, Formula, Dead Drop and countdowns.")}>
+          {cfg.portal_open ? "Back to pre-registration" : "Open the full portal"}
         </Btn>
         <Btn onClick={() => patch({ problems_release_at: now }, "Release the problem statements to every crew right now?")}>Release problems now</Btn>
         <Btn onClick={() => patch({ deadline_at: plus(cfg.deadline_at, 15) }, "Push the deadline back 15 minutes?")}>Deadline +15 min</Btn>
@@ -64,7 +71,7 @@ export function AdminEvent() {
             <span className="mt-0.5 block text-xs text-paper-dim">{gulf(cfg[k] as string | null)}</span>
           </label>
         ))}
-        {([["team_max", "Max crew size"], ["supplier_cap_slack", "Supplier cap slack (+ crews)"], ["prize_pool_aed", "Prize pool (AED)"]] as const).map(([k, label]) => (
+        {([["team_max", "Max crew size"], ["seat_cap", "Seats in the hall (people)"], ["supplier_cap_slack", "Supplier cap slack (+ crews)"], ["prize_pool_aed", "Prize pool (AED)"]] as const).map(([k, label]) => (
           <label key={k} className="text-sm">
             <span className="text-xs uppercase tracking-wider text-paper-dim">{label}</span>
             <input type="number" className={`${inputCls} mt-1`} value={cfg[k] ?? ""} onChange={(e) => setCfg({ ...cfg, [k]: e.target.value === "" ? null : Number(e.target.value) })} />

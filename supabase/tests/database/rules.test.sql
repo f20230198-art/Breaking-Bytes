@@ -1,7 +1,7 @@
 -- The server-side rules, tested as real users. Run with: npx supabase test db
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(60);
+select plan(70);
 
 -- start from a clean slate, whatever is in the local database (all inside this transaction, rolled back at the end)
 delete from public.admin_emails;
@@ -21,7 +21,10 @@ insert into auth.users (id, email, raw_user_meta_data) values
   ('00000000-0000-0000-0000-00000000000c', 'skinny@cs.testu.edu', '{"full_name":"Skinny Pete"}'),
   ('00000000-0000-0000-0000-00000000000d', 'badger@gmail.com', '{"full_name":"Badger"}'),
   ('00000000-0000-0000-0000-00000000000e', 'gus@lospollos.test', '{"full_name":"Gus"}'),
-  ('00000000-0000-0000-0000-00000000000f', 'tuco@gmail.com', '{"full_name":"Tuco"}');
+  ('00000000-0000-0000-0000-00000000000f', 'tuco@gmail.com', '{"full_name":"Tuco"}'),
+  ('00000000-0000-0000-0000-000000000010', 'hank@gmail.com', '{"full_name":"Hank"}');
+-- everyone but Hank has already given a GitHub link (crews need one)
+update public.profiles set github_url = 'https://github.com/' || split_part(email, '@', 1) where email <> 'hank@gmail.com';
 
 -- everyone signs in mid-event: suppliers open, problems still sealed, Dead Drop not open yet
 update public.event_config set registration_open = true, team_max = 3, supplier_cap_slack = 0,
@@ -36,8 +39,19 @@ select is((select category::text from public.profiles where email = 'skinny@cs.t
 select is((select role::text from public.profiles where email = 'gus@lospollos.test'), 'admin', 'allowlisted email gets the admin role');
 select is((select role::text from public.profiles where email = 'walt@gmail.com'), 'hacker', 'everyone else is a hacker');
 
--- ─── crews ─────────────────────────────────────────────────────────────────────────────────────────────────────
+select throws_ok($$ update public.profiles set github_url = 'https://evil.example/hank' where email = 'hank@gmail.com' $$, '23514', null,
+  'the table itself refuses a non-GitHub link');
+
+-- ─── pre-registration: LinkedIn / GitHub, at least one, real profile links ─────────────────────────────────────
 set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-000000000010","role":"authenticated"}', true);
+select throws_ok($$ select public.create_team('Hank Crew') $$, 'P0001', 'need_a_link', 'no crew without a LinkedIn or GitHub');
+select throws_ok($$ select public.update_profile('Hank') $$, 'P0001', 'need_a_link', 'a profile needs at least one link');
+select throws_ok($$ select public.update_profile('Hank', null, 'https://evil.example/in/hank') $$, 'P0001', 'bad_linkedin', 'prank LinkedIn links are refused');
+select throws_ok($$ select public.update_profile('Hank', null, null, 'https://github.com/hank/../../evil') $$, 'P0001', 'bad_github', 'only a GitHub profile, not any path');
+select lives_ok($$ select public.update_profile('Hank Schrader', null, 'https://www.linkedin.com/in/hank-schrader') $$, 'LinkedIn alone is enough');
+
+-- ─── crews ─────────────────────────────────────────────────────────────────────────────────────────────────────
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}', true);
 
 select throws_ok($$ select public.create_team('ab') $$, 'P0001', 'bad_name', 'crew name too short');
@@ -47,6 +61,11 @@ select matches((select invite_code from public.teams), '^ABQ-[2-9A-HJ-NP-Z]{5}$'
 select is((select name from public.teams), 'Blue Sky', 'whitespace in the name is collapsed');
 select throws_ok($$ select public.create_team('Second Crew') $$, 'P0001', 'already_in_crew', 'one crew per person');
 select is((public.my_crew() -> 'members' -> 0) ? 'email', false, 'my_crew never exposes emails');
+select is(public.my_crew() ->> 'registration_status', 'pending', 'a new crew waits for the organisers');
+update public.teams set registration_status = 'accepted';
+reset role;
+select is((select registration_status::text from public.teams where name = 'Blue Sky'), 'pending', 'a leader cannot accept their own crew');
+set local role authenticated;
 
 reset role;
 create temp table code on commit drop as select invite_code as c from public.teams where name = 'Blue Sky';
@@ -143,6 +162,10 @@ select throws_ok($$ update public.profiles set role = 'admin' where email = 'wal
 select is((public.admin_overview() ->> 'crews')::int, 2, 'admin overview counts crews');
 select is((select count(*)::int from public.admin_crews()), 2, 'admin crew list returns every crew');
 select is((select jsonb_array_length(members) from public.admin_crews() where name = 'Blue Sky'), 3, 'with their rosters');
+select is((select members -> 0 ->> 'github' from public.admin_crews() where name = 'Blue Sky'), 'https://github.com/walt', 'admins see members'' links');
+update public.teams set registration_status = 'accepted' where name = 'Blue Sky';
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-000000000010","role":"authenticated"}', true);
+select throws_ok($$ select public.join_team((select c from code)) $$, 'P0001', 'crew_accepted', 'an accepted crew''s roster is the organisers'' call');
 
 -- ─── leaving ───────────────────────────────────────────────────────────────────────────────────────────────────
 reset role;

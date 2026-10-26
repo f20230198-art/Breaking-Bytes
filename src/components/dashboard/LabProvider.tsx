@@ -11,6 +11,7 @@ export type Member = { id: string; display_name: string; avatar_url: string | nu
 export type Crew = {
   id: string; name: string; invite_code: string; leader_id: string | null; roster_locked: boolean;
   sponsor_id: string | null; problem_id: string | null; status: "active" | "disqualified";
+  registration_status: "pending" | "accepted" | "waitlisted";
   category: "walter" | "jesse"; members: Member[];
 };
 
@@ -124,5 +125,8 @@ export function milestones(cfg: EventConfig) {
 export function nextMilestone(cfg: EventConfig, now: number) {
   return milestones(cfg).find((m) => new Date(m.at).getTime() > now) ?? null;
 }
+
+/** What ProfileForm starts from. */
+export const profileInitial = (p: Profile) => ({ name: p.display_name, phone: p.phone ?? "", linkedin: p.linkedin_url ?? "", github: p.github_url ?? "" });
 
 export const passed = (at: string | null | undefined, now: number) => !!at && new Date(at).getTime() <= now;

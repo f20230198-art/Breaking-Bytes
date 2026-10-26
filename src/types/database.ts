@@ -67,14 +67,14 @@ export type Database = {
                   ]
                 },"event_config": {
                   Row: {
-                    "deadline_at": string | null,"id": number,"prize_pool_aed": number | null,"problems_release_at": string | null,"registration_open": boolean,"roster_lock_at": string | null,"starts_at": string | null,"submissions_open_at": string | null,"supplier_cap_slack": number,"supplier_pick_at": string | null,"team_max": number,"updated_at": string
+                    "deadline_at": string | null,"id": number,"portal_open": boolean,"prize_pool_aed": number | null,"problems_release_at": string | null,"registration_open": boolean,"roster_lock_at": string | null,"seat_cap": number | null,"starts_at": string | null,"submissions_open_at": string | null,"supplier_cap_slack": number,"supplier_pick_at": string | null,"team_max": number,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "deadline_at"?: string | null,"id"?: number,"prize_pool_aed"?: number | null,"problems_release_at"?: string | null,"registration_open"?: boolean,"roster_lock_at"?: string | null,"starts_at"?: string | null,"submissions_open_at"?: string | null,"supplier_cap_slack"?: number,"supplier_pick_at"?: string | null,"team_max"?: number,"updated_at"?: string
+                    "deadline_at"?: string | null,"id"?: number,"portal_open"?: boolean,"prize_pool_aed"?: number | null,"problems_release_at"?: string | null,"registration_open"?: boolean,"roster_lock_at"?: string | null,"seat_cap"?: number | null,"starts_at"?: string | null,"submissions_open_at"?: string | null,"supplier_cap_slack"?: number,"supplier_pick_at"?: string | null,"team_max"?: number,"updated_at"?: string
                   }
                   Update: {
-                    "deadline_at"?: string | null,"id"?: number,"prize_pool_aed"?: number | null,"problems_release_at"?: string | null,"registration_open"?: boolean,"roster_lock_at"?: string | null,"starts_at"?: string | null,"submissions_open_at"?: string | null,"supplier_cap_slack"?: number,"supplier_pick_at"?: string | null,"team_max"?: number,"updated_at"?: string
+                    "deadline_at"?: string | null,"id"?: number,"portal_open"?: boolean,"prize_pool_aed"?: number | null,"problems_release_at"?: string | null,"registration_open"?: boolean,"roster_lock_at"?: string | null,"seat_cap"?: number | null,"starts_at"?: string | null,"submissions_open_at"?: string | null,"supplier_cap_slack"?: number,"supplier_pick_at"?: string | null,"team_max"?: number,"updated_at"?: string
                   }
                   Relationships: [
                     
@@ -163,14 +163,14 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "avatar_url": string | null,"banned": boolean,"category": Database["public"]['Enums']["category"],"category_override": boolean,"created_at": string,"display_name": string,"email": string,"id": string,"onboarded": boolean,"phone": string | null,"role": Database["public"]['Enums']["user_role"],"university_id": string | null
+                    "avatar_url": string | null,"banned": boolean,"category": Database["public"]['Enums']["category"],"category_override": boolean,"created_at": string,"display_name": string,"email": string,"github_url": string | null,"id": string,"linkedin_url": string | null,"onboarded": boolean,"phone": string | null,"role": Database["public"]['Enums']["user_role"],"university_id": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "avatar_url"?: string | null,"banned"?: boolean,"category"?: Database["public"]['Enums']["category"],"category_override"?: boolean,"created_at"?: string,"display_name"?: string,"email": string,"id": string,"onboarded"?: boolean,"phone"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"university_id"?: string | null
+                    "avatar_url"?: string | null,"banned"?: boolean,"category"?: Database["public"]['Enums']["category"],"category_override"?: boolean,"created_at"?: string,"display_name"?: string,"email": string,"github_url"?: string | null,"id": string,"linkedin_url"?: string | null,"onboarded"?: boolean,"phone"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"university_id"?: string | null
                   }
                   Update: {
-                    "avatar_url"?: string | null,"banned"?: boolean,"category"?: Database["public"]['Enums']["category"],"category_override"?: boolean,"created_at"?: string,"display_name"?: string,"email"?: string,"id"?: string,"onboarded"?: boolean,"phone"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"university_id"?: string | null
+                    "avatar_url"?: string | null,"banned"?: boolean,"category"?: Database["public"]['Enums']["category"],"category_override"?: boolean,"created_at"?: string,"display_name"?: string,"email"?: string,"github_url"?: string | null,"id"?: string,"linkedin_url"?: string | null,"onboarded"?: boolean,"phone"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"university_id"?: string | null
                   }
                   Relationships: [
                     {
@@ -263,14 +263,14 @@ isOneToOne: true
                   ]
                 },"teams": {
                   Row: {
-                    "created_at": string,"id": string,"invite_code": string,"leader_id": string | null,"name": string,"problem_id": string | null,"roster_locked": boolean,"sponsor_id": string | null,"status": Database["public"]['Enums']["team_status"]
+                    "created_at": string,"id": string,"invite_code": string,"leader_id": string | null,"name": string,"problem_id": string | null,"registration_status": Database["public"]['Enums']["registration_status"],"roster_locked": boolean,"sponsor_id": string | null,"status": Database["public"]['Enums']["team_status"]
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"id"?: string,"invite_code": string,"leader_id"?: string | null,"name": string,"problem_id"?: string | null,"roster_locked"?: boolean,"sponsor_id"?: string | null,"status"?: Database["public"]['Enums']["team_status"]
+                    "created_at"?: string,"id"?: string,"invite_code": string,"leader_id"?: string | null,"name": string,"problem_id"?: string | null,"registration_status"?: Database["public"]['Enums']["registration_status"],"roster_locked"?: boolean,"sponsor_id"?: string | null,"status"?: Database["public"]['Enums']["team_status"]
                   }
                   Update: {
-                    "created_at"?: string,"id"?: string,"invite_code"?: string,"leader_id"?: string | null,"name"?: string,"problem_id"?: string | null,"roster_locked"?: boolean,"sponsor_id"?: string | null,"status"?: Database["public"]['Enums']["team_status"]
+                    "created_at"?: string,"id"?: string,"invite_code"?: string,"leader_id"?: string | null,"name"?: string,"problem_id"?: string | null,"registration_status"?: Database["public"]['Enums']["registration_status"],"roster_locked"?: boolean,"sponsor_id"?: string | null,"status"?: Database["public"]['Enums']["team_status"]
                   }
                   Relationships: [
                     {
@@ -320,10 +320,12 @@ isOneToOne: false
 { Args: Record<PropertyKey, never>; Returns: {
               "deadline_at": string | null,
 "id": number,
+"portal_open": boolean,
 "prize_pool_aed": number | null,
 "problems_release_at": string | null,
 "registration_open": boolean,
 "roster_lock_at": string | null,
+"seat_cap": number | null,
 "starts_at": string | null,
 "submissions_open_at": string | null,
 "supplier_cap_slack": number,
@@ -337,6 +339,12 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"_github_ok":
+{ Args: { "u": string }; Returns: boolean
+                           },
+"_linkedin_ok":
+{ Args: { "u": string }; Returns: boolean
+                           },
 "_me":
 { Args: Record<PropertyKey, never>; Returns: {
               "avatar_url": string | null,
@@ -346,7 +354,9 @@ isOneToOne: false
 "created_at": string,
 "display_name": string,
 "email": string,
+"github_url": string | null,
 "id": string,
+"linkedin_url": string | null,
 "onboarded": boolean,
 "phone": string | null,
 "role": Database["public"]['Enums']["user_role"],
@@ -366,6 +376,7 @@ isOneToOne: false
 "leader_id": string | null,
 "name": string,
 "problem_id": string | null,
+"registration_status": Database["public"]['Enums']["registration_status"],
 "roster_locked": boolean,
 "sponsor_id": string | null,
 "status": Database["public"]['Enums']["team_status"]
@@ -387,7 +398,7 @@ isOneToOne: false
                            },
 "admin_crews":
 { Args: Record<PropertyKey, never>; Returns: {
-              "category": Database["public"]['Enums']["category"],"id": string,"invite_code": string,"late": boolean,"live_url": string,"members": Json,"name": string,"notes": string,"problem_id": string,"repo_url": string,"roster_locked": boolean,"sponsor": string,"status": Database["public"]['Enums']["team_status"],"submitted_at": string,"video_url": string
+              "category": Database["public"]['Enums']["category"],"created_at": string,"id": string,"invite_code": string,"late": boolean,"live_url": string,"members": Json,"name": string,"notes": string,"problem_id": string,"registration_status": Database["public"]['Enums']["registration_status"],"repo_url": string,"roster_locked": boolean,"sponsor": string,"status": Database["public"]['Enums']["team_status"],"submitted_at": string,"video_url": string
             }[]
                            },
 "admin_overview":
@@ -438,14 +449,14 @@ isOneToOne: false
 { Args: { "p_email": string }; Returns: string
                            },
 "update_profile":
-{ Args: { "p_display_name": string,"p_phone"?: string }; Returns: undefined
+{ Args: { "p_display_name": string,"p_github"?: string,"p_linkedin"?: string,"p_phone"?: string }; Returns: undefined
                            },
 "upsert_submission":
 { Args: { "p_live": string,"p_notes"?: string,"p_repo": string,"p_video": string }; Returns: string
                            }
           }
           Enums: {
-            "category": "walter"|"jesse","prize_kind": "cash"|"perk","sponsor_tier": "title"|"track"|"food"|"perk","team_status": "active"|"disqualified","user_role": "hacker"|"admin"|"judge"
+            "category": "walter"|"jesse","prize_kind": "cash"|"perk","registration_status": "pending"|"accepted"|"waitlisted","sponsor_tier": "title"|"track"|"food"|"perk","team_status": "active"|"disqualified","user_role": "hacker"|"admin"|"judge"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -565,7 +576,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "category": ["walter", "jesse"],"prize_kind": ["cash", "perk"],"sponsor_tier": ["title", "track", "food", "perk"],"team_status": ["active", "disqualified"],"user_role": ["hacker", "admin", "judge"]
+            "category": ["walter", "jesse"],"prize_kind": ["cash", "perk"],"registration_status": ["pending", "accepted", "waitlisted"],"sponsor_tier": ["title", "track", "food", "perk"],"team_status": ["active", "disqualified"],"user_role": ["hacker", "admin", "judge"]
           }
         }
 } as const

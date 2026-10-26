@@ -2,8 +2,8 @@
 /* eslint-disable @next/next/no-img-element -- a tiny pre-blurred backdrop; next/image adds nothing here */
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState, type ReactNode } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState, type ReactNode } from "react";
 import { Countdown } from "@/components/ui/Countdown";
 import { nextMilestone, useLab } from "./LabProvider";
 
@@ -14,6 +14,8 @@ const TABS = [
   ["/dashboard/submit", "Dead Drop"],
   ["/dashboard/profile", "Profile"],
 ] as const;
+// pre-registration (portal_open off): crew sign-up and your profile, nothing else
+const PREREG_TABS = TABS.filter(([href]) => href === "/dashboard/crew" || href === "/dashboard/profile");
 
 /**
  * The lab's frame. The backdrop is your side of the prize print, blurred like a phone home screen: Saul's office for
@@ -22,7 +24,13 @@ const TABS = [
 export function Shell({ children }: { children: ReactNode }) {
   const { me, crew, cfg, offset, now } = useLab();
   const path = usePathname();
+  const router = useRouter();
   const next = nextMilestone(cfg, now());
+  const tabs = cfg.portal_open ? TABS : PREREG_TABS;
+  const hidden = !cfg.portal_open && !PREREG_TABS.some(([href]) => path.startsWith(href));
+  useEffect(() => {
+    if (hidden) router.replace("/dashboard/crew");
+  }, [hidden, router]);
 
   return (
     // isolate: its own stacking context, so the -z-10 backdrop sits behind the content but above the layout's ink
@@ -41,7 +49,9 @@ export function Shell({ children }: { children: ReactNode }) {
             <Link href="/admin" className="border-2 border-hazmat px-1.5 font-type text-xs uppercase tracking-wider text-hazmat hover:bg-hazmat hover:text-ink">Admin</Link>
           )}
           <div className="ml-auto text-right">
-            {next ? (
+            {!cfg.portal_open ? (
+              <p className="font-stencil text-sm font-bold uppercase tracking-[0.25em] text-crystal">Pre-registration</p>
+            ) : next ? (
               <>
                 <p className="font-type text-[10px] uppercase tracking-[0.25em] text-paper-dim">{next.label}</p>
                 <Countdown to={next.at} offsetMs={offset} compact urgent={next.deadline} label={next.label} />
@@ -52,7 +62,7 @@ export function Shell({ children }: { children: ReactNode }) {
           </div>
         </div>
         <nav className="mx-auto flex max-w-5xl gap-1 overflow-x-auto px-2 sm:px-4" aria-label="Dashboard">
-          {TABS.map(([href, label]) => {
+          {tabs.map(([href, label]) => {
             const on = href === "/dashboard" ? path === href : path.startsWith(href);
             return (
               <Link
@@ -68,7 +78,7 @@ export function Shell({ children }: { children: ReactNode }) {
         </nav>
       </header>
 
-      <main className="mx-auto max-w-5xl px-4 py-8 sm:py-10">{children}</main>
+      <main className="mx-auto max-w-5xl px-4 py-8 sm:py-10">{hidden ? null : children}</main>
     </div>
   );
 }

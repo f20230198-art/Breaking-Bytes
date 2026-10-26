@@ -31,6 +31,10 @@ const MESSAGES: Record<string, string> = {
   notes_too_long: "Notes are limited to 2000 characters.",
   bad_display_name: "Names are 2–60 characters.",
   bad_phone: "That phone number doesn't look right.",
+  bad_linkedin: "That LinkedIn link isn't a profile. It looks like linkedin.com/in/your-name.",
+  bad_github: "That GitHub link isn't a profile. It looks like github.com/your-username.",
+  need_a_link: "Add your LinkedIn or GitHub (both is better).",
+  crew_accepted: "That crew is already accepted. Ask an organiser to add you.",
   not_admin: "Admins only.",
 };
 

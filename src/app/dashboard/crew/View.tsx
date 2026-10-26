@@ -14,7 +14,7 @@ export function CrewPage() {
 }
 
 function NoCrew() {
-  const { reload } = useLab();
+  const { cfg, reload } = useLab();
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState<"create" | "join" | null>(null);
@@ -42,7 +42,9 @@ function NoCrew() {
     <div>
       <Kicker className="text-rust">The crew</Kicker>
       <h1 className="mt-1 font-display text-3xl sm:text-4xl">Every cook needs a crew.</h1>
-      <p className="mt-2 max-w-xl font-type text-paper-dim">Up to 4 people. Start one and share the code, or join with a code from your leader.</p>
+      <p className="mt-2 max-w-xl font-type text-paper-dim">
+        Up to {cfg.team_max} people, and going solo is fine. Start a crew and share the code, or join with a code from your leader.
+      </p>
       {error && <div className="max-w-xl"><Notice>{error}</Notice></div>}
       <div className="mt-6 grid gap-6 md:grid-cols-2">
         <Card>
@@ -65,7 +67,7 @@ function NoCrew() {
 }
 
 function Roster({ crew }: { crew: Crew }) {
-  const { me, isLeader, reload } = useLab();
+  const { me, cfg, isLeader, reload } = useLab();
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -98,19 +100,21 @@ function Roster({ crew }: { crew: Crew }) {
             <Kicker>Your crew</Kicker>
             <Title>{crew.name}</Title>
             <div className="mt-2 flex flex-wrap items-center gap-2">
-              <CategoryBadge category={crew.category} />
+              {cfg.portal_open ? <CategoryBadge category={crew.category} /> : <Stamp tone={crew.registration_status === "accepted" ? "olive" : "brick"}>{STATUS[crew.registration_status].stamp}</Stamp>}
               {crew.roster_locked && <Stamp>Roster locked</Stamp>}
             </div>
             <p className="mt-3 max-w-md font-type text-sm text-ink/70">
-              {crew.category === "jesse"
-                ? "Every member is a verified student, so this crew also competes for the student prizes."
-                : "Student prizes need every member to be a verified student. One Walter makes the whole crew Walter."}
+              {!cfg.portal_open
+                ? STATUS[crew.registration_status].text
+                : crew.category === "jesse"
+                  ? "Every member is a verified student, so this crew also competes for the student prizes."
+                  : "Student prizes need every member to be a verified student. One Walter makes the whole crew Walter."}
             </p>
           </div>
           <div className="text-right">
             <p className="font-type text-xs uppercase tracking-[0.2em] text-ink/60">Invite code</p>
             <p className="font-display text-2xl tracking-wider">{crew.invite_code}</p>
-            <p className="font-type text-xs text-ink/60">{crew.members.length} / 4 cooks</p>
+            <p className="font-type text-xs text-ink/60">{crew.members.length} / {cfg.team_max} cooks</p>
           </div>
         </div>
         {error && <Notice>{error}</Notice>}
@@ -118,10 +122,10 @@ function Roster({ crew }: { crew: Crew }) {
 
       <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {crew.members.map((m, i) => (
-          <Polaroid key={m.id} m={m} tilt={i % 2 ? 1.5 : -1.5} canRemove={isLeader && m.id !== me.id} busy={busy}
+          <Polaroid key={m.id} m={m} tilt={i % 2 ? 1.5 : -1.5} showCategory={cfg.portal_open} canRemove={isLeader && m.id !== me.id} busy={busy}
             onRemove={() => act(() => sb.rpc("remove_member", { p_user: m.id }), `Remove ${m.display_name} from the crew?`)} />
         ))}
-        {Array.from({ length: Math.max(0, 4 - crew.members.length) }, (_, i) => (
+        {Array.from({ length: Math.max(0, cfg.team_max - crew.members.length) }, (_, i) => (
           <li key={`empty-${i}`} className="grid aspect-[4/5] place-items-center border-[3px] border-dashed border-paper-dim/40 font-type text-sm text-paper-dim">
             Empty seat
           </li>
@@ -143,7 +147,14 @@ function Roster({ crew }: { crew: Crew }) {
   );
 }
 
-function Polaroid({ m, tilt, canRemove, busy, onRemove }: { m: Member; tilt: number; canRemove: boolean; busy: boolean; onRemove: () => void }) {
+// pre-registration: seats are limited, so the organisers review every crew
+const STATUS = {
+  pending: { stamp: "Under review", text: "You're registered. Seats are limited, so the organisers review every crew; this page updates when they decide. Teammates can still join with the code." },
+  accepted: { stamp: "Accepted", text: "You're in. See you at the lab. Need to change who's in the crew? Talk to an organiser." },
+  waitlisted: { stamp: "Waitlist", text: "The hall is full for now, so your crew is on the waitlist. We'll move you up if a seat opens." },
+} as const;
+
+function Polaroid({ m, tilt, showCategory, canRemove, busy, onRemove }: { m: Member; tilt: number; showCategory: boolean; canRemove: boolean; busy: boolean; onRemove: () => void }) {
   return (
     <li className="relative border-[3px] border-ink bg-paper p-3 pb-4 text-ink print-shadow" style={{ rotate: `${tilt}deg` }}>
       {/* a strip of tape holding it up */}
@@ -157,7 +168,7 @@ function Polaroid({ m, tilt, canRemove, busy, onRemove }: { m: Member; tilt: num
       </div>
       <p className="mt-3 truncate font-display">{m.display_name || "Unnamed cook"}</p>
       <div className="mt-1 flex items-center justify-between gap-2">
-        <CategoryBadge category={m.category} />
+        {showCategory && <CategoryBadge category={m.category} />}
         {m.is_leader && <span className="font-stencil text-xs font-bold uppercase tracking-widest text-brick">Leader</span>}
       </div>
       {canRemove && (
