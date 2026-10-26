@@ -1,11 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { safeNext } from "@/lib/safeNext";
 import { supabaseBrowser } from "@/lib/supabase/client";
 
-/** Google is the only door in. University Google accounts are detected as Jesse (student) on the server. */
+/** Google is the only door in. (University accounts are still detected as Jesse on the server; IDs are checked at the door.) */
 export function LoginCard() {
   const params = useSearchParams();
   const [busy, setBusy] = useState(false);
@@ -24,8 +25,7 @@ export function LoginCard() {
       <p className="font-type text-xs uppercase tracking-[0.3em] text-brick">The lab · sign in</p>
       <h1 className="mt-2 font-display text-3xl leading-tight">Say my name.</h1>
       <p className="mt-3 font-type text-sm">
-        Student at a partner university? Use your <strong>university Google account</strong> to compete for the student
-        prizes too.
+        Sign in with Google, then start or join a crew. Students: bring your university ID on the day.
       </p>
       {failed && <p className="mt-3 border-2 border-brick px-3 py-2 font-type text-sm text-brick">That didn&apos;t work. Try again.</p>}
       <button
@@ -36,6 +36,9 @@ export function LoginCard() {
       >
         {busy ? "Opening Google…" : "Sign in with Google"}
       </button>
+      <p className="mt-3 font-type text-xs text-ink/60">
+        We only use your details to run the event. <Link href="/privacy" className="underline underline-offset-2">Privacy</Link>
+      </p>
       {/* never in a production build, whatever the flag says */}
       {process.env.NODE_ENV !== "production" && process.env.NEXT_PUBLIC_DEV_LOGIN === "1" && <DevLogin next={safeNext(params.get("next"))} />}
     </div>
