@@ -27,7 +27,7 @@ Hand-drawn (sketchbook/notebook, NOT comic) Breaking-Bad-*parody* website for a 
 ## Stack (decided)
 - Next.js (App Router) + TypeScript, Tailwind CSS, Framer Motion, Lucide icons
 - Supabase: Auth, Postgres (RLS on every table), Realtime for team roster
-- Hosting: Railway (Next.js standalone build). Supabase hosted separately.
+- Hosting: Vercel (Hobby, chosen 2026-10-27 over Railway: free, zero-config for Next 16). Supabase hosted separately.
 
 ## Folder layout
 ```

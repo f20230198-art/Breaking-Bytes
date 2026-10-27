@@ -4,7 +4,7 @@
 | Topic | Decision | Why |
 |---|---|---|
 | Framework | **Next.js App Router** (not Vite) | Server components + route handlers + middleware make Supabase auth and server-side deadline checks clean |
-| Hosting | Railway (`output: "standalone"`) | User's choice |
+| Hosting | Vercel (Hobby) | Switched from Railway at deploy time: free, zero-config |
 | Backend | Supabase (Auth + Postgres + RLS + Realtime) | User's choice |
 | Visual tone | **Hand-drawn realism ("Heisenberg's Notebook")**: pencil/ink/wash on cream paper, crystal blue the only saturated colour. Comic pop rejected 2026-10-15 (too close to Bit N Build) | Distinct + closer to the show
 | Assets | AI raster (GPT image) for illustrations; SVG/CSS for UI chrome | See `ASSETS.md` |
@@ -120,4 +120,4 @@ Inputs: N teams, P problems (1 per sponsor). Target: each problem gets ⌈N / P�
 4. **Phase 4 — Assets:** generate per `ASSETS.md`, cut backgrounds, optimize, drop in.
 5. **Phase 5 — Supabase:** migrations, RLS, RPCs, auth, swap mock hooks for real ones, Realtime roster.
 6. **Phase 6 — Security hardening** per `SECURITY.md`; load test submission endpoint.
-7. **Phase 7 — Deploy** to Railway, custom domain, smoke test, admin runbook for event day.
+7. **Phase 7 — Deploy** to Vercel, custom domain, smoke test, admin runbook for event day.

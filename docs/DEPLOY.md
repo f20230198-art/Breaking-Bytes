@@ -1,10 +1,11 @@
-# Deploy: Railway + Supabase
+# Deploy: Vercel + Supabase
 
-## Railway
-- Service from GitHub repo; Nixpacks/Railpack auto-detects Next.js.
-- `next.config`: `output: "standalone"`. Start: `node .next/standalone/server.js` (copy `public/` + `.next/static` in build) or plain `next start` with `PORT` from Railway.
-- Custom domain + Railway TLS.
-- Scale: 1 instance is fine; DB does the heavy lifting. Bump RAM before event day.
+## Vercel (Hobby, free)
+- Import the GitHub repo; Next.js is auto-detected, no build settings to change. Every push to `master` redeploys.
+- `NEXT_PUBLIC_*` vars are baked in at build time: after changing one, **Redeploy**.
+- Custom domain in Project → Settings → Domains. DNS on Cloudflare stays **DNS only** (grey cloud): Vercel's CDN
+  caches and serves TLS; proxying through Cloudflare on top breaks cert renewal and double-caches.
+- Hobby is for non-commercial use (a student club event); move to Railway/Pro if that ever becomes a problem.
 
 ## Supabase
 - Separate projects for `dev` and `prod`. Migrations in `supabase/migrations`, applied with Supabase CLI (`supabase db push`).
@@ -23,9 +24,9 @@
 ## Env vars
 | Var | Where | Public? |
 |---|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | Railway + `.env.local` | yes |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Railway + `.env.local` | yes (RLS protects) |
-| `SUPABASE_SERVICE_ROLE_KEY` | Railway only, if needed for admin jobs | **NO** |
+| `NEXT_PUBLIC_SUPABASE_URL` | Vercel + `.env.local` | yes |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Vercel + `.env.local` | yes (RLS protects) |
+| `SUPABASE_SERVICE_ROLE_KEY` | Vercel only, if needed for admin jobs (not used today) | **NO** |
 | `NEXT_PUBLIC_SITE_URL` | both | yes |
 
 ## Event-day runbook (fill in later)
