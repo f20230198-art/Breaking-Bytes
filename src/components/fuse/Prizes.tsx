@@ -106,7 +106,7 @@ function Stage({ p }: { p: MotionValue<number> }) {
         />
       )}
 
-      <h2 className="sr-only">Cash prizes: {all}</h2>
+      <h2 className="sr-only">Cash prizes (amounts tentative): {all}</h2>
     </div>
   );
 }
@@ -135,6 +135,7 @@ function Scene({ scene, cases, p, still, kicker, stamp, children }: { scene: Sce
         <p className="mt-1 -rotate-2 border-[3px] border-ink bg-brick px-3 py-0.5 font-stencil text-xl font-bold uppercase tracking-[0.3em] text-paper shadow-[3px_3px_0_var(--color-ink)]">
           {stamp}
         </p>
+        <p className="mt-2 font-type text-xs uppercase tracking-[0.3em] text-paper sm:text-sm [text-shadow:1px_1px_0_var(--color-ink)]">Amounts tentative</p>
       </motion.div>
     </motion.div>
   );

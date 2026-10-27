@@ -1,7 +1,6 @@
 import { FuseTimeline } from "@/components/fuse/FuseTimeline";
 import { Prizes } from "@/components/fuse/Prizes";
 import { Classroom } from "@/components/classroom/Classroom";
-import { Sponsors } from "@/components/sponsors/Sponsors";
 import { Faq } from "@/components/faq/Faq";
 import { Finale } from "@/components/finale/Finale";
 import { Story } from "@/components/story/Story";
@@ -15,7 +14,8 @@ import { getSite } from "@/lib/siteContent";
 // flags the cached content read when you navigate here from the dashboard
 export const instant = false;
 
-// dates, schedule, prizes, sponsors and FAQ come from the database (cached ~1 min; built-in fallback if unreachable)
+// dates, schedule, prizes and FAQ come from the database (cached ~1 min; built-in fallback if unreachable).
+// The sponsors section (components/sponsors/Sponsors) is hidden until sponsors are confirmed; add <Sponsors /> back after <Classroom />.
 export default async function Home() {
   const site = await getSite();
   return (
@@ -28,7 +28,6 @@ export default async function Home() {
         <FuseTimeline />
         <Prizes />
         <Classroom />
-        <Sponsors />
         <Faq />
       </main>
       <Finale />

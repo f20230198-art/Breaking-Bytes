@@ -45,10 +45,10 @@ function Stage({ p }: { p: MotionValue<number> }) {
           <Chalk p={p} at={0.04} still={still} className="font-type text-[3.4cqw] leading-none tracking-wide">
             Today&apos;s lesson: pick your poison
           </Chalk>
-          {/* 2 × 3 element tiles */}
-          <div className="mx-auto mt-[2.5cqw] grid grid-cols-3 gap-x-[4cqw] gap-y-[2cqw]">
+          {/* one row of element tiles, centred in the board under the title */}
+          <div className="mx-auto my-auto grid grid-cols-3 gap-x-[4cqw] gap-y-[2cqw]">
             {TRACKS.map((t, i) => (
-              <Chalk key={t.symbol} p={p} at={tileAt(i)} still={still}>
+              <Chalk key={t.number} p={p} at={tileAt(i)} still={still}>
                 <div className="relative flex h-[11cqw] w-[17cqw] flex-col items-center justify-center border-[0.35cqw] border-paper/85">
                   <span className="absolute left-[7%] top-[4%] font-type text-[1.4cqw]">{t.number}</span>
                   <span className="font-display text-[4.8cqw] leading-none">{t.symbol}</span>
