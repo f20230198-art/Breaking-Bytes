@@ -55,7 +55,7 @@ export function Finale() {
               href="/dashboard"
               className="inline-block -rotate-2 border-[3px] border-ink bg-crystal px-6 py-3 font-display text-base sm:px-7 sm:py-3.5 sm:text-lg uppercase tracking-wider text-ink print-shadow transition-transform hover:rotate-0 hover:scale-105"
             >
-              Register your crew
+              Pre-registration
             </Link>
             {/* phones: one line, so the finale still fits on a single screen */}
             <div className="hidden sm:block"><Countdown to={startsAt} label="The cook starts in" /></div>
