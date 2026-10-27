@@ -434,9 +434,6 @@ isOneToOne: false
 "server_time":
 { Args: Record<PropertyKey, never>; Returns: string
                            },
-"set_roster_locked":
-{ Args: { "p_locked": boolean }; Returns: undefined
-                           },
 "supplier_slots":
 { Args: Record<PropertyKey, never>; Returns: {
               "cap": number,"logo_path": string,"name": string,"sponsor_id": string,"symbol": string,"taken": number

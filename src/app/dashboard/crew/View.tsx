@@ -133,11 +133,6 @@ function Roster({ crew }: { crew: Crew }) {
       </ul>
 
       <div className="flex flex-wrap gap-3">
-        {isLeader && (
-          <Button tone="paper" disabled={busy} onClick={() => act(() => sb.rpc("set_roster_locked", { p_locked: !crew.roster_locked }))}>
-            {crew.roster_locked ? "Unlock roster" : "Lock roster"}
-          </Button>
-        )}
         <Button tone="danger" disabled={busy}
           onClick={() => act(() => sb.rpc("leave_team"), isLeader && crew.members.length > 1 ? "Leave the crew? Leadership passes to the longest-standing member." : "Leave the crew?")}>
           Leave crew

@@ -112,7 +112,7 @@ set local role authenticated;
 -- ─── leader-only actions and suppliers ────────────────────────────────────────────────────────────────────────
 select throws_ok($$ select public.admin_crews() $$, 'P0001', 'not_admin', 'hackers can''t list crews');
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000b","role":"authenticated"}', true);
-select throws_ok($$ select public.set_roster_locked(true) $$, 'P0001', 'not_leader', 'only the leader locks the roster');
+select ok(not exists (select 1 from pg_proc where proname = 'set_roster_locked'), 'leaders have no roster lock RPC');
 select throws_ok($$ select public.pick_supplier((select id from public.sponsors where name = 'Deriv')) $$, 'P0001', 'not_leader', 'only the leader picks a supplier');
 
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}', true);

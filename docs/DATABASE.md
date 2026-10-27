@@ -44,9 +44,8 @@ scores (opt)  judge_id, team_id, criterion, score
 | Function | Checks |
 |---|---|
 | `create_team(name)` | user not in a team; before roster_lock_at; generates collision-free code server-side; inserts team + leader member |
-| `join_team(code)` | code exists; team not locked; < 4 members; user not in a team; rate-limited |
+| `join_team(code)` | code exists; team not locked (only admins lock rosters); < 4 members; user not in a team; rate-limited |
 | `leave_team()` | if leader leaves: promote oldest member or delete empty team |
-| `lock_roster()` | leader only |
 | `lock_problem(problem_id)` | leader only; problem published; optional per-problem cap; before deadline |
 | `upsert_submission(repo, live, video, notes)` | member of team; `now() between submissions_open_at and deadline_at`; URL regex + length checks |
 
