@@ -1,7 +1,7 @@
 -- The server-side rules, tested as real users. Run with: npx supabase test db
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(93);
+select plan(99);
 
 -- start from a clean slate, whatever is in the local database (all inside this transaction, rolled back at the end)
 delete from public.admin_emails;
@@ -26,6 +26,8 @@ insert into auth.users (id, email, raw_user_meta_data) values
   ('00000000-0000-0000-0000-000000000010', 'hank@gmail.com', '{"full_name":"Hank"}');
 -- what Auth does on a Google sign-in: the row first, then the verified address and the provider in an update
 update auth.users set email_confirmed_at = now(), raw_app_meta_data = '{"provider":"google","providers":["google"]}';
+insert into auth.identities (provider_id, user_id, provider, identity_data)
+select id::text, id, 'google', jsonb_build_object('sub', id::text, 'email', email, 'email_verified', true) from auth.users;
 -- everyone but Hank has already given both links (crews need them)
 update public.profiles set github_url = 'https://github.com/' || split_part(email, '@', 1),
   linkedin_url = 'https://www.linkedin.com/in/' || split_part(email, '@', 1) where email <> 'hank@gmail.com';
@@ -55,6 +57,8 @@ select is((select role::text from public.profiles where email = 'saul@bettercall
 -- a Google sign-in before Auth has confirmed the address: nothing yet, then the role once it's verified
 insert into auth.users (id, email, raw_app_meta_data) values
   ('00000000-0000-0000-0000-000000000013', 'mike@lospollos.test', '{"provider":"google","providers":["google"]}');
+insert into auth.identities (provider_id, user_id, provider, identity_data) values
+  ('mike', '00000000-0000-0000-0000-000000000013', 'google', '{"sub":"mike","email":"mike@lospollos.test","email_verified":true}');
 select is((select role::text from public.profiles where email = 'mike@lospollos.test'), 'hacker', 'no role before the address is verified');
 update auth.users set email_confirmed_at = now() where email = 'mike@lospollos.test';
 select is((select role::text from public.profiles where email = 'mike@lospollos.test'), 'admin', 'the role arrives with the verified address');
@@ -244,6 +248,41 @@ select is((select count(*)::int from public.teams where name = 'Los Pollos'), 0,
 select is((select leader_id from public.teams where name = 'Blue Sky'), '00000000-0000-0000-0000-00000000000c'::uuid, 'a newcomer doesn''t take over the crew they join');
 select ok(not exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and tablename = 'team_members'),
   'rosters aren''t broadcast (deletes would skip RLS)');
+
+-- ─── round 3: trust follows the Google identity, not the account ──────────────────────────────────────────────
+-- a Google user switches the account email to an allowlisted / partner address (Auth applies it unverified when
+-- 'Confirm email' is off): no role, no Jesse
+insert into public.admin_emails (email) values ('lydia@madrigal.test');
+update auth.users set email = 'lydia@madrigal.test' where id = '00000000-0000-0000-0000-00000000000d';
+select is((select role::text from public.profiles where id = '00000000-0000-0000-0000-00000000000d'), 'hacker',
+  'changing the account email to an allowlisted address grants no admin role');
+update auth.users set email = 'badger@dubai.bits-pilani.ac.in' where id = '00000000-0000-0000-0000-00000000000d';
+select is((select category::text from public.profiles where id = '00000000-0000-0000-0000-00000000000d'), 'walter',
+  'changing the account email to a partner address makes no Jesse');
+-- a password account squatting an organiser's address, then the organiser's Google sign-in links to it: no admin
+insert into public.admin_emails (email) values ('gale@madrigal.test');
+insert into auth.users (id, email, email_confirmed_at, raw_app_meta_data) values
+  ('00000000-0000-0000-0000-000000000014', 'gale@madrigal.test', now(), '{"provider":"email","providers":["email"]}');
+insert into auth.identities (provider_id, user_id, provider, identity_data) values
+  ('00000000-0000-0000-0000-000000000014', '00000000-0000-0000-0000-000000000014', 'email', '{"sub":"00000000-0000-0000-0000-000000000014","email":"gale@madrigal.test","email_verified":false}'),
+  ('gale', '00000000-0000-0000-0000-000000000014', 'google', '{"sub":"gale","email":"gale@madrigal.test","email_verified":true}');
+update auth.users set raw_app_meta_data = '{"provider":"email","providers":["email","google"]}' where id = '00000000-0000-0000-0000-000000000014';
+select is((select role::text from public.profiles where id = '00000000-0000-0000-0000-000000000014'), 'hacker',
+  'an account that also has a password gets no admin role from a linked Google identity');
+-- once the password identity is gone, the Google holder is the admin
+delete from auth.identities where user_id = '00000000-0000-0000-0000-000000000014' and provider = 'email';
+select is((select role::text from public.profiles where id = '00000000-0000-0000-0000-000000000014'), 'admin',
+  'removing the password identity leaves the Google-verified admin');
+-- admins delete people through admin_delete_user only
+select ok(not exists (select 1 from pg_policies where tablename = 'profiles' and cmd = 'DELETE'),
+  'no direct delete policy on profiles');
+-- a hacker's direct roster insert gets RLS's refusal, not a 'team_full' answer about someone else's crew
+select set_config('test.some_crew', (select id::text from public.teams order by created_at limit 1), true);
+set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-000000000014","role":"authenticated"}', true);
+select throws_ok($$ insert into public.team_members (team_id, user_id) values (current_setting('test.some_crew')::uuid, '00000000-0000-0000-0000-000000000014') $$,
+  '42501', null, 'a direct roster insert is refused by RLS, with no crew-size answer');
+reset role;
 
 select * from finish();
 rollback;

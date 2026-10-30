@@ -90,7 +90,7 @@ not published: Postgres can't check RLS on deleted rows, so its DELETE events re
   confirmed it on a Google sign-in. `handle_new_user`, `sync_admin_roles`, `recompute_categories` and the new
   `on_auth_user_identity_changed` trigger (email / confirmation / provider changes) all go through `_sync_identity()`.
 - **`dev_settings`** (one row, RLS on, no policies, no API grants): `trust_email_logins` lets local email + password
-  accounts count as verified. `seed.sql` turns it on; never on the hosted project.
+  accounts count as verified. `seed.dev.sql` (local `db reset` only) turns it on; never on the hosted project.
 - **Accepted crews only** past pre-registration: `pick_supplier`, `lock_problem`, `upsert_submission` raise
   `not_accepted` otherwise; supplier / problem caps count accepted crews only.
 - `join_team` locks the caller's profile row so the rate limit holds under parallel calls. `team_category()` is

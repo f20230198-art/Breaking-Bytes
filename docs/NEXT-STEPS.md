@@ -5,7 +5,7 @@ admin panel, Supabase backend (RLS, RPCs, 60 pgTAP tests), 404 / share image / r
 security headers, and a security review (see `SECURITY.md`). What remains:
 
 ## 1. Deploy (deferred on purpose)
-- [ ] Create the hosted Supabase project; `npx supabase link` then `npx supabase db push` (migrations), seed or enter content.
+- [ ] Create the hosted Supabase project; `npx supabase link` then `npx supabase db push` (migrations only; never `--include-seed`), then enter content in /admin.
 - [ ] Google OAuth client in Google Cloud console (free): steps in `DEPLOY.md` → "Google sign-in".
 - [ ] Vercel (free Hobby) from the GitHub repo. Env: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
       `NEXT_PUBLIC_SITE_URL` (the real domain). Do **not** set `NEXT_PUBLIC_DEV_LOGIN`.

@@ -59,7 +59,8 @@ Full pass over migrations, RPCs, grants, storage, auth flow, proxy, redirects, h
   policies, `safeNext` redirects, POST-only sign-out, security headers, no secrets in git, `npm audit` 0.
 
 ## Before launch (hosted project)
-- [ ] Supabase Auth: Google provider on, **Email provider off**, redirect URLs = production domain + localhost only.
+- [ ] Supabase Auth: Google provider on, **Email provider off**, **Confirm email on**, **Secure email change on**,
+  redirect URLs = production domain + localhost only. Keep hosted auth settings in the dashboard (never `supabase config push`).
 - [ ] `NEXT_PUBLIC_SITE_URL` set to the production origin; `NEXT_PUBLIC_DEV_LOGIN` **not** set.
 - [ ] Add organiser emails to `admin_emails`; set the real event times in /admin → Event.
 - [ ] Run the Supabase Security Advisor; enable point-in-time backups or take a manual backup before the event.
@@ -81,3 +82,17 @@ Full pass over migrations, RPCs, grants, storage, auth flow, proxy, redirects, h
   longer exists); admins can insert rows into `admin_audit` through `_audit()` (always under their own id).
 - [x] Re-checked from the live local database: function grants for `anon` / `authenticated` match intent, RLS on all
   16 tables, `npm audit` 0, production build and lint clean.
+
+## Audit 2026-10-30, round 3 (migration `20261030160000_google_identity_trust.sql`)
+
+- [x] **Fixed: admin / Jesse from the account email, not the Google identity.** `_trusted_email()` now needs a verified
+  Google identity (`auth.identities`) whose email equals the account email, and no password identity on the account.
+  Closes (a) a Google user changing their email to an allowlisted / partner address via `updateUser` (applied
+  unverified when Confirm email is off) and (b) a password account squatting an organiser's address and being
+  auto-linked to their Google sign-in. Identity inserts / deletes re-derive the role too.
+- [x] **Fixed:** admins can no longer delete `profiles` rows directly (bypassed `admin_delete_user`).
+- [x] **Fixed:** a hacker's direct `team_members` insert no longer runs the crew-size check (it locked any crew and
+  answered `team_full`).
+- [x] The dev `trust_email_logins` switch moved to `supabase/seed.dev.sql`, apart from the content seed.
+- [ ] Hosted check after deploy: `select count(*) from public.profiles where role = 'admin'` matches the organisers who
+  signed in (Google identities need `email_verified = true`, which Google always sends).

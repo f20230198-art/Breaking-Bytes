@@ -1,11 +1,7 @@
--- Placeholder content, mirroring src/data/site.ts until the club confirms the real values (all editable in /admin).
+-- Placeholder content (safe to load anywhere; the local-only dev switch lives in seed.dev.sql), mirroring src/data/site.ts until the club confirms the real values (all editable in /admin).
 -- Times are UTC; the venue is Gulf time (UTC+4): pick 10:00, drop 12:00 on 16 Nov, Dead Drop 08:00–12:00 on 17 Nov.
 -- Admin emails are NOT seeded (no personal addresses in git): add yours locally with
 --   insert into public.admin_emails (email) values ('you@example.com');
-
--- local stack only: trust the dev login's email + password accounts like Google ones (admin role, Jesse category).
--- Never run this against the hosted project.
-update public.dev_settings set trust_email_logins = true where id = 1;
 
 update public.event_config set
   registration_open = true,
