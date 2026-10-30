@@ -46,7 +46,10 @@ export function AdminShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-svh bg-ink font-sans text-paper md:grid md:grid-cols-[13rem_1fr]">
       <aside className="border-b border-paper/15 p-4 md:min-h-svh md:border-b-0 md:border-r">
-        <Link href="/" className="font-display">Gus&apos;s Office</Link>
+        <div className="flex items-baseline justify-between gap-2">
+          <Link href="/" className="font-display">Gus&apos;s Office</Link>
+          <Link href="/dashboard" className="text-xs text-paper-dim hover:text-paper">← The Lab</Link>
+        </div>
         <nav className="mt-4 flex gap-1 overflow-x-auto md:flex-col" aria-label="Admin">
           {NAV.map(([href, label]) => {
             const on = href === "/admin" ? path === href : path.startsWith(href);

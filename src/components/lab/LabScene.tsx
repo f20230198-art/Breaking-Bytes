@@ -121,10 +121,10 @@ function Plate({ at, label, side, children }: { at: (typeof CARDS)[number]; labe
   return (
     <div
       // phones: the outer edge of each plate is off screen, so its writing moves in from that side
-      className={`absolute flex flex-col justify-center px-[1.4cqw] text-ink ${side === "l" ? "portrait:pl-[4.6cqw]" : "portrait:pr-[4.6cqw]"}`}
+      className={`absolute flex flex-col justify-center px-[1.4cqw] text-ink ${side === "l" ? "portrait:pl-[calc(var(--overhang)+0.75rem)]" : "portrait:pr-[var(--overhang)]"}`}
       style={{ left: `${at.left}%`, top: `${at.top}%`, width: `${at.width}%`, height: `${at.height}%` }}
     >
-      <p className="font-type text-[0.85cqw] uppercase tracking-[0.25em] text-brick">{label}</p>
+      <p className="font-type text-[0.85cqw] uppercase tracking-[0.25em] text-brick portrait:max-sm:text-[2.6vw]">{label}</p>
       {children}
     </div>
   );
@@ -210,32 +210,36 @@ export function LabStage({ progress, reveal = 1 }: { progress: MotionValue<numbe
         </div>
 
         {/* clipboard plane: what the hackathon is, and the When / Where plates bolted below */}
-        <div className="pointer-events-none absolute inset-0" style={plane(0.7)}>
+        {/* --overhang: how far the paper (centred by --focus) runs past each screen edge, plus a gutter */}
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{ ...plane(0.7), ["--overhang" as string]: `max(2.4cqw, calc((${PAPER.width}cqw - 100vw) / 2 + 1.25rem))` }}
+        >
         <article
-          // phones: the paper is a little wider than the screen, so the text keeps clear of both edges
-          className="absolute flex flex-col justify-center overflow-hidden px-[2.4cqw] py-[1.2cqw] text-ink portrait:px-[4.6cqw]"
+          // phones: the paper is wider than the screen, so the text keeps clear of both edges
+          className="absolute flex flex-col justify-center overflow-hidden px-[2.4cqw] py-[1.2cqw] text-ink portrait:px-[var(--overhang)]"
           style={{ left: `${PAPER.left}%`, top: `${PAPER.top}%`, width: `${PAPER.width}%`, height: `${PAPER.height}%` }}
         >
-          <p className="font-type text-[0.85cqw] uppercase tracking-[0.25em] text-brick">Form BB-24 · The brief</p>
-          <h2 className="mt-[0.4cqw] font-display text-[2.3cqw] uppercase leading-[0.95]">What is {EVENT.name}?</h2>
-          <p className="mt-[0.9cqw] font-type text-[1.12cqw] leading-snug">
+          <p className="font-type text-[0.85cqw] uppercase tracking-[0.25em] text-brick portrait:max-sm:text-[2.6vw]">Form BB-24 · The brief</p>
+          <h2 className="mt-[0.4cqw] font-display text-[2.3cqw] uppercase leading-[0.95] portrait:max-sm:text-[7.4vw]">What is {EVENT.name}?</h2>
+          <p className="mt-[0.9cqw] font-type text-[1.12cqw] leading-snug portrait:max-sm:text-[3.7vw]">
             A {EVENT.hours}{"‑"}hour hackathon, run underground. You and your crew walk into the lab with an idea and walk out with a working product.
           </p>
-          <p className="mt-[0.6cqw] font-type text-[1.12cqw] leading-snug">
+          <p className="mt-[0.6cqw] font-type text-[1.12cqw] leading-snug portrait:max-sm:text-[3.7vw]">
             Real problems from real companies drop at the start. Cook from scratch, ship before the timer hits zero, and put your batch in front of the judges. The purest build takes the money.
           </p>
         </article>
         <Plate at={CARDS[0]} label="When" side="l">
-          <p className="mt-[0.3cqw] font-display text-[2.3cqw] uppercase leading-none">{cookDay}</p>
-          <p className="mt-[0.4cqw] font-type text-[0.95cqw] leading-snug">
+          <p className="mt-[0.3cqw] font-display text-[2.3cqw] uppercase leading-none portrait:max-sm:text-[6.4vw]">{cookDay}</p>
+          <p className="mt-[0.4cqw] font-type text-[0.95cqw] leading-snug portrait:max-sm:text-[3vw]">
             {cookWeekday} {startTime} → {endDay} {startTime}
             <br />
             {EVENT.hours} hours, non-stop
           </p>
         </Plate>
         <Plate at={CARDS[1]} label="Where" side="r">
-          <p className="mt-[0.3cqw] font-display text-[1.9cqw] uppercase leading-none">{venuePlace}</p>
-          <p className="mt-[0.4cqw] font-type text-[0.95cqw] leading-snug">{venueCampus}</p>
+          <p className="mt-[0.3cqw] font-display text-[1.9cqw] uppercase leading-none portrait:max-sm:text-[6vw]">{venuePlace}</p>
+          <p className="mt-[0.4cqw] font-type text-[0.95cqw] leading-snug portrait:max-sm:text-[3vw]">{venueCampus}</p>
         </Plate>
         </div>
       </div>

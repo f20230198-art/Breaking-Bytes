@@ -24,7 +24,7 @@ export default function Privacy() {
         <Section title="What we collect">
           <ul className="list-disc space-y-1 pl-5">
             <li>From your Google sign-in: your name, email address and profile picture.</li>
-            <li>What you enter: your display name, LinkedIn and/or GitHub profile link, and an optional phone number.</li>
+            <li>What you enter: your display name, LinkedIn and GitHub profile links, and an optional phone number.</li>
             <li>Your crew: which crew you are in and whether you lead it.</li>
             <li>During the event: the links your crew submits (repository, demo, video) and any notes.</li>
           </ul>
@@ -42,7 +42,7 @@ export default function Privacy() {
         </Section>
 
         <Section title="Where it lives">
-          In our database on Supabase (Mumbai region). The site is served through Railway and Cloudflare, and sign-in is
+          In our database on Supabase (Mumbai region). The site is served through Vercel, and sign-in is
           handled by Google.
         </Section>
 
