@@ -178,8 +178,8 @@ function exportCsv(rows: CrewRow[]) {
     "repo", "live", "video", "notes", "submitted_at_utc", "late"];
   const cell = (v: unknown) => {
     const s = v === null || v === undefined ? "" : String(v);
-    // quote everything; neutralise leading = + - @ so a spreadsheet never runs a submitted value as a formula
-    return `"${(/^[=+\-@]/.test(s) ? `'${s}` : s).replace(/"/g, '""')}"`;
+    // quote everything; neutralise leading = + - @ tab CR so a spreadsheet never runs a submitted value as a formula
+    return `"${(/^[=+\-@\t\r]/.test(s) ? `'${s}` : s).replace(/"/g, '""')}"`;
   };
   const lines = rows.map((r) => [
     r.name, r.invite_code, r.registration_status, r.status, r.category, r.members.length, r.sponsor, r.problem_id,

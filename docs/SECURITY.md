@@ -40,6 +40,24 @@ Verified by `supabase/tests/database/rules.test.sql` (60 pgTAP checks) and a liv
   Next's inline bootstrap; nonces would make every page dynamic).
 - [x] `robots.txt` keeps `/dashboard`, `/admin`, `/login`, `/auth` out of search engines; `/.well-known/security.txt`.
 
+## Audit 2026-10-30 (migration `20261030120000_security_hardening.sql`, 78 pgTAP checks)
+
+Full pass over migrations, RPCs, grants, storage, auth flow, proxy, redirects, headers, client sinks and dependencies.
+
+- [x] **Fixed (critical): admin / Jesse from an unverified email.** The signup trigger read `auth.users.email` as-is,
+  so `auth.signUp()` with the public anon key and an allowlisted (or partner-university) address got the admin role
+  (or Jesse) whenever the Email provider was on, verified or not. Role and category now come from
+  `_trusted_email()`: a confirmed address from a Google sign-in (`raw_app_meta_data`, set by Auth, not the user).
+  A trigger on `auth.users` updates re-derives them when Auth confirms the address. Existing profiles were re-synced.
+  Local dev escape: `dev_settings.trust_email_logins` (no API access; only `seed.sql` turns it on).
+- [x] **Fixed: invite-code rate limit race.** `join_team` locks the caller's profile row first, so parallel requests
+  can't all pass the 10-a-minute count.
+- [x] **Fixed: pending / waitlisted crews competing.** `pick_supplier`, `lock_problem` and `upsert_submission` need
+  `registration_status = 'accepted'` (`not_accepted`); supplier and problem caps count accepted crews only.
+- [x] `team_category()` no longer executable over the API. CSV export also neutralises leading tab / CR.
+- [x] Re-checked, no change needed: RLS 16/16 tables, no hacker write policies, every function grant, storage
+  policies, `safeNext` redirects, POST-only sign-out, security headers, no secrets in git, `npm audit` 0.
+
 ## Before launch (hosted project)
 - [ ] Supabase Auth: Google provider on, **Email provider off**, redirect URLs = production domain + localhost only.
 - [ ] `NEXT_PUBLIC_SITE_URL` set to the production origin; `NEXT_PUBLIC_DEV_LOGIN` **not** set.

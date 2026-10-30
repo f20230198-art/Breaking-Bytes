@@ -1,7 +1,7 @@
 -- The server-side rules, tested as real users. Run with: npx supabase test db
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(70);
+select plan(78);
 
 -- start from a clean slate, whatever is in the local database (all inside this transaction, rolled back at the end)
 delete from public.admin_emails;
@@ -12,7 +12,8 @@ delete from public.partner_universities;
 insert into public.partner_universities (name, domain_pattern) values ('BITS Pilani, Dubai Campus', 'dubai.bits-pilani.ac.in');
 
 -- ─── cast ──────────────────────────────────────────────────────────────────────────────────────────────────────
-insert into public.admin_emails (email) values ('gus@lospollos.test');
+insert into public.dev_settings (id) values (1) on conflict (id) do update set trust_email_logins = false; -- not the local dev escape hatch
+insert into public.admin_emails (email) values ('gus@lospollos.test'), ('saul@bettercall.test'), ('mike@lospollos.test');
 insert into public.partner_universities (name, domain_pattern) values ('Test U', '%.testu.edu');
 
 insert into auth.users (id, email, raw_user_meta_data) values
@@ -23,6 +24,8 @@ insert into auth.users (id, email, raw_user_meta_data) values
   ('00000000-0000-0000-0000-00000000000e', 'gus@lospollos.test', '{"full_name":"Gus"}'),
   ('00000000-0000-0000-0000-00000000000f', 'tuco@gmail.com', '{"full_name":"Tuco"}'),
   ('00000000-0000-0000-0000-000000000010', 'hank@gmail.com', '{"full_name":"Hank"}');
+-- what Auth does on a Google sign-in: the row first, then the verified address and the provider in an update
+update auth.users set email_confirmed_at = now(), raw_app_meta_data = '{"provider":"google","providers":["google"]}';
 -- everyone but Hank has already given a GitHub link (crews need one)
 update public.profiles set github_url = 'https://github.com/' || split_part(email, '@', 1) where email <> 'hank@gmail.com';
 
@@ -38,6 +41,22 @@ select is((select category::text from public.profiles where email = 'jesse@dubai
 select is((select category::text from public.profiles where email = 'skinny@cs.testu.edu'), 'jesse', 'wildcard domain pattern matches');
 select is((select role::text from public.profiles where email = 'gus@lospollos.test'), 'admin', 'allowlisted email gets the admin role');
 select is((select role::text from public.profiles where email = 'walt@gmail.com'), 'hacker', 'everyone else is a hacker');
+
+-- an email + password signup (auto-confirmed, no Google) claiming an allowlisted or a partner-university address
+insert into auth.users (id, email, email_confirmed_at, raw_app_meta_data) values
+  ('00000000-0000-0000-0000-000000000011', 'saul@bettercall.test', now(), '{"provider":"email","providers":["email"]}'),
+  ('00000000-0000-0000-0000-000000000012', 'fake@dubai.bits-pilani.ac.in', now(), '{"provider":"email","providers":["email"]}');
+select is((select role::text from public.profiles where email = 'saul@bettercall.test'), 'hacker', 'an unverified allowlisted address gets no admin role');
+select is((select category::text from public.profiles where email = 'fake@dubai.bits-pilani.ac.in'), 'walter', 'an unverified partner address is no Jesse');
+delete from public.admin_emails where email = 'saul@bettercall.test';
+insert into public.admin_emails (email) values ('saul@bettercall.test');
+select is((select role::text from public.profiles where email = 'saul@bettercall.test'), 'hacker', 'nor does re-adding it to the allowlist');
+-- a Google sign-in before Auth has confirmed the address: nothing yet, then the role once it's verified
+insert into auth.users (id, email, raw_app_meta_data) values
+  ('00000000-0000-0000-0000-000000000013', 'mike@lospollos.test', '{"provider":"google","providers":["google"]}');
+select is((select role::text from public.profiles where email = 'mike@lospollos.test'), 'hacker', 'no role before the address is verified');
+update auth.users set email_confirmed_at = now() where email = 'mike@lospollos.test';
+select is((select role::text from public.profiles where email = 'mike@lospollos.test'), 'admin', 'the role arrives with the verified address');
 
 select throws_ok($$ update public.profiles set github_url = 'https://evil.example/hank' where email = 'hank@gmail.com' $$, '23514', null,
   'the table itself refuses a non-GitHub link');
@@ -97,6 +116,14 @@ select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000
 select isnt(public.join_team((select c from code)), null::uuid, 'Skinny joins: crew is now at the cap of 3');
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000f","role":"authenticated"}', true);
 select throws_ok($$ select public.join_team((select c from code)) $$, 'P0001', 'crew_full', 'a full crew refuses a 4th');
+select throws_ok($$ select public.pick_supplier((select id from public.sponsors where name = 'Deriv')) $$, 'P0001', 'not_in_crew', 'no crew, no supplier');
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}', true);
+select throws_ok($$ select public.pick_supplier((select id from public.sponsors where name = 'Deriv')) $$, 'P0001', 'not_accepted', 'a pending crew can''t pick a supplier');
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000f","role":"authenticated"}', true);
+-- the organisers accept Blue Sky
+reset role;
+update public.teams set registration_status = 'accepted' where name = 'Blue Sky';
+set local role authenticated;
 
 -- ─── what an outsider can see and do ──────────────────────────────────────────────────────────────────────────
 select is((select count(*)::int from public.teams), 0, 'outsiders cannot read other crews');
@@ -122,6 +149,10 @@ select is((select taken from public.supplier_slots() where name = 'Deriv'), 1, '
 -- Tuco starts a second crew; with 2 crews / 3 suppliers and no slack the cap is 1, so Deriv is full
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000f","role":"authenticated"}', true);
 select lives_ok($$ select public.create_team('Salamanca') $$, 'Tuco starts a crew');
+select throws_ok($$ select public.upsert_submission('https://github.com/x', null, null) $$, 'P0001', 'not_accepted', 'a pending crew can''t ship');
+reset role;
+update public.teams set registration_status = 'accepted' where name = 'Salamanca';
+set local role authenticated;
 select throws_ok($$ select public.pick_supplier((select id from public.sponsors where name = 'Deriv')) $$, 'P0001', 'supplier_full', 'a full supplier refuses more crews');
 select throws_ok($$ select public.lock_problem('D-001') $$, 'P0001', 'problems_sealed', 'no locking problems before the drop');
 

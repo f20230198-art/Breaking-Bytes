@@ -3,6 +3,10 @@
 -- Admin emails are NOT seeded (no personal addresses in git): add yours locally with
 --   insert into public.admin_emails (email) values ('you@example.com');
 
+-- local stack only: trust the dev login's email + password accounts like Google ones (admin role, Jesse category).
+-- Never run this against the hosted project.
+update public.dev_settings set trust_email_logins = true where id = 1;
+
 update public.event_config set
   registration_open = true,
   starts_at = '2026-11-16 08:00+00',

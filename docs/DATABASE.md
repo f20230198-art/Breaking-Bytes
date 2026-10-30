@@ -80,3 +80,14 @@ Subscribe to `team_members` filtered by `team_id` for live roster; RLS applies t
   hacker write path). `join_team` refuses an accepted crew (`crew_accepted`): its seats are already counted. Leaving is
   still allowed. `my_crew()` returns the status; `admin_crews()` returns it plus every member's links.
 - Walter/Jesse is no longer shown during pre-registration: student IDs are checked at the door.
+
+## Security hardening (2026-10-30, migration `20261030120000_security_hardening.sql`)
+- **Role and category from a verified address only:** `_trusted_email(uid)` returns the email only when Auth has
+  confirmed it on a Google sign-in. `handle_new_user`, `sync_admin_roles`, `recompute_categories` and the new
+  `on_auth_user_identity_changed` trigger (email / confirmation / provider changes) all go through `_sync_identity()`.
+- **`dev_settings`** (one row, RLS on, no policies, no API grants): `trust_email_logins` lets local email + password
+  accounts count as verified. `seed.sql` turns it on; never on the hosted project.
+- **Accepted crews only** past pre-registration: `pick_supplier`, `lock_problem`, `upsert_submission` raise
+  `not_accepted` otherwise; supplier / problem caps count accepted crews only.
+- `join_team` locks the caller's profile row so the rate limit holds under parallel calls. `team_category()` is
+  internal (no API grant).

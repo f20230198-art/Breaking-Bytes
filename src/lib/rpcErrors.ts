@@ -35,6 +35,7 @@ const MESSAGES: Record<string, string> = {
   bad_github: "That GitHub link isn't a profile. It looks like github.com/your-username.",
   need_a_link: "Add your LinkedIn or GitHub (both is better).",
   crew_accepted: "That crew is already accepted. Ask an organiser to add you.",
+  not_accepted: "Your crew hasn't been accepted yet. Talk to an organiser.",
   not_admin: "Admins only.",
 };
 
