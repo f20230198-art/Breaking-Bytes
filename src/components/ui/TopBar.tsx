@@ -41,7 +41,7 @@ export function TopBar() {
           href="/dashboard"
           className="border-2 border-ink bg-crystal px-3 py-1.5 font-display text-xs uppercase tracking-wide text-ink print-shadow transition-colors hover:bg-paper"
         >
-          Enter the lab
+          Pre-register
         </Link>
       </div>
     </header>

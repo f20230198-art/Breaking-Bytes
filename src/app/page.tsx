@@ -1,5 +1,4 @@
 import { FuseTimeline } from "@/components/fuse/FuseTimeline";
-import { Prizes } from "@/components/fuse/Prizes";
 import { Classroom } from "@/components/classroom/Classroom";
 import { Faq } from "@/components/faq/Faq";
 import { Finale } from "@/components/finale/Finale";
@@ -16,6 +15,8 @@ export const instant = false;
 
 // dates, schedule, prizes and FAQ come from the database (cached ~1 min; built-in fallback if unreachable).
 // The sponsors section (components/sponsors/Sponsors) is hidden until sponsors are confirmed; add <Sponsors /> back after <Classroom />.
+// The prizes section (components/fuse/Prizes) is hidden too; to bring it back, add <Prizes /> after <FuseTimeline /> and
+// restore Classroom's -mt-[100vh] (it slides up over the prize print's last screen).
 export default async function Home() {
   const site = await getSite();
   return (
@@ -26,7 +27,6 @@ export default async function Home() {
       <main>
         <Story />
         <FuseTimeline />
-        <Prizes />
         <Classroom />
         <Faq />
       </main>

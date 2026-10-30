@@ -19,7 +19,8 @@ const box = ([l, t, w, h]: number[]) => ({ left: `${l}%`, top: `${t}%`, width: `
  */
 export function Classroom() {
   return (
-    <div className="relative z-10 -mt-[100vh]">
+    // no -mt-[100vh] overlap while the prizes are hidden: it follows the fuse directly, arriving as the blast's flash clears
+    <div className="relative z-10">
       <TornEdge fill="var(--color-ink)" />
       <PinnedScene id="classroom" label="Tracks and rules" length={3}>
         {(p) => <Stage p={p} />}
