@@ -177,9 +177,8 @@ for scene, (master, layers) in SCENES.items():
     if scene in UNIFY:
         m = unify(m)
     size = fit(m.size)
-    export(m.convert("RGB"), size, OUT / scene / "master")
-    entry = {"width": size[0], "height": size[1], "master": f"/scenes/{scene}/master.webp",
-             "plate": f"/scenes/{scene}/plate.webp", "layers": []}
+    # (the master itself isn't exported: the page never shows it, it only feeds the plate below)
+    entry = {"width": size[0], "height": size[1], "plate": f"/scenes/{scene}/plate.webp", "layers": []}
     keyed_imgs = []
     for lid, file, keyed in layers:
         im = Image.open(SRC / scene / f"{file}.png")

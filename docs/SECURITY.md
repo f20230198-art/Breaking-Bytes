@@ -65,3 +65,19 @@ Full pass over migrations, RPCs, grants, storage, auth flow, proxy, redirects, h
 - [ ] Run the Supabase Security Advisor; enable point-in-time backups or take a manual backup before the event.
 - [ ] Dry run with fake crews on the hosted project (`npx supabase test db --linked` for the rules).
 - [ ] Optional hardening if abuse appears: Cloudflare/Vercel rate limiting in front of the site.
+
+## Audit 2026-10-30, round 2 (migration `20261030150000_crew_handover.sql`, 93 pgTAP checks)
+
+- [x] **Fixed: crews left without a leader.** An admin removing or moving a crew's leader left `leader_id` pointing at
+  someone outside the crew, so nobody could pick a supplier or lock a problem; removing the last member left an empty
+  crew. One trigger now hands over / deletes on every write path.
+- [x] **Fixed: roster removals broadcast to everyone.** Realtime can't apply RLS to DELETE events, so anyone subscribed
+  to `team_members` saw every crew's removals (team and user ids). `team_members` and `announcements` left the
+  publication; the crew page listens to its own `teams` row instead.
+- [x] **Fixed: invite-code oracle.** `join_team` answered "already in a crew" / "need links" only for real codes; the
+  caller is now checked before the lookup.
+- [x] Added: admins can clear a squatted LinkedIn / GitHub link (links are format-checked only and unique per person).
+- [x] Accepted: `teams` DELETE events still carry the deleted crew's id to any subscriber (an id of a crew that no
+  longer exists); admins can insert rows into `admin_audit` through `_audit()` (always under their own id).
+- [x] Re-checked from the live local database: function grants for `anon` / `authenticated` match intent, RLS on all
+  16 tables, `npm audit` 0, production build and lint clean.

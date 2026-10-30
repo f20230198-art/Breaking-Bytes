@@ -71,15 +71,21 @@ function Roster({ crew }: { crew: Crew }) {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  // live roster: only this page holds a Realtime connection, and only while it's open
+  // live roster: only this page holds a Realtime connection, and only while it's open. Any roster change touches the
+  // crew's own row (roster_updated_at), so that one RLS-checked feed is enough. Someone taken off the crew can't see
+  // the row any more, so coming back to the tab re-checks too.
   useEffect(() => {
     const supabase = supabaseBrowser();
     const channel = supabase
       .channel(`crew-${crew.id}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "team_members", filter: `team_id=eq.${crew.id}` }, () => void reload())
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "teams", filter: `id=eq.${crew.id}` }, () => void reload())
       .subscribe();
-    return () => void supabase.removeChannel(channel);
+    const onShow = () => document.visibilityState === "visible" && void reload();
+    document.addEventListener("visibilitychange", onShow);
+    return () => {
+      document.removeEventListener("visibilitychange", onShow);
+      void supabase.removeChannel(channel);
+    };
   }, [crew.id, reload]);
 
   const act = async (fn: () => PromiseLike<{ error: { message?: string } | null }>, confirmText?: string) => {

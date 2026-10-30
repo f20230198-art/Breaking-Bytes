@@ -65,6 +65,20 @@ export type Database = {
                   Relationships: [
                     
                   ]
+                },"dev_settings": {
+                  Row: {
+                    "id": number,"trust_email_logins": boolean
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "id"?: number,"trust_email_logins"?: boolean
+                  }
+                  Update: {
+                    "id"?: number,"trust_email_logins"?: boolean
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"event_config": {
                   Row: {
                     "deadline_at": string | null,"id": number,"portal_open": boolean,"prize_pool_aed": number | null,"problems_release_at": string | null,"registration_open": boolean,"roster_lock_at": string | null,"seat_cap": number | null,"starts_at": string | null,"submissions_open_at": string | null,"supplier_cap_slack": number,"supplier_pick_at": string | null,"team_max": number,"updated_at": string
@@ -263,14 +277,14 @@ isOneToOne: true
                   ]
                 },"teams": {
                   Row: {
-                    "created_at": string,"id": string,"invite_code": string,"leader_id": string | null,"name": string,"problem_id": string | null,"registration_status": Database["public"]['Enums']["registration_status"],"roster_locked": boolean,"sponsor_id": string | null,"status": Database["public"]['Enums']["team_status"]
+                    "created_at": string,"id": string,"invite_code": string,"leader_id": string | null,"name": string,"problem_id": string | null,"registration_status": Database["public"]['Enums']["registration_status"],"roster_locked": boolean,"roster_updated_at": string,"sponsor_id": string | null,"status": Database["public"]['Enums']["team_status"]
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"id"?: string,"invite_code": string,"leader_id"?: string | null,"name": string,"problem_id"?: string | null,"registration_status"?: Database["public"]['Enums']["registration_status"],"roster_locked"?: boolean,"sponsor_id"?: string | null,"status"?: Database["public"]['Enums']["team_status"]
+                    "created_at"?: string,"id"?: string,"invite_code": string,"leader_id"?: string | null,"name": string,"problem_id"?: string | null,"registration_status"?: Database["public"]['Enums']["registration_status"],"roster_locked"?: boolean,"roster_updated_at"?: string,"sponsor_id"?: string | null,"status"?: Database["public"]['Enums']["team_status"]
                   }
                   Update: {
-                    "created_at"?: string,"id"?: string,"invite_code"?: string,"leader_id"?: string | null,"name"?: string,"problem_id"?: string | null,"registration_status"?: Database["public"]['Enums']["registration_status"],"roster_locked"?: boolean,"sponsor_id"?: string | null,"status"?: Database["public"]['Enums']["team_status"]
+                    "created_at"?: string,"id"?: string,"invite_code"?: string,"leader_id"?: string | null,"name"?: string,"problem_id"?: string | null,"registration_status"?: Database["public"]['Enums']["registration_status"],"roster_locked"?: boolean,"roster_updated_at"?: string,"sponsor_id"?: string | null,"status"?: Database["public"]['Enums']["team_status"]
                   }
                   Relationships: [
                     {
@@ -378,6 +392,7 @@ isOneToOne: false
 "problem_id": string | null,
 "registration_status": Database["public"]['Enums']["registration_status"],
 "roster_locked": boolean,
+"roster_updated_at": string,
 "sponsor_id": string | null,
 "status": Database["public"]['Enums']["team_status"]
             }
@@ -396,10 +411,19 @@ isOneToOne: false
 "_supplier_cap":
 { Args: Record<PropertyKey, never>; Returns: number
                            },
+"_sync_identity":
+{ Args: { "p_user": string }; Returns: undefined
+                           },
+"_trusted_email":
+{ Args: { "p_user": string }; Returns: string
+                           },
 "admin_crews":
 { Args: Record<PropertyKey, never>; Returns: {
               "category": Database["public"]['Enums']["category"],"created_at": string,"id": string,"invite_code": string,"late": boolean,"live_url": string,"members": Json,"name": string,"notes": string,"problem_id": string,"registration_status": Database["public"]['Enums']["registration_status"],"repo_url": string,"roster_locked": boolean,"sponsor": string,"status": Database["public"]['Enums']["team_status"],"submitted_at": string,"video_url": string
             }[]
+                           },
+"admin_delete_user":
+{ Args: { "p_user": string }; Returns: undefined
                            },
 "admin_overview":
 { Args: Record<PropertyKey, never>; Returns: Json

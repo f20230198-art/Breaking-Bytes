@@ -3,7 +3,6 @@
     "hero": {
       "width": 3344,
       "height": 1882,
-      "master": "/scenes/hero/master.webp",
       "plate": "/scenes/hero/plate.webp",
       "layers": [
         {
@@ -93,7 +92,6 @@
     "lab": {
       "width": 3344,
       "height": 1882,
-      "master": "/scenes/lab/master.webp",
       "plate": "/scenes/lab/plate.webp",
       "layers": [
         {
@@ -128,7 +126,6 @@
     "prizes-office": {
       "width": 3344,
       "height": 1882,
-      "master": "/scenes/prizes-office/master.webp",
       "plate": "/scenes/prizes-office/plate.webp",
       "layers": [
         {
@@ -207,7 +204,6 @@
     "prizes-student": {
       "width": 3344,
       "height": 1882,
-      "master": "/scenes/prizes-student/master.webp",
       "plate": "/scenes/prizes-student/plate.webp",
       "layers": [
         {
@@ -275,7 +271,6 @@
     "classroom": {
       "width": 3344,
       "height": 1882,
-      "master": "/scenes/classroom/master.webp",
       "plate": "/scenes/classroom/plate.webp",
       "layers": [
         {
@@ -310,7 +305,6 @@
     "pool": {
       "width": 3344,
       "height": 1882,
-      "master": "/scenes/pool/master.webp",
       "plate": "/scenes/pool/plate.webp",
       "layers": [
         {

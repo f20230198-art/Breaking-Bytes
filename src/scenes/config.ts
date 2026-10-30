@@ -6,7 +6,6 @@ export type LayerDef = { id: string; src: string; srcset?: string; bbox?: number
 export type SceneAssets = {
   width: number;
   height: number;
-  master: string;
   plate: string;
   layers: LayerDef[];
 };

@@ -1,7 +1,7 @@
 -- The server-side rules, tested as real users. Run with: npx supabase test db
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(88);
+select plan(93);
 
 -- start from a clean slate, whatever is in the local database (all inside this transaction, rolled back at the end)
 delete from public.admin_emails;
@@ -224,6 +224,26 @@ reset role;
 select is((select leader_id from public.teams where name = 'Blue Sky'), '00000000-0000-0000-0000-00000000000c'::uuid, 'a deleted leader hands the crew on');
 select is((select count(*)::int from public.profiles where id = '00000000-0000-0000-0000-00000000000b'), 0, 'the profile and account are gone');
 select is((select count(*)::int from public.teams where name = 'Salamanca'), 0, 'a crew left empty goes with its last member');
+
+-- ─── admins editing rosters: crews stay led, and empty ones go ───────────────────────────────────────────────
+insert into public.teams (name, invite_code, leader_id) values ('Los Pollos', 'ABQ-PPPPP', '00000000-0000-0000-0000-00000000000d');
+insert into public.team_members (team_id, user_id) select id, '00000000-0000-0000-0000-00000000000d' from public.teams where name = 'Los Pollos';
+insert into public.team_members (team_id, user_id) select id, '00000000-0000-0000-0000-000000000010' from public.teams where name = 'Los Pollos';
+set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000e","role":"authenticated"}', true);
+delete from public.team_members where user_id = '00000000-0000-0000-0000-00000000000d';
+reset role;
+select is((select leader_id from public.teams where name = 'Los Pollos'), '00000000-0000-0000-0000-000000000010'::uuid, 'an admin removing the leader hands the crew on');
+set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-000000000010","role":"authenticated"}', true);
+select throws_ok($$ select public.join_team('ABQ-ZZZZZ') $$, 'P0001', 'already_in_crew', 'someone in a crew gets the same answer for any code');
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000e","role":"authenticated"}', true);
+update public.team_members set team_id = (select id from public.teams where name = 'Blue Sky') where user_id = '00000000-0000-0000-0000-000000000010';
+reset role;
+select is((select count(*)::int from public.teams where name = 'Los Pollos'), 0, 'moving the last member out deletes the empty crew');
+select is((select leader_id from public.teams where name = 'Blue Sky'), '00000000-0000-0000-0000-00000000000c'::uuid, 'a newcomer doesn''t take over the crew they join');
+select ok(not exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and tablename = 'team_members'),
+  'rosters aren''t broadcast (deletes would skip RLS)');
 
 select * from finish();
 rollback;

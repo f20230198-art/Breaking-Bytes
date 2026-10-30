@@ -67,6 +67,13 @@ export function AdminUsers() {
                   {r.linkedin_url ? <a href={r.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-crystal underline">LinkedIn</a> : <span className="text-paper-dim">no LinkedIn</span>}
                   {" · "}
                   {r.github_url ? <a href={r.github_url} target="_blank" rel="noopener noreferrer" className="text-crystal underline">GitHub</a> : <span className="text-paper-dim">no GitHub</span>}
+                  {/* links are unique per person: frees one someone claimed that isn't theirs; they redo onboarding */}
+                  {(r.linkedin_url || r.github_url) && (
+                    <Btn className="ml-2" onClick={() => run(profiles().update({ linkedin_url: null, github_url: null, onboarded: false }).eq("id", r.id),
+                      `Clear ${r.email}'s LinkedIn and GitHub? They'll have to enter them again (and can't start or join a crew until they do).`)}>
+                      Clear
+                    </Btn>
+                  )}
                 </td>
                 <td className="px-3 py-2">
                   <select className={inputCls} value={r.category}

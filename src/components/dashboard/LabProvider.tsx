@@ -42,32 +42,48 @@ export function LabProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [state, setState] = useState<{ me: Profile; crew: Crew | null; cfg: EventConfig; offset: number } | null>(null);
   const [failed, setFailed] = useState(false);
-  // re-render every few seconds so phase changes (problems dropping, the deadline passing) show up on their own
+  // re-render when the next event time passes, so phase changes (problems dropping, the deadline passing) show up on
+  // their own; the countdowns tick by themselves, nothing else needs a re-render in between
   const [tick, setTick] = useState(0);
   useEffect(() => {
-    const id = setInterval(() => setTick((n) => n + 1), 5000);
-    return () => clearInterval(id);
-  }, []);
+    if (!state) return;
+    const now = Date.now() + state.offset;
+    const c = state.cfg;
+    const due = [c.starts_at, c.supplier_pick_at, c.problems_release_at, c.roster_lock_at, c.submissions_open_at, c.deadline_at]
+      .map((at) => (at ? new Date(at).getTime() - now : -1))
+      .filter((ms) => ms > 0);
+    if (!due.length) return;
+    // setTimeout overflows past ~24.8 days; waking once a day until then is harmless
+    const id = setTimeout(() => setTick((n) => n + 1), Math.min(Math.min(...due) + 250, 86_400_000));
+    return () => clearTimeout(id);
+  }, [state, tick]);
 
   const load = useCallback(async () => {
     const supabase = supabaseBrowser();
     // Supabase unreachable makes the client throw rather than return an error: show the message, not "Cooking" forever
-    let auth, me, crew, cfg, clock, t0;
+    let session, me, crew, cfg, clock, t0;
     try {
-      ({ data: auth } = await supabase.auth.getUser());
-      if (!auth.user) {
+      // the stored session is enough to know who to load: the proxy already verified it on this request, and the
+      // database checks the token on every query below anyway. Saves a round trip to Auth before the real loading.
+      ({ data: { session } } = await supabase.auth.getSession());
+      if (!session) {
         router.replace("/login?next=/dashboard");
         return;
       }
       t0 = Date.now();
       [me, crew, cfg, clock] = await Promise.all([
-        supabase.from("profiles").select("*").eq("id", auth.user.id).single(),
+        supabase.from("profiles").select("*").eq("id", session.user.id).single(),
         supabase.rpc("my_crew"),
         supabase.from("event_config").select("*").eq("id", 1).single(),
         supabase.rpc("server_time"),
       ]);
     } catch {
       setFailed(true);
+      return;
+    }
+    // a stale session the database refused: sign in again rather than "Couldn't reach the lab"
+    if (me.error?.code === "PGRST301" || me.status === 401) {
+      router.replace("/login?next=/dashboard");
       return;
     }
     if (me.error || cfg.error) {

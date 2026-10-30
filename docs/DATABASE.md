@@ -58,7 +58,9 @@ Auth: Google provider only, and email/password signups disabled in the Supabase 
 `now()` in Postgres is the **only** clock that matters.
 
 ## Realtime
-Subscribe to `team_members` filtered by `team_id` for live roster; RLS applies to Realtime.
+Only `teams` is published. Every roster change bumps `teams.roster_updated_at` (trigger `roster_changed`), so the crew
+page subscribes to UPDATEs on its own `teams` row (`id=eq.<crew>`), which RLS checks. `team_members` is deliberately
+not published: Postgres can't check RLS on deleted rows, so its DELETE events reached every subscriber.
 
 ## v2 changes (from VISION.md v2, 2026-10-15)
 - **Categories:** `walter` (open) / `jesse` (student). `profiles.category` is derived from the email domain; crew category = `jesse` only if all members are `jesse`.
@@ -95,7 +97,17 @@ Subscribe to `team_members` filtered by `team_id` for live roster; RLS applies t
   internal (no API grant).
 
 ## Deleting people (2026-10-30, migration `20261030140000_admin_delete_user.sql`)
-- **`admin_delete_user(uuid)`** (admins only; /admin → Users → Delete): hands the person's crew to the longest-standing
-  remaining member (or deletes it if they were alone), records the profile in `admin_audit`, then deletes the
+- **`admin_delete_user(uuid)`** (admins only; /admin → Users → Delete): takes the person off their roster (the
+  `roster_changed` trigger hands the crew on, see below), records the profile in `admin_audit`, then deletes the
   `auth.users` row (cascades to profile and roster). Refuses yourself (`cannot_delete_self`) and admins
   (`remove_admin_first`). Not a ban: they can sign up again.
+
+## Crew handover (2026-10-30, migration `20261030150000_crew_handover.sql`)
+- **Trigger `roster_changed`** (`after_roster_change()`, after insert / delete / update of `team_id` on `team_members`):
+  when someone leaves a crew by any path (`leave_team`, an admin's Remove or Move on /admin → Crews, account
+  deletion), the crew passes to its longest-standing member, or is deleted if nobody is left. It also stamps
+  `teams.roster_updated_at` for Realtime. `leave_team` and `admin_delete_user` no longer do the handover themselves.
+- **`join_team`** checks the caller (registration open, rosters open, both links, not already in a crew) before looking
+  the code up, so none of those answers reveal whether a code exists.
+- Admins can clear a person's links (/admin → Users → Clear) to free one someone else claimed; that person redoes
+  onboarding.
