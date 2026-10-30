@@ -1,7 +1,7 @@
 -- The server-side rules, tested as real users. Run with: npx supabase test db
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(80);
+select plan(88);
 
 -- start from a clean slate, whatever is in the local database (all inside this transaction, rolled back at the end)
 delete from public.admin_emails;
@@ -209,6 +209,21 @@ select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000
 select lives_ok($$ select public.leave_team() $$, 'the leader leaves');
 reset role;
 select is((select leader_id from public.teams where name = 'Blue Sky'), '00000000-0000-0000-0000-00000000000b'::uuid, 'the longest-standing member takes over');
+
+
+-- ─── deleting people ───────────────────────────────────────────────────────────────────────────────────────────
+set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-000000000010","role":"authenticated"}', true);
+select throws_ok($$ select public.admin_delete_user('00000000-0000-0000-0000-00000000000b') $$, 'P0001', 'not_admin', 'hackers can''t delete people');
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000e","role":"authenticated"}', true);
+select throws_ok($$ select public.admin_delete_user('00000000-0000-0000-0000-00000000000e') $$, 'P0001', 'cannot_delete_self', 'no deleting yourself');
+select throws_ok($$ select public.admin_delete_user('00000000-0000-0000-0000-000000000013') $$, 'P0001', 'remove_admin_first', 'admins come off the allowlist first');
+select lives_ok($$ select public.admin_delete_user('00000000-0000-0000-0000-00000000000b') $$, 'an admin deletes Jesse, Blue Sky''s leader now');
+select lives_ok($$ select public.admin_delete_user('00000000-0000-0000-0000-00000000000f') $$, 'and Tuco, alone in Salamanca');
+reset role;
+select is((select leader_id from public.teams where name = 'Blue Sky'), '00000000-0000-0000-0000-00000000000c'::uuid, 'a deleted leader hands the crew on');
+select is((select count(*)::int from public.profiles where id = '00000000-0000-0000-0000-00000000000b'), 0, 'the profile and account are gone');
+select is((select count(*)::int from public.teams where name = 'Salamanca'), 0, 'a crew left empty goes with its last member');
 
 select * from finish();
 rollback;

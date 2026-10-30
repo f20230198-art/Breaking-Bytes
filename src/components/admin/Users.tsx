@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { rpcMessage } from "@/lib/rpcErrors";
 import type { Tables } from "@/types/database";
 import { Btn, ErrorLine, H1, adminDb, inputCls } from "./AdminShell";
 
@@ -33,6 +34,13 @@ export function AdminUsers() {
     void load();
   };
   const profiles = () => adminDb().from("profiles");
+  const remove = async (r: Profile) => {
+    if (!window.confirm(`Delete ${r.email} for good? Their account and profile are erased and they leave their crew (it passes to the next member, or is deleted if they were alone). They can still sign up again: to keep someone out, ban them instead.`)) return;
+    setError(null);
+    const { error } = await adminDb().rpc("admin_delete_user", { p_user: r.id });
+    if (error) setError(rpcMessage(error));
+    void load();
+  };
 
   const shown = useMemo(() => {
     const s = q.trim().toLowerCase();
@@ -69,7 +77,8 @@ export function AdminUsers() {
                   {r.category_override && <span className="text-xs text-paper-dim">set by hand</span>}
                 </td>
                 <td className="px-3 py-2">{r.role}</td>
-                <td className="px-3 py-2 text-right">
+                <td className="whitespace-nowrap px-3 py-2 text-right">
+                  <Btn tone="danger" onClick={() => void remove(r)}>Delete</Btn>{" "}
                   <Btn tone={r.banned ? "primary" : "danger"} onClick={() => run(profiles().update({ banned: !r.banned }).eq("id", r.id), r.banned ? undefined : `Ban ${r.email}? They can't act anywhere on the site.`)}>
                     {r.banned ? "Unban" : "Ban"}
                   </Btn>

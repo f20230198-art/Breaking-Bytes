@@ -93,3 +93,9 @@ Subscribe to `team_members` filtered by `team_id` for live roster; RLS applies t
   `not_accepted` otherwise; supplier / problem caps count accepted crews only.
 - `join_team` locks the caller's profile row so the rate limit holds under parallel calls. `team_category()` is
   internal (no API grant).
+
+## Deleting people (2026-10-30, migration `20261030140000_admin_delete_user.sql`)
+- **`admin_delete_user(uuid)`** (admins only; /admin → Users → Delete): hands the person's crew to the longest-standing
+  remaining member (or deletes it if they were alone), records the profile in `admin_audit`, then deletes the
+  `auth.users` row (cascades to profile and roster). Refuses yourself (`cannot_delete_self`) and admins
+  (`remove_admin_first`). Not a ban: they can sign up again.

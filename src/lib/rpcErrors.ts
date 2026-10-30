@@ -38,6 +38,9 @@ const MESSAGES: Record<string, string> = {
   crew_accepted: "That crew is already accepted. Ask an organiser to add you.",
   not_accepted: "Your crew hasn't been accepted yet. Talk to an organiser.",
   not_admin: "Admins only.",
+  cannot_delete_self: "You can't delete your own account.",
+  remove_admin_first: "That's an admin. Remove them from the admin emails first.",
+  no_such_user: "That person is already gone.",
 };
 
 export function rpcMessage(error: { message?: string } | null | undefined) {
