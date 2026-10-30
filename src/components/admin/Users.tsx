@@ -47,7 +47,7 @@ export function AdminUsers() {
       <div className="overflow-x-auto rounded border border-paper/15">
         <table className="w-full text-left text-sm">
           <thead className="bg-paper/5 text-xs uppercase tracking-wider text-paper-dim">
-            <tr><th className="px-3 py-2">Name</th><th className="px-3 py-2">Email</th><th className="px-3 py-2">Phone</th><th className="px-3 py-2">Category</th><th className="px-3 py-2">Role</th><th className="px-3 py-2" /></tr>
+            <tr><th className="px-3 py-2">Name</th><th className="px-3 py-2">Email</th><th className="px-3 py-2">Phone</th><th className="px-3 py-2">Links</th><th className="px-3 py-2">Category</th><th className="px-3 py-2">Role</th><th className="px-3 py-2" /></tr>
           </thead>
           <tbody>
             {shown.map((r) => (
@@ -55,6 +55,11 @@ export function AdminUsers() {
                 <td className="px-3 py-2">{r.display_name || "—"}{r.banned ? " (banned)" : ""}</td>
                 <td className="px-3 py-2 text-paper-dim">{r.email}</td>
                 <td className="px-3 py-2 text-paper-dim">{r.phone ?? "—"}</td>
+                <td className="whitespace-nowrap px-3 py-2">
+                  {r.linkedin_url ? <a href={r.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-crystal underline">LinkedIn</a> : <span className="text-paper-dim">no LinkedIn</span>}
+                  {" · "}
+                  {r.github_url ? <a href={r.github_url} target="_blank" rel="noopener noreferrer" className="text-crystal underline">GitHub</a> : <span className="text-paper-dim">no GitHub</span>}
+                </td>
                 <td className="px-3 py-2">
                   <select className={inputCls} value={r.category}
                     onChange={(e) => run(profiles().update({ category: e.target.value, category_override: true }).eq("id", r.id))}>

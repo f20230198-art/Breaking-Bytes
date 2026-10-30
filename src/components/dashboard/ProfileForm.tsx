@@ -8,7 +8,7 @@ import { Button, Field, Notice } from "./ui";
 
 type Initial = { name: string; phone: string; linkedin: string; github: string };
 
-/** Name, LinkedIn / GitHub (one required) and optional phone, saved through update_profile (onboarding and Profile). */
+/** Name, LinkedIn and GitHub (both required) and optional phone, saved through update_profile (onboarding and Profile). */
 export function ProfileForm({ initial, cta, onSaved }: { initial: Initial; cta: string; onSaved: () => void }) {
   const [name, setName] = useState(initial.name);
   const [phone, setPhone] = useState(initial.phone);
@@ -24,7 +24,7 @@ export function ProfileForm({ initial, cta, onSaved }: { initial: Initial; cta: 
     const gh = normaliseGithub(github);
     setLinkedin(li); setGithub(gh);
     setOk(false);
-    if (!li && !gh) return setError(rpcMessage({ message: "need_a_link" }));
+    if (!li || !gh) return setError(rpcMessage({ message: "need_a_link" }));
     if (li && !linkedinOk(li)) return setError(rpcMessage({ message: "bad_linkedin" }));
     if (gh && !githubOk(gh)) return setError(rpcMessage({ message: "bad_github" }));
     setBusy(true); setError(null);
@@ -41,16 +41,19 @@ export function ProfileForm({ initial, cta, onSaved }: { initial: Initial; cta: 
     <form onSubmit={save} className="space-y-4">
       <Field label="Your name" value={name} onChange={(e) => setName(e.target.value)} maxLength={60} required hint="What your crew and the organisers see." />
       <p className="border-2 border-dashed border-ink/30 p-3 font-type text-sm text-ink/80">
-        Seats are limited. Add your LinkedIn and GitHub: at least one is required, both is better.
+        Seats are limited. Add your own LinkedIn and GitHub: both are required.
+        <strong className="mt-2 block text-brick">
+          We check every profile. Anyone who submits someone else&apos;s LinkedIn or GitHub, or one that doesn&apos;t match their name, will be banned.
+        </strong>
       </p>
       <Field label="LinkedIn" value={linkedin} onChange={(e) => setLinkedin(e.target.value)} onBlur={() => setLinkedin(normaliseLinkedin(linkedin))}
-        maxLength={340} placeholder="linkedin.com/in/your-name" inputMode="url" autoCapitalize="none" spellCheck={false} />
+        maxLength={340} required placeholder="linkedin.com/in/your-name" inputMode="url" autoCapitalize="none" spellCheck={false} />
       <Field label="GitHub" value={github} onChange={(e) => setGithub(e.target.value)} onBlur={() => setGithub(normaliseGithub(github))}
-        maxLength={80} placeholder="github.com/your-username" inputMode="url" autoCapitalize="none" spellCheck={false} />
+        maxLength={80} required placeholder="github.com/your-username" inputMode="url" autoCapitalize="none" spellCheck={false} />
       <Field label="Phone (optional)" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} maxLength={20} placeholder="+971 50 000 0000" hint="Only organisers can see it, for event-day emergencies." />
       {error && <Notice>{error}</Notice>}
       {ok && <Notice tone="ok">Saved.</Notice>}
-      <Button type="submit" disabled={busy || name.trim().length < 2 || !(linkedin.trim() || github.trim())}>{busy ? "Saving…" : cta}</Button>
+      <Button type="submit" disabled={busy || name.trim().length < 2 || !(linkedin.trim() && github.trim())}>{busy ? "Saving…" : cta}</Button>
     </form>
   );
 }

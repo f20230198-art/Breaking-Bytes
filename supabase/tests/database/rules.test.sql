@@ -1,7 +1,7 @@
 -- The server-side rules, tested as real users. Run with: npx supabase test db
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(78);
+select plan(80);
 
 -- start from a clean slate, whatever is in the local database (all inside this transaction, rolled back at the end)
 delete from public.admin_emails;
@@ -26,8 +26,9 @@ insert into auth.users (id, email, raw_user_meta_data) values
   ('00000000-0000-0000-0000-000000000010', 'hank@gmail.com', '{"full_name":"Hank"}');
 -- what Auth does on a Google sign-in: the row first, then the verified address and the provider in an update
 update auth.users set email_confirmed_at = now(), raw_app_meta_data = '{"provider":"google","providers":["google"]}';
--- everyone but Hank has already given a GitHub link (crews need one)
-update public.profiles set github_url = 'https://github.com/' || split_part(email, '@', 1) where email <> 'hank@gmail.com';
+-- everyone but Hank has already given both links (crews need them)
+update public.profiles set github_url = 'https://github.com/' || split_part(email, '@', 1),
+  linkedin_url = 'https://www.linkedin.com/in/' || split_part(email, '@', 1) where email <> 'hank@gmail.com';
 
 -- everyone signs in mid-event: suppliers open, problems still sealed, Dead Drop not open yet
 update public.event_config set registration_open = true, team_max = 3, supplier_cap_slack = 0,
@@ -61,14 +62,16 @@ select is((select role::text from public.profiles where email = 'mike@lospollos.
 select throws_ok($$ update public.profiles set github_url = 'https://evil.example/hank' where email = 'hank@gmail.com' $$, '23514', null,
   'the table itself refuses a non-GitHub link');
 
--- ─── pre-registration: LinkedIn / GitHub, at least one, real profile links ─────────────────────────────────────
+-- ─── pre-registration: LinkedIn and GitHub, both, real profile links ───────────────────────────────────────────
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-000000000010","role":"authenticated"}', true);
-select throws_ok($$ select public.create_team('Hank Crew') $$, 'P0001', 'need_a_link', 'no crew without a LinkedIn or GitHub');
-select throws_ok($$ select public.update_profile('Hank') $$, 'P0001', 'need_a_link', 'a profile needs at least one link');
+select throws_ok($$ select public.create_team('Hank Crew') $$, 'P0001', 'need_a_link', 'no crew without LinkedIn and GitHub');
+select throws_ok($$ select public.update_profile('Hank') $$, 'P0001', 'need_a_link', 'a profile needs the links');
 select throws_ok($$ select public.update_profile('Hank', null, 'https://evil.example/in/hank') $$, 'P0001', 'bad_linkedin', 'prank LinkedIn links are refused');
 select throws_ok($$ select public.update_profile('Hank', null, null, 'https://github.com/hank/../../evil') $$, 'P0001', 'bad_github', 'only a GitHub profile, not any path');
-select lives_ok($$ select public.update_profile('Hank Schrader', null, 'https://www.linkedin.com/in/hank-schrader') $$, 'LinkedIn alone is enough');
+select throws_ok($$ select public.update_profile('Hank Schrader', null, 'https://www.linkedin.com/in/hank-schrader') $$, 'P0001', 'need_a_link', 'LinkedIn alone is not enough');
+select throws_ok($$ select public.update_profile('Hank Schrader', null, 'https://www.linkedin.com/in/hank-schrader', 'https://github.com/Walt') $$, 'P0001', 'link_taken', 'no claiming someone else''s GitHub');
+select lives_ok($$ select public.update_profile('Hank Schrader', null, 'https://www.linkedin.com/in/hank-schrader', 'https://github.com/hank') $$, 'LinkedIn and GitHub together');
 
 -- ─── crews ─────────────────────────────────────────────────────────────────────────────────────────────────────
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}', true);

@@ -74,8 +74,10 @@ Subscribe to `team_members` filtered by `team_id` for live roster; RLS applies t
   shown as a tally on the admin Crews page.
 - **`profiles.linkedin_url` / `github_url`**: canonical profile URLs only (`https://www.linkedin.com/in/<slug>`,
   `https://github.com/<user>`), enforced by check constraints via `_linkedin_ok()` / `_github_ok()`. The app normalises
-  what people paste (`src/lib/profileLinks.ts`). `update_profile(name, phone, linkedin, github)` requires at least one
-  (`need_a_link`); `create_team` / `join_team` refuse anyone without one.
+  what people paste (`src/lib/profileLinks.ts`). `update_profile(name, phone, linkedin, github)` requires both
+  (`need_a_link`; was "at least one" until `20261030130000_both_links.sql`, which also sent anyone missing one back
+  through onboarding); `create_team` / `join_team` refuse anyone without both. Each link is unique across profiles,
+  case-insensitively (`link_taken`).
 - **`teams.registration_status`** (`pending` | `accepted` | `waitlisted`, default pending): set by admins only (no
   hacker write path). `join_team` refuses an accepted crew (`crew_accepted`): its seats are already counted. Leaving is
   still allowed. `my_crew()` returns the status; `admin_crews()` returns it plus every member's links.
