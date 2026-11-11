@@ -351,7 +351,7 @@ export function HeroStage({ progress, onLens }: { progress: MotionValue<number>;
           <p className="border-2 border-ink bg-ink/85 px-3 py-1 font-type text-[clamp(0.7rem,0.9vw,0.95rem)] uppercase tracking-[0.3em] text-paper">
             Scroll down to know more
           </p>
-          <span className="mt-1 grid size-9 animate-bounce place-items-center rounded-full border-2 border-ink bg-ink/85">
+          <span className="scroll-nudge mt-1 grid size-9 place-items-center rounded-full border-2 border-ink bg-ink/85">
             <ChevronDown className="size-6 text-hazmat" strokeWidth={3} />
           </span>
         </div>
