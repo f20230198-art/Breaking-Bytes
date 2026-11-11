@@ -26,8 +26,10 @@ export type Col = {
  * List + create + edit + delete for one table, straight through RLS (admins only) with every write audited by the
  * database. Constraint errors come back as the database's own message, which is fine for organisers.
  */
-export function TableEditor({ table, cols, order = [], pk = "id", defaults = {}, extra }: {
+export function TableEditor({ table, cols, order = [], pk = "id", defaults = {}, extra, onChange }: {
   table: string; cols: Col[]; order?: [string, boolean?][]; pk?: string; defaults?: Row; extra?: (row: Row, reload: () => void) => ReactNode;
+  /** called after every save or delete, e.g. to refresh another editor's dropdown */
+  onChange?: () => void;
 }) {
   const [rows, setRows] = useState<Row[] | null>(null);
   const [editing, setEditing] = useState<Row | "new" | null>(null);
@@ -52,6 +54,7 @@ export function TableEditor({ table, cols, order = [], pk = "id", defaults = {},
     const { error } = await adminDb().from(table).delete().eq(pk, row[pk]);
     if (error) setError(error.message);
     void load();
+    onChange?.();
   };
 
   return (
@@ -63,7 +66,7 @@ export function TableEditor({ table, cols, order = [], pk = "id", defaults = {},
       <ErrorLine text={error} />
       {editing && (
         <RowForm table={table} cols={cols} pk={pk} row={editing === "new" ? { ...defaults } : editing} isNew={editing === "new"}
-          onDone={() => { setEditing(null); void load(); }} />
+          onDone={() => { setEditing(null); void load(); onChange?.(); }} />
       )}
       <div className="mt-3 overflow-x-auto rounded border border-paper/15">
         <table className="w-full text-left text-sm">

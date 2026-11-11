@@ -32,12 +32,13 @@ export async function getSite(): Promise<Site> {
       auth: { persistSession: false },
       global: { fetch: (input, init) => fetch(input, { ...init, signal: AbortSignal.timeout(4000) }) },
     });
-    const [cfg, schedule, prizes, sponsors, faqs] = await Promise.all([
+    const [cfg, schedule, prizes, sponsors, faqs, domains] = await Promise.all([
       db.from("event_config").select("starts_at, deadline_at").eq("id", 1).single(),
       db.from("schedule_items").select("*").order("sort_order"),
       db.from("prize_board").select("*").eq("kind", "cash").order("rank"),
       db.from("sponsors").select("name, symbol, tier, logo_path").eq("visible", true).order("sort_order"),
       db.from("faqs").select("q, a").eq("visible", true).order("sort_order"),
+      db.from("domains").select("symbol, name").eq("visible", true).order("sort_order"),
     ]);
     if (cfg.error || schedule.error || prizes.error || sponsors.error || faqs.error) return FALLBACK;
     const startsAt = cfg.data.starts_at ?? FALLBACK.startsAt;
@@ -64,6 +65,8 @@ export async function getSite(): Promise<Site> {
         logo: s.logo_path ? `${url}/storage/v1/object/public/sponsor-logos/${s.logo_path}` : undefined,
       })),
       faqs: faqs.data.length ? faqs.data : FALLBACK.faqs,
+      // an error here (e.g. the table not migrated yet) keeps the built-in domains rather than failing the page
+      domains: domains.data?.length ? domains.data.map((d, i) => ({ symbol: d.symbol, name: d.name, number: i + 1 })) : FALLBACK.domains,
     };
   } catch {
     return FALLBACK;

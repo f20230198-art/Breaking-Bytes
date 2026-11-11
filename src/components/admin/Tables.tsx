@@ -66,19 +66,35 @@ async function uploadLogo(sponsorId: string, file: File) {
 
 // ─── problems ─────────────────────────────────────────────────────────────────────────────────────────────────
 export function AdminProblems() {
+  // a problem's Domain is picked from the Domains list below, so the grouping always matches the board
+  const [domains, setDomains] = useState<{ value: string; label: string }[]>([]);
+  const loadDomains = () => void adminDb().from("domains").select("name").order("sort_order")
+    .then(({ data }) => setDomains((data ?? []).map((d) => ({ value: d.name, label: d.name }))));
+  useEffect(loadDomains, []);
   return (
-    <div>
+    <div className="space-y-12">
+      <section>
+      <H1 sub="The element tiles chalked on the landing page's classroom board (up to 6), and the headings crews see problems grouped under. Renaming one here does not rename problems already filed under it.">Domains</H1>
+      <TableEditor table="domains" order={[["sort_order"]]} defaults={{ visible: true, sort_order: 0 }} onChange={loadDomains} cols={[
+        { key: "sort_order", label: "Order", type: "number" },
+        { key: "symbol", label: "Symbol (Ag)", required: true, placeholder: "One or two letters, e.g. Ag" },
+        { key: "name", label: "Name", required: true, placeholder: "e.g. Desert AgriTech" },
+        { key: "visible", label: "Visible", type: "bool" },
+      ]} />
+      </section>
+      <section>
       <H1 sub="Hidden from crews until the drop time, and only if published. Crews see them grouped by Domain; the leader locks one in. Text is shown as plain text (no HTML).">Problems</H1>
       <TableEditor table="problems" order={[["id"]]} defaults={{ is_published: false, summary: "", body_md: "", criteria_md: "" }} cols={[
-        { key: "id", label: "Code (D-001)", required: true, createOnly: true, placeholder: "D-001" },
+        { key: "id", label: "Code (A-001)", required: true, createOnly: true, placeholder: "A-001" },
         { key: "title", label: "Title", required: true },
-        { key: "track", label: "Domain", nullable: true, placeholder: "e.g. AI / ML" },
+        { key: "track", label: "Domain", type: "select", nullable: true, options: domains },
         { key: "capacity", label: "Max crews (blank = no cap)", type: "number" },
         { key: "is_published", label: "Published", type: "bool" },
         { key: "summary", label: "Summary", type: "textarea", formOnly: true },
         { key: "body_md", label: "Full statement", type: "textarea", formOnly: true },
         { key: "criteria_md", label: "Judging criteria", type: "textarea", formOnly: true },
       ]} />
+      </section>
     </div>
   );
 }

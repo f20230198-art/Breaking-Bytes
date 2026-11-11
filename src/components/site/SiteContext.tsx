@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, type ReactNode } from "react";
-import { EVENT, FAQS, PRIZES, SCHEDULE, SUPPLIERS } from "@/data/site";
+import { EVENT, FAQS, PRIZES, SCHEDULE, SUPPLIERS, TRACKS } from "@/data/site";
 
 /** What the landing page shows that organisers can change in /admin. */
 export type Site = {
@@ -11,6 +11,7 @@ export type Site = {
   prizes: { name: string; place: string; amount: number }[];
   sponsors: { symbol: string; name: string; number: number; track: string; logo?: string }[];
   faqs: { q: string; a: string }[];
+  domains: { symbol: string; number: number; name: string }[];
 };
 
 /** The built-in placeholders (src/data/site.ts): used until the database answers, and whenever it can't. */
@@ -21,6 +22,7 @@ export const FALLBACK: Site = {
   prizes: PRIZES,
   sponsors: SUPPLIERS,
   faqs: FAQS,
+  domains: TRACKS,
 };
 
 const SiteContext = createContext<Site>(FALLBACK);

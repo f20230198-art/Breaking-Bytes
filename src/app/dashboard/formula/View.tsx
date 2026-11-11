@@ -50,16 +50,20 @@ function Dossier() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
+  const [order, setOrder] = useState<string[]>([]);
   useEffect(() => {
+    const db = supabaseBrowser();
     // RLS only returns published problems once the drop has passed
-    void supabaseBrowser().from("problems").select("*").order("track").order("id")
-      .then(({ data }) => setProblems(data ?? []));
+    void db.from("problems").select("*").order("id").then(({ data }) => setProblems(data ?? []));
+    void db.from("domains").select("name").order("sort_order").then(({ data }) => setOrder((data ?? []).map((d) => d.name)));
   }, []);
   if (!crew) return null;
 
-  // grouped by domain (the problem's track), in first-seen order; untracked ones go under "Open"
+  // grouped by domain (the problem's track) in the Domains order from admin; anything else after, untracked under "Open"
+  const rank = (d: string) => (order.indexOf(d) + 1 || order.length + 1);
   const domains = new Map<string, Problem[]>();
-  for (const p of problems ?? []) {
+  const sorted = [...(problems ?? [])].sort((a, b) => rank(a.track?.trim() || "Open") - rank(b.track?.trim() || "Open"));
+  for (const p of sorted) {
     const d = p.track?.trim() || "Open";
     domains.set(d, [...(domains.get(d) ?? []), p]);
   }

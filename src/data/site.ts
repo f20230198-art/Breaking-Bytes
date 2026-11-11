@@ -73,11 +73,11 @@ export const PRIZES = [
   { name: "The Lawyer's Cut", place: "3rd", amount: 200 },
 ];
 
-/** Domains, chalked on the classroom board as element tiles. Kept secret until the drop, so no names yet (the board fits 6). */
+/** Domains, chalked on the classroom board as element tiles (live list: Admin → Problems → Domains; the board fits 6). */
 export const TRACKS = [
-  { symbol: "?", number: 1, name: "Domain 1" },
-  { symbol: "?", number: 2, name: "Domain 2" },
-  { symbol: "?", number: 3, name: "Domain 3" },
+  { symbol: "Ag", number: 1, name: "Desert AgriTech" },
+  { symbol: "Aq", number: 2, name: "Water & Climate AI" },
+  { symbol: "Te", number: 3, name: "Off-Grid Connectivity" },
 ];
 
 /** Chapter 1's food sponsors (the live list is in /admin → Sponsors; this is only the offline fallback). */

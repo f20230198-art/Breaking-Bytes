@@ -1,7 +1,7 @@
 -- The server-side rules, tested as real users. Run with: npx supabase test db
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(104);
+select plan(106);
 
 -- start from a clean slate, whatever is in the local database (all inside this transaction, rolled back at the end)
 delete from public.admin_emails;
@@ -39,6 +39,7 @@ update public.event_config set registration_open = true, team_max = 3, supplier_
   supplier_pick_at = now() - interval '1 hour', problems_release_at = now() + interval '1 hour',
   roster_lock_at = now() + interval '1 hour', submissions_open_at = now() + interval '2 hours', deadline_at = now() + interval '3 hours';
 update public.problems set is_published = true;
+select set_config('test.problem_count', (select count(*)::text from public.problems), true);
 
 -- ─── profiles: category and role come from the server ─────────────────────────────────────────────────────────
 select is((select category::text from public.profiles where email = 'walt@gmail.com'), 'walter', 'gmail user is a Walter');
@@ -170,7 +171,7 @@ reset role;
 update public.event_config set problems_release_at = now() - interval '1 minute', submissions_open_at = now() - interval '1 minute';
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}', true);
-select is((select count(*)::int from public.problems), 3, 'problems unseal at the drop');
+select is((select count(*)::int from public.problems), current_setting('test.problem_count')::int, 'every published problem unseals at the drop');
 select throws_ok($$ select public.pick_supplier((select id from public.sponsors where name = '.zero')) $$, 'P0001', 'supplier_window_closed', 'suppliers are fixed once problems drop');
 -- Chapter 1: no supplier step, so any published problem can be locked, whatever (if anything) the crew picked
 select lives_ok($$ select public.lock_problem('Z-001') $$, 'the leader locks a problem from outside the picked supplier');
@@ -303,6 +304,14 @@ select is((select role::text from public.profiles where id = '00000000-0000-0000
 insert into public.admin_emails (email) values ('gale@madrigal.test');
 select is((select role::text from public.profiles where id = '00000000-0000-0000-0000-000000000014'), 'admin',
   'adding the email back grants it');
+
+-- ─── domains: public to read, admins only to write ──────────────────────────────────────────────────────────
+set local role anon;
+select ok((select count(*) from public.domains) >= 1, 'anyone can read the domains on the board');
+set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000d","role":"authenticated"}', true);
+select throws_ok($$ insert into public.domains (symbol, name) values ('Xx', 'Hacked') $$, '42501', null, 'hackers can''t add domains');
+reset role;
 
 select * from finish();
 rollback;

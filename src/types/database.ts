@@ -93,6 +93,18 @@ export type Database = {
                   Relationships: [
                     
                   ]
+                },"domains": {
+                  Row: {
+                    "created_at": string,"id": string,"name": string,"sort_order": number,"symbol": string,"visible": boolean
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"id"?: string,"name": string,"sort_order"?: number,"symbol": string,"visible"?: boolean
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: string,"name"?: string,"sort_order"?: number,"symbol"?: string,"visible"?: boolean
+                  }
+                  Relationships: []
                 },"faqs": {
                   Row: {
                     "a": string,"id": string,"q": string,"sort_order": number,"visible": boolean

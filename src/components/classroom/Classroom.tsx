@@ -5,7 +5,8 @@ import type { ReactNode } from "react";
 import { TornEdge } from "@/components/fuse/FuseTimeline";
 import { PinnedScene } from "@/components/scene/PinnedScene";
 import { SceneCanvas } from "@/components/scene/SceneCanvas";
-import { RULES, TRACKS } from "@/data/site";
+import { RULES } from "@/data/site";
+import { useSite } from "@/components/site/SiteContext";
 
 // the two chalkboards in the art, as canvas % boxes [left, top, width, height] (writing kept clear of the flasks below)
 const MAIN = [31.5, 28, 42.5, 24];
@@ -14,7 +15,7 @@ const box = ([l, t, w, h]: number[]) => ({ left: `${l}%`, top: `${t}%`, width: `
 
 /**
  * ⑤ The classroom: slides up over the finished student print (torn top edge, like the fuse over the lab), then the
- * teacher's lesson chalks itself onto the boards as you scroll: the tracks as element tiles on the main board, the
+ * teacher's lesson chalks itself onto the boards as you scroll: the domains (Admin → Problems → Domains) as element tiles on the main board, the
  * rules as a numbered list on the side board.
  */
 export function Classroom() {
@@ -31,6 +32,7 @@ export function Classroom() {
 
 function Stage({ p }: { p: MotionValue<number> }) {
   const still = !!useReducedMotion();
+  const TRACKS = useSite().domains;
   const tileAt = (i: number) => 0.12 + i * 0.055;
   const ruleAt = (i: number) => 0.5 + i * 0.08;
   // phones: the main board is wider than the screen, so the camera follows the chalk across it, then on to the rules

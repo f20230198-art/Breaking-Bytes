@@ -5,7 +5,8 @@
   locks one in. Prizes AED 1,000 (500/300/200), open to everyone. Food sponsors: Sam's Burger, Bubee Drinks Cafe.
 - To ship: push the code, then `npx supabase db push` (admin-allowlist fix, problems without suppliers, and the
   Chapter 1 content: sponsors, prizes, FAQ). Then Admin → Sponsors: upload the two logos.
-- Admin → Problems: enter the statements (Code, Title, Domain, Summary, Full statement, Judging criteria), tick
+- The 3 statements (A-001 farming, W-001 water, T-001 connectivity) and 3 domains ship in a migration, published
+  (still sealed until the drop). Edit them in Admin → Problems (Domains table at the top). New ones: Code, Title, Domain, Summary, Full statement, Judging criteria, tick
   Published. Admin → Event: set every time (Problems drop, Dead Drop opens, Deadline, Rosters freeze).
 - Before the day: accept crews (Admin → Crews → Accept all pending). On the day: Open the full portal.
 
