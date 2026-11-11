@@ -41,18 +41,19 @@ export async function getSite(): Promise<Site> {
     ]);
     if (cfg.error || schedule.error || prizes.error || sponsors.error || faqs.error) return FALLBACK;
     const startsAt = cfg.data.starts_at ?? FALLBACK.startsAt;
+    const open = prizes.data.filter((p) => p.category_only !== "jesse");
     return {
       startsAt,
       dates: dateRange(startsAt, cfg.data.deadline_at),
       schedule: schedule.data.length
         ? schedule.data.map((s) => ({ day: s.day_offset, time: s.time_label, until: s.end_label ?? undefined, title: s.title, note: s.detail }))
         : FALLBACK.schedule,
-      prizes: prizes.data.length
-        ? prizes.data.map((p) => ({
+      // student-only prizes are gone from the page (no student print any more); only the open places show
+      prizes: open.length
+        ? open.map((p) => ({
             name: p.name ?? "",
-            place: p.category_only === "jesse" ? "Student" : (PLACE[(p.rank ?? 1) - 1] ?? `${p.rank}th`),
-            amount: Math.round((p.amount_aed ?? 0) / 50) * 50,
-            jesseOnly: p.category_only === "jesse",
+            place: PLACE[(p.rank ?? 1) - 1] ?? `${p.rank}th`,
+            amount: Math.round(p.amount_aed ?? 0),
           }))
         : FALLBACK.prizes,
       sponsors: sponsors.data.map((s, i) => ({

@@ -1,7 +1,7 @@
 -- The server-side rules, tested as real users. Run with: npx supabase test db
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(99);
+select plan(102);
 
 -- start from a clean slate, whatever is in the local database (all inside this transaction, rolled back at the end)
 delete from public.admin_emails;
@@ -279,10 +279,20 @@ select ok(not exists (select 1 from pg_policies where tablename = 'profiles' and
 -- a hacker's direct roster insert gets RLS's refusal, not a 'team_full' answer about someone else's crew
 select set_config('test.some_crew', (select id::text from public.teams order by created_at limit 1), true);
 set local role authenticated;
-select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-000000000014","role":"authenticated"}', true);
-select throws_ok($$ insert into public.team_members (team_id, user_id) values (current_setting('test.some_crew')::uuid, '00000000-0000-0000-0000-000000000014') $$,
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000d","role":"authenticated"}', true);
+select throws_ok($$ insert into public.team_members (team_id, user_id) values (current_setting('test.some_crew')::uuid, '00000000-0000-0000-0000-00000000000d') $$,
   '42501', null, 'a direct roster insert is refused by RLS, with no crew-size answer');
 reset role;
+
+-- ─── the allowlist edits the admin panel makes (the API session preloads pg_safeupdate, which the test role
+-- cannot load: that path was checked through PostgREST, see migration 20261111120000) ──────────────────────
+select lives_ok($$ delete from public.admin_emails where email = 'gale@madrigal.test' $$,
+  'removing an admin email works');
+select is((select role::text from public.profiles where id = '00000000-0000-0000-0000-000000000014'), 'hacker',
+  'removing the email drops the admin role');
+insert into public.admin_emails (email) values ('gale@madrigal.test');
+select is((select role::text from public.profiles where id = '00000000-0000-0000-0000-000000000014'), 'admin',
+  'adding the email back grants it');
 
 select * from finish();
 rollback;

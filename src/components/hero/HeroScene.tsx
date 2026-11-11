@@ -3,6 +3,7 @@
 
 import { AnimatePresence, motion, useMotionValueEvent, type MotionValue } from "motion/react";
 import { useEffect, useLayoutEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { ChevronDown } from "lucide-react";
 import { PeriodicTitle } from "@/components/comic/PeriodicTitle";
 import { SceneCanvas, bboxStyle } from "@/components/scene/SceneCanvas";
 import { EVENT, RULES } from "@/data/site";
@@ -336,6 +337,25 @@ export function HeroStage({ progress, onLens }: { progress: MotionValue<number>;
         </p>
       </motion.div>
       </div>
+
+      {/* scroll cue: tells first-time visitors there is more below; gone as soon as they start scrolling */}
+      <motion.div
+        aria-hidden
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 1.2 }}
+        className="pointer-events-none absolute inset-x-0 bottom-10 flex justify-center portrait:bottom-14"
+        style={{ visibility: lift > 0.3 ? "hidden" : undefined }}
+      >
+        <div className="flex flex-col items-center gap-1" style={{ opacity: Math.max(0, 1 - lift * 4) }}>
+          <p className="border-2 border-ink bg-ink/85 px-3 py-1 font-type text-[clamp(0.7rem,0.9vw,0.95rem)] uppercase tracking-[0.3em] text-paper">
+            Scroll down to know more
+          </p>
+          <span className="mt-1 grid size-9 animate-bounce place-items-center rounded-full border-2 border-ink bg-ink/85">
+            <ChevronDown className="size-6 text-hazmat" strokeWidth={3} />
+          </span>
+        </div>
+      </motion.div>
 
       <p className="pointer-events-none absolute bottom-3 right-4 font-type text-[10px] text-paper/60">
         Fan-made parody · not affiliated with AMC or Sony Pictures Television

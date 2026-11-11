@@ -3,7 +3,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import { useLab, type Crew, type Member } from "@/components/dashboard/LabProvider";
-import { Button, Card, CategoryBadge, Field, Kicker, Notice, Stamp, Title } from "@/components/dashboard/ui";
+import { Button, Card, Field, Kicker, Notice, Stamp, Title } from "@/components/dashboard/ui";
 import { rpcMessage } from "@/lib/rpcErrors";
 import { supabaseBrowser } from "@/lib/supabase/client";
 
@@ -106,16 +106,10 @@ function Roster({ crew }: { crew: Crew }) {
             <Kicker>Your crew</Kicker>
             <Title>{crew.name}</Title>
             <div className="mt-2 flex flex-wrap items-center gap-2">
-              {cfg.portal_open ? <CategoryBadge category={crew.category} /> : <Stamp tone={crew.registration_status === "accepted" ? "olive" : "brick"}>{STATUS[crew.registration_status].stamp}</Stamp>}
+              {!cfg.portal_open && <Stamp tone={crew.registration_status === "accepted" ? "olive" : "brick"}>{STATUS[crew.registration_status].stamp}</Stamp>}
               {crew.roster_locked && <Stamp>Roster locked</Stamp>}
             </div>
-            <p className="mt-3 max-w-md font-type text-sm text-ink/70">
-              {!cfg.portal_open
-                ? STATUS[crew.registration_status].text
-                : crew.category === "jesse"
-                  ? "Every member is a verified student, so this crew also competes for the student prizes."
-                  : "Student prizes need every member to be a verified student. One Walter makes the whole crew Walter."}
-            </p>
+            {!cfg.portal_open && <p className="mt-3 max-w-md font-type text-sm text-ink/70">{STATUS[crew.registration_status].text}</p>}
           </div>
           <div className="text-right">
             <p className="font-type text-xs uppercase tracking-[0.2em] text-ink/60">Invite code</p>
@@ -128,7 +122,7 @@ function Roster({ crew }: { crew: Crew }) {
 
       <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {crew.members.map((m, i) => (
-          <Polaroid key={m.id} m={m} tilt={i % 2 ? 1.5 : -1.5} showCategory={cfg.portal_open} canRemove={isLeader && m.id !== me.id} busy={busy}
+          <Polaroid key={m.id} m={m} tilt={i % 2 ? 1.5 : -1.5} canRemove={isLeader && m.id !== me.id} busy={busy}
             onRemove={() => act(() => sb.rpc("remove_member", { p_user: m.id }), `Remove ${m.display_name} from the crew?`)} />
         ))}
         {Array.from({ length: Math.max(0, cfg.team_max - crew.members.length) }, (_, i) => (
@@ -155,7 +149,7 @@ const STATUS = {
   waitlisted: { stamp: "Waitlist", text: "The hall is full for now, so your crew is on the waitlist. We'll move you up if a seat opens." },
 } as const;
 
-function Polaroid({ m, tilt, showCategory, canRemove, busy, onRemove }: { m: Member; tilt: number; showCategory: boolean; canRemove: boolean; busy: boolean; onRemove: () => void }) {
+function Polaroid({ m, tilt, canRemove, busy, onRemove }: { m: Member; tilt: number; canRemove: boolean; busy: boolean; onRemove: () => void }) {
   return (
     <li className="relative border-[3px] border-ink bg-paper p-3 pb-4 text-ink print-shadow" style={{ rotate: `${tilt}deg` }}>
       {/* a strip of tape holding it up */}
@@ -169,7 +163,6 @@ function Polaroid({ m, tilt, showCategory, canRemove, busy, onRemove }: { m: Mem
       </div>
       <p className="mt-3 truncate font-display">{m.display_name || "Unnamed cook"}</p>
       <div className="mt-1 flex items-center justify-between gap-2">
-        {showCategory && <CategoryBadge category={m.category} />}
         {m.is_leader && <span className="font-stencil text-xs font-bold uppercase tracking-widest text-brick">Leader</span>}
       </div>
       {canRemove && (

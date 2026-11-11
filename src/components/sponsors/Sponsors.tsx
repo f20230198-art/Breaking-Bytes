@@ -9,12 +9,14 @@ import { useSite } from "@/components/site/SiteContext";
 const SHADOWS = ["shadow-[5px_5px_0_var(--color-gdg-blue)]", "shadow-[5px_5px_0_var(--color-gdg-red)]", "shadow-[5px_5px_0_var(--color-gdg-yellow)]", "shadow-[5px_5px_0_var(--color-gdg-green)]"];
 
 /**
- * ⑥ Sponsors ("the suppliers"): no art, just a dusk-to-ink gradient and a row of paper element cards, each one a
- * supplier with its atomic number and the track it backs. Logos are TBC, so the symbol stands in. Cards lift in one after another as the section scrolls in.
+ * ⑥ Sponsors: our food sponsors (the only sponsors this year). No art, just a dusk-to-ink gradient and a row of paper
+ * element cards with the sponsor's atomic number; the uploaded logo, else the element symbol. Cards lift in one after
+ * another as the section scrolls in. Renders nothing until there is a visible sponsor in /admin.
  */
 export function Sponsors() {
   const still = !!useReducedMotion();
   const SUPPLIERS = useSite().sponsors;
+  if (!SUPPLIERS.length) return null;
   return (
     <section
       id="sponsors"
@@ -28,23 +30,23 @@ export function Sponsors() {
       <div aria-hidden className="pointer-events-none absolute -left-40 top-10 size-[36rem] rounded-full bg-rust/15 blur-3xl" />
       <div aria-hidden className="pointer-events-none absolute -right-40 bottom-0 size-[32rem] rounded-full bg-crystal/10 blur-3xl" />
       <span aria-hidden className="pointer-events-none absolute -right-6 top-16 select-none font-stencil text-[22vw] leading-none text-paper/[0.04] md:text-[16vw]">
-        SUPPLY
+        FED
       </span>
       </div>
       <div className="relative mx-auto max-w-5xl">
-        <p className="font-type text-sm uppercase tracking-[0.3em] text-rust">Supply chain</p>
-        <h2 className="mt-3 font-display text-4xl leading-none sm:text-6xl">Our suppliers</h2>
+        <p className="font-type text-sm uppercase tracking-[0.3em] text-rust">Catering the cook</p>
+        <h2 className="mt-3 font-display text-4xl leading-none sm:text-6xl">Our food sponsors</h2>
         <div aria-hidden className="mt-5 flex h-1.5 w-28">
           <span className="flex-1 bg-gdg-blue" /><span className="flex-1 bg-gdg-red" /><span className="flex-1 bg-gdg-yellow" /><span className="flex-1 bg-gdg-green" />
         </div>
         <p className="mt-4 max-w-xl font-type text-paper-dim">
-          Every cook needs a reliable source. These are the people keeping the lab stocked.
+          Twenty-four hours is a long cook. These are the people keeping the lab fed.
         </p>
 
-        <ul className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className={`mt-14 grid gap-6 sm:grid-cols-2 ${SUPPLIERS.length > 2 ? "lg:grid-cols-3" : "max-w-3xl"}`}>
           {SUPPLIERS.map((s, i) => (
             <motion.li
-              key={s.symbol}
+              key={`${s.number}-${s.name}`}
               initial={still ? false : { opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.4 }}

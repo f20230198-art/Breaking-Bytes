@@ -18,8 +18,8 @@ const TABS = [
 const PREREG_TABS = TABS.filter(([href]) => href === "/dashboard/crew" || href === "/dashboard/profile");
 
 /**
- * The lab's frame. The backdrop is your side of the prize print, blurred like a phone home screen: Saul's office for
- * Walters, Jesse and Flynn's place for Jesses (pre-blurred files, so no live blur filter costs frames).
+ * The lab's frame. The backdrop is the prize office, blurred like a phone home screen (a pre-blurred file, so no live
+ * blur filter costs frames). Everyone gets the same one now that there are no student-only prizes.
  */
 export function Shell({ children }: { children: ReactNode }) {
   const { me, crew, cfg, offset, now } = useLab();
@@ -35,7 +35,7 @@ export function Shell({ children }: { children: ReactNode }) {
   return (
     // isolate: its own stacking context, so the -z-10 backdrop sits behind the content but above the layout's ink
     <div className="relative isolate min-h-svh text-paper">
-      <img src={`/scenes/dashboard/${me.category}.webp`} alt="" aria-hidden className="fixed inset-0 -z-10 h-full w-full scale-110 object-cover" />
+      <img src="/scenes/dashboard/walter.webp" alt="" aria-hidden className="fixed inset-0 -z-10 h-full w-full scale-110 object-cover" />
       <div aria-hidden className="fixed inset-0 -z-10 bg-ink/55" />
 
       <header className="sticky top-0 z-30 border-b-[3px] border-ink bg-ink/90 backdrop-blur-sm">

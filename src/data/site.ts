@@ -62,16 +62,13 @@ export const RULES = [
   "Respect the lab. Respect the crew.",
 ];
 
-export const PRIZE_POOL_AED = 7000;
+/** AED 1,000 in all, open to everyone (no student-only prizes any more). */
+export const PRIZE_POOL_AED = 1000;
 export const PRIZES = [
-  { name: "The Cook's Cut", place: "1st", ratio: 6 },
-  { name: "The Distributor's Cut", place: "2nd", ratio: 4 },
-  { name: "The Lawyer's Cut", place: "3rd", ratio: 2 },
-  { name: "The Partner's Cut", place: "Student", ratio: 1, jesseOnly: true },
-  { name: "The Rookie's Cut", place: "Student", ratio: 1, jesseOnly: true },
+  { name: "The Cook's Cut", place: "1st", amount: 500 },
+  { name: "The Distributor's Cut", place: "2nd", amount: 300 },
+  { name: "The Lawyer's Cut", place: "3rd", amount: 200 },
 ];
-const RATIO_SUM = PRIZES.reduce((s, p) => s + p.ratio, 0);
-export const prizeAmount = (ratio: number) => Math.round((PRIZE_POOL_AED * ratio) / RATIO_SUM / 50) * 50;
 
 /** Domains, chalked on the classroom board as element tiles. Kept secret until the drop, so no names yet (the board fits 6). */
 export const TRACKS = [
@@ -80,27 +77,14 @@ export const TRACKS = [
   { symbol: "?", number: 3, name: "Domain 3" },
 ];
 
-/** Sponsors double as the periodic table of problems: symbol + atomic number. */
-export const SUPPLIERS = [
-  { symbol: "Dv", name: "Deriv", number: 1, track: "FinTech" },
-  { symbol: "Zo", name: ".zero", number: 2, track: "Open" },
-  { symbol: "Rp", name: "Replit", number: 3, track: "AI / Tools" },
-];
-
-export const SPECIAL_AWARDS = [
-  { item: "The Replit Combo", detail: "Best idea — Replit subscriptions", price: "PERK" },
-  { item: "Night Shift Special", detail: "Best hack built after midnight", price: "TBA" },
-];
+/** Sponsors (food only for now): entered in /admin → Sponsors. Nothing is shown until there is a real one. */
+export const SUPPLIERS: { symbol: string; name: string; number: number; track: string }[] = [];
 
 export const FAQS = [
   { q: "Who can join?", a: "Anyone who can cook code. Students, grads, professionals. Crews of 1–4." },
-  {
-    q: "Walter or Jesse?",
-    a: "Just our nicknames for the two prize pools. Students are Jesses: sign in with your partner-university Google account and you also compete for the student prizes. Everyone else is a Walter. Same hackathon, same rules, same 24 hours.",
-  },
-  { q: "Does it cost anything?", a: "No. Free to enter. Food stalls are run by our sponsors." },
+  { q: "Does it cost anything?", a: "No. Free to enter, and our food sponsors keep you fed." },
   { q: "Can I bring pre-built code?", a: "No pre-cooked repos. Libraries and boilerplate are fine; the product must be built during the 24 hours." },
-  { q: "When do problems drop?", a: "Pick a supplier from 10:00. Problem statements unseal at 12:00 sharp for everyone at once." },
+  { q: "When do problems drop?", a: "Problem statements unseal at 12:00 sharp, for everyone at once." },
   { q: "What do I submit?", a: "GitHub repo, a live link, and a short demo video — before the timer hits zero." },
 ];
 

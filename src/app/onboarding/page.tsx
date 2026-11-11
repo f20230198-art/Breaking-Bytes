@@ -26,7 +26,7 @@ export default function Onboarding() {
 
   return (
     <main className="relative grid min-h-svh place-items-center bg-ink px-4 py-10">
-      {me && <img src={`/scenes/dashboard/${me.category}.webp`} alt="" aria-hidden className="fixed inset-0 h-full w-full scale-110 object-cover" />}
+      {me && <img src="/scenes/dashboard/walter.webp" alt="" aria-hidden className="fixed inset-0 h-full w-full scale-110 object-cover" />}
       <div aria-hidden className="fixed inset-0 bg-ink/55" />
       {me && (
         <div className="relative w-full max-w-md border-[3px] border-ink bg-paper p-6 text-ink print-shadow">

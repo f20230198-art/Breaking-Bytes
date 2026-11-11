@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { nextMilestone, passed, useLab } from "@/components/dashboard/LabProvider";
-import { Card, CategoryBadge, Kicker, Stamp, Title } from "@/components/dashboard/ui";
+import { Card, Kicker, Stamp, Title } from "@/components/dashboard/ui";
 import { Countdown } from "@/components/ui/Countdown";
 import { supabaseBrowser } from "@/lib/supabase/client";
 
@@ -38,7 +38,6 @@ export function Overview() {
       <Card>
         <Kicker>Today&apos;s cook</Kicker>
         <Title>Welcome to the lab, {me.display_name.split(" ")[0]}.</Title>
-        <div className="mt-3"><CategoryBadge category={me.category} /></div>
         <ol className="mt-6 space-y-3">
           {steps.map((s, i) => (
             <li key={s.label}>

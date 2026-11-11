@@ -17,7 +17,7 @@ type CaseDef = {
   /** where it touches the cash (fraction of the bbox) */
   at: [number, number];
 };
-type SceneId = "prizes-office" | "prizes-student";
+type SceneId = "prizes-office";
 
 /** Saul's office, in reveal order: 3rd, 2nd, then the big one (1st) last. */
 const OFFICE: CaseDef[] = [
@@ -25,17 +25,9 @@ const OFFICE: CaseDef[] = [
   { prize: 1, layer: "case-2", to: [1, 1], at: [0.65, 0.8] }, // Gus's, by the sofa
   { prize: 0, layer: "case-1", to: [-1, -1], at: [0.35, 0.3] }, // Walter's, in front of the desk: up over the desk front
 ];
-/** The student print: Jesse's living room | Flynn's kitchen, then the duffel teasing more. */
-const STUDENT: CaseDef[] = [
-  { prize: 3, layer: "case-1", to: [-1, -1], at: [0.3, 0.2] }, // Jesse's: up over the pizza table
-  { prize: 4, layer: "case-2", to: [1, -1], at: [0.55, 0.15] }, // Flynn's: up toward the kitchen table
-  { prize: null, layer: "more", to: [1, -1], at: [0.3, 0.05] }, // the duffel: just a stamp sitting on it, no line
-];
 const bbox = (scene: SceneId, id: string) => sceneAssets(scene).layers.find((l) => l.id === id)!.bbox!;
 const STEP = 0.22; // scroll between one suitcase and the next, within a scene
 const FIRST = 0.1;
-/** where the student print's carved divider sits (canvas x %); the office splits on the same line */
-const SEAM = 49.5;
 const PAN_LEAD = 0.06; // phones: the camera starts panning to a suitcase this much scroll before it lands
 
 /**
@@ -54,12 +46,12 @@ function panFor(scene: SceneId, cases: CaseDef[]) {
 
 /**
  * ④ The payout, clearing out of the boom's white flash: Saul's office. The suitcases land one at a time, 3rd first,
- * 1st last, each callout counting its cash up. Then a carved line cuts the office down the middle, the halves slide
- * apart like doors, and behind them is the student print (split on the same line), where the student cuts land.
+ * 1st last, each callout counting its cash up; then it holds while the classroom slides up over it.
+ * (The student print, Jesse's and Flynn's place, is retired: there are no student-only prizes any more.)
  */
 export function Prizes() {
   return (
-    <PinnedScene id="prizes" label="The payout" length={7}>
+    <PinnedScene id="prizes" label="The payout" length={4}>
       {(p) => <Stage p={p} />}
     </PinnedScene>
   );
@@ -67,52 +59,23 @@ export function Prizes() {
 
 function Stage({ p }: { p: MotionValue<number> }) {
   const still = !!useReducedMotion();
-  // the last screen of travel is left for the classroom sliding up over the finished student print
-  const op = useTransform(p, [0, 0.38], [0, 1]);
-  const sp = useTransform(p, [0.5, 0.78], [0, 1]);
-  const cut = useTransform(p, [0.29, 0.35], [0, 1]);
-  const left = useTransform(p, [0.36, 0.5], ["0vw", "-55vw"]);
-  const right = useTransform(p, [0.36, 0.5], ["0vw", "55vw"]);
-  const gone = useTransform(p, [0.43, 0.5], [1, 0]); // reduced motion: a plain fade instead
-  const all = useSite().prizes.map((z) => `${z.name} (${z.place}) AED ${z.amount}`).join(", ");
+  // the last screen of travel is left for the classroom sliding up over the finished office
+  const op = useTransform(p, [0, 0.76], [0, 1]);
+  const prizes = useSite().prizes;
+  const total = prizes.reduce((n, z) => n + z.amount, 0);
+  const all = prizes.map((z) => `${z.name} (${z.place}) AED ${z.amount}`).join(", ");
   return (
     <div className="absolute inset-0 bg-night text-paper">
-      <Scene scene="prizes-student" cases={STUDENT} p={sp} still={still} kicker="The side hustle" stamp="Students only">
-        <StudentLights />
+      <Scene scene="prizes-office" cases={OFFICE} p={op} still={still} kicker="Paid in full" stamp="Open to everyone" note={`AED ${total.toLocaleString("en-US")} in cash`}>
+        <OfficeLights />
       </Scene>
-
-      {/* the office, as two halves that part along the seam */}
-      {(["l", "r"] as const).map((side) => (
-        <motion.div
-          key={side}
-          className="absolute inset-0"
-          style={{
-            clipPath: side === "l" ? `inset(0 ${100 - SEAM}% 0 0)` : `inset(0 0 0 ${SEAM}%)`,
-            x: still ? 0 : side === "l" ? left : right,
-            opacity: still ? gone : 1,
-          }}
-        >
-          <Scene scene="prizes-office" cases={OFFICE} p={op} still={still} kicker="Paid in full" stamp="Open to everyone">
-            <OfficeLights />
-          </Scene>
-        </motion.div>
-      ))}
-      {/* the carved cut, drawn top to bottom before the halves part */}
-      {!still && (
-        <motion.div
-          aria-hidden
-          className="pointer-events-none absolute inset-y-0 w-1 -translate-x-1/2 origin-top bg-ink"
-          style={{ left: `${SEAM}%`, scaleY: cut, opacity: gone }}
-        />
-      )}
-
-      <h2 className="sr-only">Cash prizes (amounts tentative): {all}</h2>
+      <h2 className="sr-only">Cash prizes, AED {total} in all: {all}</h2>
     </div>
   );
 }
 
 /** One prize print: the layered art, its suitcases dropping in with their callouts, and a small stamped header. */
-function Scene({ scene, cases, p, still, kicker, stamp, children }: { scene: SceneId; cases: CaseDef[]; p: MotionValue<number>; still: boolean; kicker: string; stamp: string; children?: ReactNode }) {
+function Scene({ scene, cases, p, still, kicker, stamp, note, children }: { scene: SceneId; cases: CaseDef[]; p: MotionValue<number>; still: boolean; kicker: string; stamp: string; note: string; children?: ReactNode }) {
   const headOn = useTransform(p, [0.02, 0.05], [0, 1]);
   const headScale = useTransform(p, [0.02, 0.05, 0.06], [1.8, 0.95, 1]);
   const { at, to } = panFor(scene, cases);
@@ -135,7 +98,7 @@ function Scene({ scene, cases, p, still, kicker, stamp, children }: { scene: Sce
         <p className="mt-1 -rotate-2 border-[3px] border-ink bg-brick px-3 py-0.5 font-stencil text-xl font-bold uppercase tracking-[0.3em] text-paper shadow-[3px_3px_0_var(--color-ink)]">
           {stamp}
         </p>
-        <p className="mt-2 font-type text-xs uppercase tracking-[0.3em] text-paper sm:text-sm [text-shadow:1px_1px_0_var(--color-ink)]">Amounts tentative</p>
+        <p className="mt-2 font-type text-xs uppercase tracking-[0.3em] text-paper sm:text-sm [text-shadow:1px_1px_0_var(--color-ink)]">{note}</p>
       </motion.div>
     </motion.div>
   );
@@ -147,19 +110,6 @@ function OfficeLights() {
     <div aria-hidden className="pointer-events-none absolute inset-0">
       <div className="office-neon absolute" style={{ left: 0, top: 0, width: "18%", height: "42%" }} />
       <div className="office-lamp absolute" style={{ left: "37.7%", top: "33%", width: "30%", aspectRatio: "1" }} />
-    </div>
-  );
-}
-
-/** Jesse's TV flickering blue and his lava lamp breathing (left); steam off Flynn's coffee (right). Canvas %. */
-function StudentLights() {
-  return (
-    <div aria-hidden className="pointer-events-none absolute inset-0">
-      <div className="side-tv absolute" style={{ left: "-6%", top: "12%", width: "22%", height: "50%" }} />
-      <div className="side-lava absolute" style={{ left: "6.9%", top: "40%", width: "8%", aspectRatio: "1" }} />
-      {[0, 1, 2].map((i) => (
-        <span key={i} className="side-steam absolute" style={{ left: `${89.6 + i * 0.7}%`, top: "44%", animationDelay: `${i * 0.9}s` }} />
-      ))}
     </div>
   );
 }

@@ -1,14 +1,14 @@
 "use client";
 
 import { createContext, useContext, type ReactNode } from "react";
-import { EVENT, FAQS, PRIZES, SCHEDULE, SUPPLIERS, prizeAmount } from "@/data/site";
+import { EVENT, FAQS, PRIZES, SCHEDULE, SUPPLIERS } from "@/data/site";
 
 /** What the landing page shows that organisers can change in /admin. */
 export type Site = {
   startsAt: string;
   dates: string;
   schedule: { day: number; time: string; until?: string; title: string; note: string }[];
-  prizes: { name: string; place: string; amount: number; jesseOnly?: boolean }[];
+  prizes: { name: string; place: string; amount: number }[];
   sponsors: { symbol: string; name: string; number: number; track: string; logo?: string }[];
   faqs: { q: string; a: string }[];
 };
@@ -18,7 +18,7 @@ export const FALLBACK: Site = {
   startsAt: EVENT.startsAt,
   dates: EVENT.dates,
   schedule: SCHEDULE,
-  prizes: PRIZES.map((p) => ({ name: p.name, place: p.place, amount: prizeAmount(p.ratio), jesseOnly: p.jesseOnly })),
+  prizes: PRIZES,
   sponsors: SUPPLIERS,
   faqs: FAQS,
 };

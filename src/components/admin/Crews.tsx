@@ -67,6 +67,20 @@ export function AdminCrews() {
     return n;
   }, [rows]);
 
+  // bulk accept: every active, pending crew in the current view (search + filters apply), one update, one confirm
+  const pendingShown = shown.filter((r) => r.status === "active" && r.registration_status === "pending");
+  const acceptAll = () => {
+    const people = pendingShown.reduce((n, r) => n + r.members.length, 0);
+    const after = heads.accepted + people;
+    const over = seats && after > seats ? `
+
+That makes ${after} accepted people, over the ${seats} seats.` : "";
+    void run(
+      teams().update({ registration_status: "accepted" }).in("id", pendingShown.map((r) => r.id)),
+      `Accept ${pendingShown.length} pending crew${pendingShown.length === 1 ? "" : "s"} (${people} people)?${over}`,
+    );
+  };
+
   const moveMember = async (m: Member) => {
     const code = window.prompt(`Move ${m.name} to which crew? Enter its invite code.`)?.trim().toUpperCase();
     if (!code) return;
@@ -94,6 +108,7 @@ export function AdminCrews() {
         </select>
         <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={onlySubmitted} onChange={(e) => setOnlySubmitted(e.target.checked)} className="accent-crystal" /> Submitted only</label>
         <Btn onClick={() => exportCsv(shown)}>Export CSV ({shown.length})</Btn>
+        {pendingShown.length > 0 && <Btn tone="primary" onClick={acceptAll}>Accept all pending ({pendingShown.length})</Btn>}
       </div>
       <ErrorLine text={error} />
       <div className="space-y-3">
