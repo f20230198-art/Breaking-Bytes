@@ -4,6 +4,7 @@
 import { motion, useReducedMotion } from "motion/react";
 import { TornEdge } from "@/components/fuse/FuseTimeline";
 import { useSite } from "@/components/site/SiteContext";
+import { CLUB, EVENT } from "@/data/site";
 
 // card shadows rotate through the GDG colours: the one nod to the club's palette in this section
 const SHADOWS = ["shadow-[5px_5px_0_var(--color-gdg-blue)]", "shadow-[5px_5px_0_var(--color-gdg-red)]", "shadow-[5px_5px_0_var(--color-gdg-yellow)]", "shadow-[5px_5px_0_var(--color-gdg-green)]"];
@@ -40,10 +41,10 @@ export function Sponsors() {
           <span className="flex-1 bg-gdg-blue" /><span className="flex-1 bg-gdg-red" /><span className="flex-1 bg-gdg-yellow" /><span className="flex-1 bg-gdg-green" />
         </div>
         <p className="mt-4 max-w-xl font-type text-paper-dim">
-          Twenty-four hours is a long cook. These are the people keeping the lab fed.
+          No big backers for {EVENT.chapter}. Just two kitchens keeping the lab fed for twenty-four hours.
         </p>
 
-        <ul className={`mt-14 grid gap-6 sm:grid-cols-2 ${SUPPLIERS.length > 2 ? "lg:grid-cols-3" : "max-w-3xl"}`}>
+        <ul className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {SUPPLIERS.map((s, i) => (
             <motion.li
               key={`${s.number}-${s.name}`}
@@ -66,6 +67,20 @@ export function Sponsors() {
               </div>
             </motion.li>
           ))}
+          {/* the pitch for next time: an empty, dashed card waiting for a name */}
+          <motion.li
+            initial={still ? false : { opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{ duration: 0.5, delay: SUPPLIERS.length * 0.12, ease: "easeOut" }}
+            className="h-36 border-[3px] border-dashed border-paper/50 transition-colors hover:border-crystal hover:bg-paper/5"
+          >
+            <a href={`mailto:${CLUB.email}?subject=${encodeURIComponent("Backing Breaking Bytes: Chapter 2")}`} className="flex h-full flex-col items-center justify-center px-4 text-center">
+              <span className="font-display text-3xl leading-none text-paper/80">?</span>
+              <span className="mt-2 font-type text-base uppercase tracking-wider">Back Chapter 2</span>
+              <span className="mt-1 font-type text-xs text-paper-dim">Your name here next time. Talk to us →</span>
+            </a>
+          </motion.li>
         </ul>
 
       </div>

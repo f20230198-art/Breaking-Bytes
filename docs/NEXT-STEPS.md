@@ -1,5 +1,14 @@
 # What's left (as of 2026-10-20)
 
+## 0. Chapter 1 (2026-11-11): the company sponsors backed out
+- No supplier step any more: problems stand alone, grouped by **Domain** (the Track field); at the drop the leader
+  locks one in. Prizes AED 1,000 (500/300/200), open to everyone. Food sponsors: Sam's Burger, Bubee Drinks Cafe.
+- To ship: push the code, then `npx supabase db push` (admin-allowlist fix, problems without suppliers, and the
+  Chapter 1 content: sponsors, prizes, FAQ). Then Admin → Sponsors: upload the two logos.
+- Admin → Problems: enter the statements (Code, Title, Domain, Summary, Full statement, Judging criteria), tick
+  Published. Admin → Event: set every time (Problems drop, Dead Drop opens, Deadline, Rosters freeze).
+- Before the day: accept crews (Admin → Crews → Accept all pending). On the day: Open the full portal.
+
 Everything is built and tested: landing page (+ loader, FAQ pool, finale, easter eggs), hacker dashboard,
 admin panel, Supabase backend (RLS, RPCs, 60 pgTAP tests), 404 / share image / robots / sitemap / security.txt /
 security headers, and a security review (see `SECURITY.md`). What remains:

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { nextMilestone, passed, useLab } from "@/components/dashboard/LabProvider";
+import { nextMilestone, useLab } from "@/components/dashboard/LabProvider";
 import { Card, Kicker, Stamp, Title } from "@/components/dashboard/ui";
 import { Countdown } from "@/components/ui/Countdown";
 import { supabaseBrowser } from "@/lib/supabase/client";
@@ -28,8 +28,7 @@ export function Overview() {
   const next = nextMilestone(cfg, t);
   const steps = [
     { done: !!crew, label: "Crew formed", href: "/dashboard/crew" },
-    { done: !!crew?.sponsor_id, label: "Supplier picked", href: "/dashboard/formula" },
-    { done: !!crew?.problem_id || (passed(cfg.problems_release_at, t) && !!crew?.sponsor_id), label: "Problem revealed", href: "/dashboard/formula" },
+    { done: !!crew?.problem_id, label: "Problem locked in", href: "/dashboard/formula" },
     { done: shipped, label: "Links submitted", href: "/dashboard/submit" },
   ];
 

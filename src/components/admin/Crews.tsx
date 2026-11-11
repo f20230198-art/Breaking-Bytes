@@ -18,7 +18,6 @@ const REG_TONE: Record<Reg, string> = { pending: "text-hazmat", accepted: "text-
 /** Every crew with roster and submission; the pre-registration review (accept / waitlist), fix-ups and the CSV export. */
 export function AdminCrews() {
   const [rows, setRows] = useState<CrewRow[] | null>(null);
-  const [sponsors, setSponsors] = useState<Opt[]>([]);
   const [problems, setProblems] = useState<(Opt & { sponsor_id: string })[]>([]);
   const [q, setQ] = useState("");
   const [onlySubmitted, setOnlySubmitted] = useState(false);
@@ -28,16 +27,14 @@ export function AdminCrews() {
 
   const load = useCallback(async () => {
     const db = adminDb();
-    const [c, s, p, cfg] = await Promise.all([
+    const [c, p, cfg] = await Promise.all([
       db.rpc("admin_crews"),
-      db.from("sponsors").select("id, name").eq("is_supplier", true).order("sort_order"),
       db.from("problems").select("id, title, sponsor_id").order("id"),
       db.from("event_config").select("seat_cap").eq("id", 1).single(),
     ]);
     setSeats(cfg.data?.seat_cap ?? null);
     if (c.error) setError(c.error.message);
     setRows((c.data as CrewRow[]) ?? []);
-    setSponsors((s.data as Opt[]) ?? []);
     setProblems(((p.data ?? []) as { id: string; title: string; sponsor_id: string }[]).map((x) => ({ id: x.id, name: `${x.id} · ${x.title}`, sponsor_id: x.sponsor_id })));
   }, []);
   useEffect(() => {
@@ -91,7 +88,7 @@ That makes ${after} accepted people, over the ${seats} seats.` : "";
 
   return (
     <div>
-      <H1 sub="Review pre-registrations (accept or waitlist), rename, move people, reassign suppliers or problems, disqualify. Every change is in the audit log.">Crews</H1>
+      <H1 sub="Review pre-registrations (accept or waitlist), rename, move people, reassign problems, disqualify. Every change is in the audit log.">Crews</H1>
       <p className="mb-4 text-sm">
         <span className="text-crystal">{heads.accepted}{seats ? ` / ${seats}` : ""} seats accepted</span>
         <span className="text-paper-dim"> · {heads.pending} people pending · {heads.waitlisted} waitlisted</span>
@@ -119,7 +116,7 @@ That makes ${after} accepted people, over the ${seats} seats.` : "";
               <span className="text-crystal">{r.invite_code}</span>
               <span className={REG_TONE[r.registration_status]}>{REG_LABEL[r.registration_status]}</span>
               <span className="text-paper-dim">{r.members.length} cooks · {r.category}</span>
-              <span className="text-paper-dim">{r.sponsor ?? "no supplier"} · {r.problem_id ?? "no problem"}</span>
+              <span className="text-paper-dim">{r.problem_id ?? "no problem"}</span>
               {r.status === "disqualified" && <span className="text-siren">disqualified</span>}
               {r.submitted_at && (r.repo_url || r.live_url || r.video_url) ? <span className={r.late ? "text-siren" : "text-crystal"}>submitted {gulf(r.submitted_at)}{r.late ? " (late)" : ""}</span> : null}
             </summary>
@@ -163,14 +160,6 @@ That makes ${after} accepted people, over the ${seats} seats.` : "";
                   </Btn>
                   <Btn tone="danger" onClick={() => run(teams().delete().eq("id", r.id), `Delete ${r.name} and its submission? Members become crewless.`)}>Delete crew</Btn>
                 </div>
-                <label className="block">
-                  <span className="text-xs uppercase tracking-wider text-paper-dim">Supplier</span>
-                  <select className={`${inputCls} mt-1`} value={sponsors.find((s) => s.name === r.sponsor)?.id ?? ""}
-                    onChange={(e) => run(teams().update({ sponsor_id: e.target.value || null, problem_id: null }).eq("id", r.id))}>
-                    <option value="">—</option>
-                    {sponsors.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-                  </select>
-                </label>
                 <label className="block">
                   <span className="text-xs uppercase tracking-wider text-paper-dim">Problem</span>
                   <select className={`${inputCls} mt-1`} value={r.problem_id ?? ""} onChange={(e) => run(teams().update({ problem_id: e.target.value || null }).eq("id", r.id))}>

@@ -335,6 +335,10 @@ export function HeroStage({ progress, onLens }: { progress: MotionValue<number>;
         <p className="mt-3 bg-ink/85 px-3 py-1 text-center font-type text-[clamp(0.75rem,0.95vw,1.05rem)] uppercase tracking-[0.3em] text-paper">
           {EVENT.hours} hours · {EVENT.venue}
         </p>
+        {/* Chapter 1: the first batch, stamped on like a case-file label */}
+        <p className="mt-4 -rotate-2 border-[3px] border-ink bg-brick px-3 py-1 font-stencil text-[clamp(0.85rem,1.1vw,1.25rem)] font-bold uppercase tracking-[0.3em] text-paper shadow-[3px_3px_0_var(--color-ink)]">
+          {EVENT.chapter} · {EVENT.chapterLine}
+        </p>
       </motion.div>
       </div>
 

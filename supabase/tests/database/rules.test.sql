@@ -1,7 +1,7 @@
 -- The server-side rules, tested as real users. Run with: npx supabase test db
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(102);
+select plan(104);
 
 -- start from a clean slate, whatever is in the local database (all inside this transaction, rolled back at the end)
 delete from public.admin_emails;
@@ -32,6 +32,8 @@ select id::text, id, 'google', jsonb_build_object('sub', id::text, 'email', emai
 update public.profiles set github_url = 'https://github.com/' || split_part(email, '@', 1),
   linkedin_url = 'https://www.linkedin.com/in/' || split_part(email, '@', 1) where email <> 'hank@gmail.com';
 
+-- the old supplier step is retired (Chapter 1 hid the company sponsors) but pick_supplier still exists: test it with them back on
+update public.sponsors set is_supplier = true, visible = true where name in ('Deriv', '.zero', 'Replit');
 -- everyone signs in mid-event: suppliers open, problems still sealed, Dead Drop not open yet
 update public.event_config set registration_open = true, team_max = 3, supplier_cap_slack = 0,
   supplier_pick_at = now() - interval '1 hour', problems_release_at = now() + interval '1 hour',
@@ -170,8 +172,16 @@ set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}', true);
 select is((select count(*)::int from public.problems), 3, 'problems unseal at the drop');
 select throws_ok($$ select public.pick_supplier((select id from public.sponsors where name = '.zero')) $$, 'P0001', 'supplier_window_closed', 'suppliers are fixed once problems drop');
-select throws_ok($$ select public.lock_problem('Z-001') $$, 'P0001', 'wrong_supplier', 'only your supplier''s problems');
-select lives_ok($$ select public.lock_problem('D-001') $$, 'the leader locks Deriv''s problem');
+-- Chapter 1: no supplier step, so any published problem can be locked, whatever (if anything) the crew picked
+select lives_ok($$ select public.lock_problem('Z-001') $$, 'the leader locks a problem from outside the picked supplier');
+select throws_ok($$ select public.lock_problem('D-001') $$, 'P0001', 'problem_already_locked', 'one problem per crew');
+reset role;
+insert into public.problems (id, title, track, is_published) values ('O-001', 'A problem with no sponsor', 'Open', true);
+set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000f","role":"authenticated"}', true);
+select lives_ok($$ select public.lock_problem('O-001') $$, 'a crew that never picked a supplier locks a sponsor-less problem');
+select is((select problem_id from public.teams where name = 'Salamanca'), 'O-001', 'and it is recorded on the crew');
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}', true);
 select throws_ok($$ select public.upsert_submission('http://github.com/x', null, null) $$, 'P0001', 'bad_url', 'links must be https');
 select throws_ok($$ select public.upsert_submission('javascript:alert(1)', null, null) $$, 'P0001', 'bad_url', 'no javascript: links');
 

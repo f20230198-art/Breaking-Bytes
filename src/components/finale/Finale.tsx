@@ -44,7 +44,10 @@ export function Finale() {
             </a>
             <PeriodicTitle as="p" className="text-[clamp(1.9rem,4vw,3.4rem)]" />
           </motion.div>
-          <motion.p {...rise(0.1)} className="mt-5 font-type text-xs uppercase sm:mt-6 sm:text-sm tracking-[0.25em] text-paper-dim">
+          <motion.p {...rise(0.05)} className="mt-4 font-stencil text-sm font-bold uppercase tracking-[0.3em] text-hazmat sm:text-base">
+            {EVENT.chapter} · {EVENT.chapterLine}. <span className="text-paper-dim">To be continued…</span>
+          </motion.p>
+          <motion.p {...rise(0.1)} className="mt-3 font-type text-xs uppercase sm:mt-4 sm:text-sm tracking-[0.25em] text-paper-dim">
             Presented by <span className="text-paper">{CLUB.name}</span>
           </motion.p>
           <motion.p {...rise(0.15)} className="mt-2 max-w-md font-type text-sm text-paper-dim sm:text-base">

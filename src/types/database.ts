@@ -157,14 +157,14 @@ isOneToOne: false
                   ]
                 },"problems": {
                   Row: {
-                    "body_md": string,"capacity": number | null,"created_at": string,"criteria_md": string,"id": string,"is_published": boolean,"sponsor_id": string,"summary": string,"title": string,"track": string | null
+                    "body_md": string,"capacity": number | null,"created_at": string,"criteria_md": string,"id": string,"is_published": boolean,"sponsor_id": string | null,"summary": string,"title": string,"track": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "body_md"?: string,"capacity"?: number | null,"created_at"?: string,"criteria_md"?: string,"id": string,"is_published"?: boolean,"sponsor_id": string,"summary"?: string,"title": string,"track"?: string | null
+                    "body_md"?: string,"capacity"?: number | null,"created_at"?: string,"criteria_md"?: string,"id": string,"is_published"?: boolean,"sponsor_id"?: string | null,"summary"?: string,"title": string,"track"?: string | null
                   }
                   Update: {
-                    "body_md"?: string,"capacity"?: number | null,"created_at"?: string,"criteria_md"?: string,"id"?: string,"is_published"?: boolean,"sponsor_id"?: string,"summary"?: string,"title"?: string,"track"?: string | null
+                    "body_md"?: string,"capacity"?: number | null,"created_at"?: string,"criteria_md"?: string,"id"?: string,"is_published"?: boolean,"sponsor_id"?: string | null,"summary"?: string,"title"?: string,"track"?: string | null
                   }
                   Relationships: [
                     {

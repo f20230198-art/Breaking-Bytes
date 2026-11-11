@@ -8,15 +8,15 @@ const specialElite = Special_Elite({ variable: "--font-special-elite", weight: "
 const stencil = Stardos_Stencil({ variable: "--font-stardos", weight: ["400", "700"], subsets: ["latin"] });
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
 
-const description = "A 24-hour underground hackathon by GDG on Campus BITS Pilani Dubai. Assemble your crew, pick your supplier, cook something 99.1% pure.";
+const description = "A 24-hour underground hackathon by GDG on Campus BITS Pilani Dubai. Chapter 1. Assemble your crew, pick your problem, cook something 99.1% pure.";
 
 export const metadata: Metadata = {
   // absolute URLs for the share image (opengraph-image.jpg / twitter-image.jpg next to this file)
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
-  title: "Breaking Bytes — The Underground Hackathon",
+  title: "Breaking Bytes: Chapter 1 — The Underground Hackathon",
   description,
-  openGraph: { title: "Breaking Bytes — The Underground Hackathon", description, type: "website", siteName: "Breaking Bytes" },
-  twitter: { card: "summary_large_image", title: "Breaking Bytes", description },
+  openGraph: { title: "Breaking Bytes: Chapter 1 — The Underground Hackathon", description, type: "website", siteName: "Breaking Bytes" },
+  twitter: { card: "summary_large_image", title: "Breaking Bytes: Chapter 1", description },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

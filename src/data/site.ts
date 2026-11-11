@@ -24,6 +24,9 @@ export const CLUB = {
 export const EVENT = {
   name: "Breaking Bytes",
   tagline: "The Underground Hackathon",
+  /** No big sponsors this year: the first batch, pitched as the start of a series. */
+  chapter: "Chapter 1",
+  chapterLine: "The First Batch",
   // TODO(admin): confirm the start time. Moved to 16–17 Nov (2026-10-20), 12:00 → 12:00 Gulf time (UTC+4).
   startsAt: "2026-11-16T08:00:00Z",
   dates: "16–17 Nov 2026",
@@ -77,14 +80,21 @@ export const TRACKS = [
   { symbol: "?", number: 3, name: "Domain 3" },
 ];
 
-/** Sponsors (food only for now): entered in /admin → Sponsors. Nothing is shown until there is a real one. */
-export const SUPPLIERS: { symbol: string; name: string; number: number; track: string }[] = [];
+/** Chapter 1's food sponsors (the live list is in /admin → Sponsors; this is only the offline fallback). */
+export const SUPPLIERS: { symbol: string; name: string; number: number; track: string; logo?: string }[] = [
+  { symbol: "Sb", name: "Sam's Burger", number: 1, track: "food" },
+  { symbol: "Bu", name: "Bubee Drinks Cafe", number: 2, track: "food" },
+];
 
 export const FAQS = [
+  {
+    q: 'Why "Chapter 1"?',
+    a: "Because every empire starts in an RV. This is the first Breaking Bytes: no big backers, a small cash pot, 24 hours and whoever shows up to cook. Chapter 2 is already being written.",
+  },
   { q: "Who can join?", a: "Anyone who can cook code. Students, grads, professionals. Crews of 1–4." },
   { q: "Does it cost anything?", a: "No. Free to enter, and our food sponsors keep you fed." },
   { q: "Can I bring pre-built code?", a: "No pre-cooked repos. Libraries and boilerplate are fine; the product must be built during the 24 hours." },
-  { q: "When do problems drop?", a: "Problem statements unseal at 12:00 sharp, for everyone at once." },
+  { q: "When do problems drop?", a: "Problem statements unseal at 12:00 sharp, for everyone at once. Your leader locks one in for the crew." },
   { q: "What do I submit?", a: "GitHub repo, a live link, and a short demo video — before the timer hits zero." },
 ];
 

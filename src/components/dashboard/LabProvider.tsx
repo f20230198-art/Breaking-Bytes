@@ -49,7 +49,7 @@ export function LabProvider({ children }: { children: ReactNode }) {
     if (!state) return;
     const now = Date.now() + state.offset;
     const c = state.cfg;
-    const due = [c.starts_at, c.supplier_pick_at, c.problems_release_at, c.roster_lock_at, c.submissions_open_at, c.deadline_at]
+    const due = [c.starts_at, c.problems_release_at, c.roster_lock_at, c.submissions_open_at, c.deadline_at]
       .map((at) => (at ? new Date(at).getTime() - now : -1))
       .filter((ms) => ms > 0);
     if (!due.length) return;
@@ -131,7 +131,6 @@ export function LabProvider({ children }: { children: ReactNode }) {
 /** The milestones in order, with what the countdown should say before each one. */
 export function milestones(cfg: EventConfig) {
   return [
-    { at: cfg.supplier_pick_at, label: "Suppliers open in" },
     { at: cfg.problems_release_at, label: "Problems drop in" },
     { at: cfg.submissions_open_at, label: "Dead Drop opens in" },
     { at: cfg.deadline_at, label: "Cook stops in", deadline: true },

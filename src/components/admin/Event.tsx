@@ -7,7 +7,6 @@ import { Btn, ErrorLine, H1, adminDb, fromGulfInput, gulf, inputCls, toGulfInput
 type Cfg = Tables<"event_config">;
 const TIMES: [keyof Cfg, string][] = [
   ["starts_at", "The cook starts"],
-  ["supplier_pick_at", "Supplier pick opens"],
   ["problems_release_at", "Problems drop"],
   ["roster_lock_at", "Rosters freeze"],
   ["submissions_open_at", "Dead Drop opens"],
@@ -36,9 +35,9 @@ export function AdminEvent() {
     e.preventDefault();
     // everything editable on this form (id and updated_at are the database's)
     void patch({
-      registration_open: cfg.registration_open, starts_at: cfg.starts_at, supplier_pick_at: cfg.supplier_pick_at,
+      registration_open: cfg.registration_open, starts_at: cfg.starts_at, supplier_pick_at: null, // no supplier step in Chapter 1
       problems_release_at: cfg.problems_release_at, roster_lock_at: cfg.roster_lock_at, submissions_open_at: cfg.submissions_open_at,
-      deadline_at: cfg.deadline_at, team_max: cfg.team_max, supplier_cap_slack: cfg.supplier_cap_slack, prize_pool_aed: cfg.prize_pool_aed,
+      deadline_at: cfg.deadline_at, team_max: cfg.team_max, prize_pool_aed: cfg.prize_pool_aed,
       seat_cap: cfg.seat_cap,
     });
   };
@@ -71,7 +70,7 @@ export function AdminEvent() {
             <span className="mt-0.5 block text-xs text-paper-dim">{gulf(cfg[k] as string | null)}</span>
           </label>
         ))}
-        {([["team_max", "Max crew size"], ["seat_cap", "Seats in the hall (people)"], ["supplier_cap_slack", "Supplier cap slack (+ crews)"], ["prize_pool_aed", "Prize pool (AED)"]] as const).map(([k, label]) => (
+        {([["team_max", "Max crew size"], ["seat_cap", "Seats in the hall (people)"], ["prize_pool_aed", "Prize pool (AED)"]] as const).map(([k, label]) => (
           <label key={k} className="text-sm">
             <span className="text-xs uppercase tracking-wider text-paper-dim">{label}</span>
             <input type="number" className={`${inputCls} mt-1`} value={cfg[k] ?? ""} onChange={(e) => setCfg({ ...cfg, [k]: e.target.value === "" ? null : Number(e.target.value) })} />

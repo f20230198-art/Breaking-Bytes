@@ -23,7 +23,6 @@ const MESSAGES: Record<string, string> = {
   supplier_full: "That supplier is full. Pick another one.",
   problems_sealed: "Problem statements haven't dropped yet.",
   no_such_problem: "That problem doesn't exist.",
-  wrong_supplier: "Pick a problem from your own supplier.",
   problem_full: "That problem is full.",
   problem_already_locked: "Your crew has already locked a problem.",
   submissions_closed: "The Dead Drop is closed.",

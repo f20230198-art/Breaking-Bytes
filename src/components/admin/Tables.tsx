@@ -26,7 +26,6 @@ export function AdminSponsors() {
     { key: "name", label: "Name", required: true },
     { key: "symbol", label: "Symbol (Dv)", placeholder: "Two letters, e.g. Dv", nullable: true },
     { key: "tier", label: "Tier", type: "select", required: true, options: opts(["title", "track", "food", "perk"]) },
-    { key: "is_supplier", label: "Supplier (crews pick it)", type: "bool" },
     { key: "website", label: "Website", placeholder: "https://…", nullable: true },
     { key: "sort_order", label: "Order", type: "number" },
     { key: "visible", label: "Visible", type: "bool" },
@@ -40,10 +39,10 @@ export function AdminSponsors() {
 
   return (
     <div>
-      <H1 sub="Suppliers are the companies crews pick and that set problem statements. Logos: PNG/WebP/JPEG up to 2 MB (no SVG).">Sponsors</H1>
+      <H1 sub="Shown on the landing page as our food sponsors (set Tier to food). Logos: PNG/WebP/JPEG up to 2 MB (no SVG).">Sponsors</H1>
       <ErrorLine text={error} />
       <TableEditor table="sponsors" cols={cols}
-        order={[["sort_order"], ["name"]]} defaults={{ tier: "track", visible: true, is_supplier: true, sort_order: 0 }}
+        order={[["sort_order"], ["name"]]} defaults={{ tier: "food", visible: true, is_supplier: false, sort_order: 0 }}
         extra={(r, reload) => (
           <label className="inline-block cursor-pointer rounded border border-paper/25 px-3 py-1.5 text-sm hover:bg-paper/10">
             Upload logo
@@ -67,15 +66,13 @@ async function uploadLogo(sponsorId: string, file: File) {
 
 // ─── problems ─────────────────────────────────────────────────────────────────────────────────────────────────
 export function AdminProblems() {
-  const sponsors = useOptions("sponsors", "name", ["is_supplier", true]);
   return (
     <div>
-      <H1 sub="Hidden from crews until the drop time, and only if published. Text is shown as plain text (no HTML).">Problems</H1>
+      <H1 sub="Hidden from crews until the drop time, and only if published. Crews see them grouped by Domain; the leader locks one in. Text is shown as plain text (no HTML).">Problems</H1>
       <TableEditor table="problems" order={[["id"]]} defaults={{ is_published: false, summary: "", body_md: "", criteria_md: "" }} cols={[
         { key: "id", label: "Code (D-001)", required: true, createOnly: true, placeholder: "D-001" },
-        { key: "sponsor_id", label: "Supplier", type: "select", required: true, options: sponsors },
         { key: "title", label: "Title", required: true },
-        { key: "track", label: "Track", nullable: true },
+        { key: "track", label: "Domain", nullable: true, placeholder: "e.g. AI / ML" },
         { key: "capacity", label: "Max crews (blank = no cap)", type: "number" },
         { key: "is_published", label: "Published", type: "bool" },
         { key: "summary", label: "Summary", type: "textarea", formOnly: true },

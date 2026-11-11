@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { passed, useLab } from "@/components/dashboard/LabProvider";
 import { Button, Card, Kicker, Notice, Stamp, Title } from "@/components/dashboard/ui";
 import { Countdown } from "@/components/ui/Countdown";
@@ -9,12 +9,11 @@ import { rpcMessage } from "@/lib/rpcErrors";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import type { Tables } from "@/types/database";
 
-type Slot = { sponsor_id: string; name: string; symbol: string | null; logo_path: string | null; taken: number; cap: number };
 type Problem = Tables<"problems">;
 
 /**
- * The Formula. 10:00–12:00 the leader picks a supplier (capped so crews spread evenly); at 12:00 the problem
- * statements unseal (the database won't return them a second earlier) and the leader locks one in.
+ * The Formula. Chapter 1 has no company sponsors, so there is no supplier step: the problem statements unseal at the
+ * drop (the database won't return them a second earlier), grouped by domain, and the leader locks one in.
  */
 export function FormulaPage() {
   const { crew, cfg, offset, now } = useLab();
@@ -25,88 +24,23 @@ export function FormulaPage() {
       <Card className="max-w-xl">
         <Kicker>The formula</Kicker>
         <Title>Find a crew first.</Title>
-        <p className="mt-2 font-type text-sm">Suppliers and problems are picked per crew.</p>
+        <p className="mt-2 font-type text-sm">Problems are picked per crew.</p>
         <Link href="/dashboard/crew" className="mt-4 inline-block font-display text-sm uppercase underline underline-offset-4">Go to Crew →</Link>
       </Card>
     );
 
   if (passed(cfg.problems_release_at, t)) return <Dossier />;
-  if (!passed(cfg.supplier_pick_at, t))
-    return (
-      <Card tone="ink" className="max-w-xl">
-        <Kicker className="text-rust">The formula</Kicker>
-        <Title>Suppliers aren&apos;t taking crews yet.</Title>
-        {cfg.supplier_pick_at && <div className="mt-4"><Countdown to={cfg.supplier_pick_at} offsetMs={offset} label="Suppliers open in" /></div>}
-      </Card>
-    );
-  return <Suppliers />;
-}
-
-function Suppliers() {
-  const { crew, cfg, isLeader, offset, reload } = useLab();
-  const [slots, setSlots] = useState<Slot[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
-
-  const fetchSlots = useCallback(async () => {
-    const { data } = await supabaseBrowser().rpc("supplier_slots");
-    setSlots((data as Slot[]) ?? []);
-  }, []);
-  useEffect(() => {
-    void (async () => fetchSlots())();
-    const id = setInterval(() => void fetchSlots(), 15000); // slots fill up as other crews pick; a poll is plenty
-    return () => clearInterval(id);
-  }, [fetchSlots]);
-
-  const pick = async (id: string) => {
-    setBusy(true); setError(null);
-    const { error } = await supabaseBrowser().rpc("pick_supplier", { p_sponsor: id });
-    setBusy(false);
-    if (error) setError(rpcMessage(error));
-    await Promise.all([reload(), fetchSlots()]);
-  };
-
   return (
-    <div>
-      <Kicker className="text-rust">The formula · step 1</Kicker>
-      <h1 className="mt-1 font-display text-3xl sm:text-4xl">Pick your supplier.</h1>
-      <p className="mt-2 max-w-xl font-type text-paper-dim">
-        Each company sets the problem your crew will cook. Slots are capped so crews spread out evenly.
-        {isLeader ? " You can switch until the drop." : " Only your leader can pick."}
+    <Card tone="ink" className="max-w-xl">
+      <Kicker className="text-rust">The formula</Kicker>
+      <Title>The dossier is still sealed.</Title>
+      <p className="mt-2 font-type text-sm text-paper-dim">
+        Every problem statement unseals at once, for every crew. Your leader then locks one in: one problem per crew, no switching after.
       </p>
-      {cfg.problems_release_at && (
-        <p className="mt-2 font-type text-sm text-paper-dim">
-          Problems drop in <Countdown to={cfg.problems_release_at} offsetMs={offset} compact label="Problems drop in" />
-        </p>
-      )}
-      {error && <div className="max-w-xl"><Notice>{error}</Notice></div>}
-      <ul className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {(slots ?? []).map((s) => {
-          const mine = crew?.sponsor_id === s.sponsor_id;
-          const full = s.taken >= s.cap && !mine;
-          return (
-            <li key={s.sponsor_id}>
-              <Card className={`h-full ${mine ? "shadow-[6px_6px_0_var(--color-crystal)]" : ""} ${full ? "opacity-60" : ""}`}>
-                <div className="flex items-start justify-between">
-                  <span className="font-display text-5xl leading-none">{s.symbol ?? s.name.slice(0, 2)}</span>
-                  {mine && <Stamp tone="olive">Yours</Stamp>}
-                  {full && <Stamp>Full</Stamp>}
-                </div>
-                <p className="mt-2 font-type uppercase tracking-wider">{s.name}</p>
-                <div className="mt-4 h-2 border-2 border-ink" aria-hidden>
-                  <div className="h-full bg-brick" style={{ width: `${Math.min(100, (s.taken / Math.max(1, s.cap)) * 100)}%` }} />
-                </div>
-                <p className="mt-1 font-type text-xs text-ink/70">{Math.max(0, s.cap - s.taken)} of {s.cap} slots left</p>
-                {isLeader && !mine && (
-                  <Button className="mt-4" disabled={busy || full} onClick={() => pick(s.sponsor_id)}>Pick {s.name}</Button>
-                )}
-              </Card>
-            </li>
-          );
-        })}
-      </ul>
-      {slots?.length === 0 && <p className="mt-6 font-type text-paper-dim">No suppliers are listed yet.</p>}
-    </div>
+      {cfg.problems_release_at
+        ? <div className="mt-4"><Countdown to={cfg.problems_release_at} offsetMs={offset} label="Problems drop in" /></div>
+        : <p className="mt-4 font-type text-sm text-paper-dim">The drop time will be announced.</p>}
+    </Card>
   );
 }
 
@@ -117,19 +51,19 @@ function Dossier() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (!crew?.sponsor_id) return;
-    void supabaseBrowser().from("problems").select("*").eq("sponsor_id", crew.sponsor_id).order("id")
+    // RLS only returns published problems once the drop has passed
+    void supabaseBrowser().from("problems").select("*").order("track").order("id")
       .then(({ data }) => setProblems(data ?? []));
-  }, [crew?.sponsor_id]);
+  }, []);
+  if (!crew) return null;
 
-  if (!crew?.sponsor_id)
-    return (
-      <Card className="max-w-xl">
-        <Kicker>The formula</Kicker>
-        <Title>Your crew didn&apos;t pick a supplier.</Title>
-        <p className="mt-2 font-type text-sm">Find an organiser: they can assign one to your crew.</p>
-      </Card>
-    );
+  // grouped by domain (the problem's track), in first-seen order; untracked ones go under "Open"
+  const domains = new Map<string, Problem[]>();
+  for (const p of problems ?? []) {
+    const d = p.track?.trim() || "Open";
+    domains.set(d, [...(domains.get(d) ?? []), p]);
+  }
+  const locked = problems?.find((p) => p.id === crew.problem_id);
 
   const lock = async (id: string) => {
     if (!window.confirm("Lock this problem in? This can't be undone.")) return;
@@ -145,17 +79,32 @@ function Dossier() {
       <div>
         <Kicker className="text-rust">The formula · unsealed</Kicker>
         <h1 className="mt-1 font-display text-3xl sm:text-4xl">The dossier is open.</h1>
+        <p className="mt-2 max-w-xl font-type text-paper-dim">
+          {locked ? `Your crew is cooking ${locked.id} · ${locked.title}.`
+            : isLeader ? "Read them all, then lock one in for your crew. One problem per crew, and it can't be changed."
+            : "Read them all. Your leader locks one in for the crew."}
+        </p>
+        {domains.size > 1 && (
+          <nav className="mt-3 flex flex-wrap gap-2" aria-label="Domains">
+            {[...domains.keys()].map((d) => (
+              <a key={d} href={`#domain-${slug(d)}`} className="border-2 border-paper/40 px-2 py-0.5 font-type text-xs uppercase tracking-wider hover:bg-paper hover:text-ink">{d}</a>
+            ))}
+          </nav>
+        )}
       </div>
       {error && <div className="max-w-xl"><Notice>{error}</Notice></div>}
       {problems === null && <p className="font-type text-paper-dim">Opening the folder…</p>}
-      {problems?.length === 0 && <p className="font-type text-paper-dim">Your supplier hasn&apos;t published a problem yet. Hold tight.</p>}
-      {problems?.map((p) => {
+      {problems?.length === 0 && <p className="font-type text-paper-dim">No problems are published yet. Hold tight, and refresh in a minute.</p>}
+      {[...domains].map(([domain, list]) => (
+        <section key={domain} id={`domain-${slug(domain)}`} className="scroll-mt-24 space-y-4">
+          <h2 className="font-display text-xl uppercase tracking-wider text-paper">{domain}</h2>
+      {list.map((p) => {
         const mine = crew.problem_id === p.id;
         return (
           <Card key={p.id} className={mine ? "shadow-[6px_6px_0_var(--color-crystal)]" : ""}>
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <Kicker>{p.id} · {p.track ?? "Open track"}</Kicker>
+                <Kicker>{p.id}{p.capacity ? ` · max ${p.capacity} crews` : ""}</Kicker>
                 <Title>{p.title}</Title>
               </div>
               {mine ? <Stamp tone="olive">Locked in</Stamp> : <Stamp>Classified</Stamp>}
@@ -173,6 +122,10 @@ function Dossier() {
           </Card>
         );
       })}
+        </section>
+      ))}
     </div>
   );
 }
+
+const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
