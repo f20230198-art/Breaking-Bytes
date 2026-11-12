@@ -34,7 +34,8 @@ export async function getSite(): Promise<Site> {
     });
     const [cfg, schedule, prizes, sponsors, faqs, domains] = await Promise.all([
       db.from("event_config").select("starts_at, deadline_at").eq("id", 1).single(),
-      db.from("schedule_items").select("*").order("sort_order"),
+      // in time order, so a row added later still lands in the right place on the fuse
+      db.from("schedule_items").select("*").order("day_offset").order("time_label").order("sort_order"),
       db.from("prize_board").select("*").eq("kind", "cash").order("rank"),
       db.from("sponsors").select("name, symbol, tier, logo_path").eq("visible", true).order("sort_order"),
       db.from("faqs").select("q, a").eq("visible", true).order("sort_order"),

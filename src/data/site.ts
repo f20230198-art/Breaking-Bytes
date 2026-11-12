@@ -27,8 +27,8 @@ export const EVENT = {
   /** No big sponsors this year: the first batch, pitched as the start of a series. */
   chapter: "Chapter 1",
   chapterLine: "The First Batch",
-  // TODO(admin): confirm the start time. Moved to 16–17 Nov (2026-10-20), 12:00 → 12:00 Gulf time (UTC+4).
-  startsAt: "2026-11-16T08:00:00Z",
+  // 16 Nov 10:00 → 17 Nov 10:00 Gulf time (UTC+4); the live clock is Admin → Event.
+  startsAt: "2026-11-16T06:00:00Z",
   dates: "16–17 Nov 2026",
   venue: "BITS Pilani, Dubai Campus",
   hours: 24,
@@ -45,11 +45,12 @@ export const EVENT = {
  * TODO(admin): tentative; confirm with the club.
  */
 export const SCHEDULE: { day: number; time: string; until?: string; title: string; note: string }[] = [
-  { day: 0, time: "10:00", title: "Registration opens", note: "Check in, grab your badge, find your crew." },
-  { day: 0, time: "12:00", title: "Problem statements drop", note: "Pick your problem. The 24-hour cook starts now." },
-  { day: 0, time: "12:00", until: "18:00", title: "Mentors on the floor", note: "Stuck? Flag one down. They're around all afternoon." },
+  { day: 0, time: "09:00", title: "Registration opens", note: "Check in, grab your badge, find your crew." },
+  { day: 0, time: "10:00", title: "Problem statements drop", note: "Problem statements unseal. The 24-hour cook starts now." },
+  { day: 0, time: "10:00", until: "18:00", title: "Mentors on the floor", note: "Stuck? Flag one down. They're around all afternoon." },
   { day: 0, time: "18:00", title: "Head home", note: "The venue closes. The cook doesn't." },
-  { day: 1, time: "12:00", title: "Cook stops", note: "Timer hits zero. Submissions lock." },
+  { day: 0, time: "23:59", title: "Crews freeze", note: "Last chance to join or change crews. Rosters lock at midnight." },
+  { day: 1, time: "10:00", title: "Cook stops", note: "Timer hits zero. Submissions lock." },
   { day: 1, time: "14:00", title: "Top 10% shortlisted", note: "The purest batches make the cut." },
   { day: 1, time: "15:00", title: "Judging", note: "Shortlisted crews demo to the judges." },
   { day: 1, time: "17:00", title: "Winners announced", note: "Somebody walks out with the cash." },
@@ -94,7 +95,7 @@ export const FAQS = [
   { q: "Who can join?", a: "Anyone who can cook code. Students, grads, professionals. Crews of 1–4." },
   { q: "Does it cost anything?", a: "No. Free to enter, and our food sponsors keep you fed." },
   { q: "Can I bring pre-built code?", a: "No pre-cooked repos. Libraries and boilerplate are fine; the product must be built during the 24 hours." },
-  { q: "When do problems drop?", a: "Problem statements unseal at 12:00 sharp, for everyone at once. Your leader locks one in for the crew." },
+  { q: "When do problems drop?", a: "Problem statements unseal at 10:00 sharp on day one, for everyone at once. Your leader locks one in for the crew." },
   { q: "What do I submit?", a: "GitHub repo, a live link, and a short demo video — before the timer hits zero." },
 ];
 
