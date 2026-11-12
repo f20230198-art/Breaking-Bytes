@@ -30,7 +30,8 @@ export const EVENT = {
   // 16 Nov 10:00 → 17 Nov 10:00 Gulf time (UTC+4); the live clock is Admin → Event.
   startsAt: "2026-11-16T06:00:00Z",
   dates: "16–17 Nov 2026",
-  venue: "BITS Pilani, Dubai Campus",
+  /** Chapter 1 is fully online; "Place, detail" (the Where card splits on the comma) */
+  venue: "Online, from anywhere",
   hours: 24,
   expectedCooks: 200,
   // TODO(admin): confirm eligibility with the club
@@ -41,14 +42,11 @@ export const EVENT = {
 
 /**
  * The run-of-show, read top to bottom along the fuse. `day` = days after the event date (0 = day one).
- * `until` marks a stretch rather than a moment. Times are local to the venue.
+ * `until` marks a stretch rather than a moment. Times are Gulf time (UTC+4).
  * TODO(admin): tentative; confirm with the club.
  */
 export const SCHEDULE: { day: number; time: string; until?: string; title: string; note: string }[] = [
-  { day: 0, time: "09:00", title: "Check-in", note: "Registered online? Show your ID at the door, grab your badge, find your crew." },
-  { day: 0, time: "10:00", title: "Problem statements drop", note: "Problem statements unseal. The 24-hour cook starts now." },
-  { day: 0, time: "10:00", until: "18:00", title: "Mentors on the floor", note: "Stuck? Flag one down. They're around all afternoon." },
-  { day: 0, time: "18:00", title: "Head home", note: "The venue closes. The cook doesn't." },
+  { day: 0, time: "10:00", title: "Problem statements drop", note: "Problem statements unseal in the lab. The 24-hour cook starts now, from wherever you are." },
   { day: 0, time: "23:59", title: "Crews freeze", note: "Last chance to join or change crews. Rosters lock at midnight." },
   { day: 1, time: "10:00", title: "Cook stops", note: "Timer hits zero. Submissions lock." },
   { day: 1, time: "14:00", title: "Top 10% shortlisted", note: "The purest batches make the cut." },
@@ -56,8 +54,8 @@ export const SCHEDULE: { day: number; time: string; until?: string; title: strin
   { day: 1, time: "17:00", title: "Winners announced", note: "Somebody walks out with the cash." },
 ];
 
-/** Always on, so it rides beside the fuse instead of taking a slot. */
-export const FOOD_NOTE = "Food stalls open all day";
+/** An always-on note pinned beside the fuse once per day; none for the online Chapter 1. */
+export const FOOD_NOTE: string | null = null;
 
 export const RULES = [
   "Crews of 1–4 cooks.",
@@ -93,7 +91,7 @@ export const FAQS = [
     a: "Because every empire starts in an RV. This is the first Breaking Bytes: no big backers, a small cash pot, 24 hours and whoever shows up to cook. Chapter 2 is already being written.",
   },
   { q: "Who can join?", a: "Anyone who can cook code. Students, grads, professionals. Crews of 1–4." },
-  { q: "Does it cost anything?", a: "No. Free to enter, and our food sponsors keep you fed." },
+  { q: "Does it cost anything?", a: "No. Free to enter, and you cook from wherever you are." },
   { q: "Can I bring pre-built code?", a: "No pre-cooked repos. Libraries and boilerplate are fine; the product must be built during the 24 hours." },
   { q: "When do problems drop?", a: "Problem statements unseal at 10:00 sharp on day one, for everyone at once. Your leader locks one in for the crew." },
   { q: "What do I submit?", a: "GitHub repo, a live link, and a short demo video — before the timer hits zero." },

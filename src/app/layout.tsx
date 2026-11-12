@@ -8,7 +8,7 @@ const specialElite = Special_Elite({ variable: "--font-special-elite", weight: "
 const stencil = Stardos_Stencil({ variable: "--font-stardos", weight: ["400", "700"], subsets: ["latin"] });
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
 
-const description = "A 24-hour underground hackathon by GDG on Campus BITS Pilani Dubai. Chapter 1. Assemble your crew, pick your problem, cook something 99.1% pure.";
+const description = "A 24-hour online underground hackathon by GDG on Campus BITS Pilani Dubai. Chapter 1. Assemble your crew, pick your problem, cook something 99.1% pure.";
 
 export const metadata: Metadata = {
   // absolute URLs for the share image (opengraph-image.jpg / twitter-image.jpg next to this file)

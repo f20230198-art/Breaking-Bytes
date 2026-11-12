@@ -58,7 +58,7 @@ export function AdminCrews() {
       (!s || r.name.toLowerCase().includes(s) || r.invite_code.toLowerCase().includes(s) || `${r.problem_id ?? ""} ${r.problem_title ?? ""}`.toLowerCase().includes(s) || r.members.some((m) => `${m.name} ${m.email}`.toLowerCase().includes(s))));
   }, [rows, q, onlySubmitted, reg]);
 
-  // people (not crews) per status: the hall's limit is a headcount
+  // people (not crews) per status: the participant limit is a headcount
   const heads = useMemo(() => {
     const n: Record<Reg, number> = { pending: 0, accepted: 0, waitlisted: 0 };
     for (const r of rows ?? []) if (r.status === "active") n[r.registration_status] += r.members.length;
@@ -91,10 +91,10 @@ That makes ${after} accepted people, over the ${seats} seats.` : "";
     <div>
       <H1 sub="Review pre-registrations (accept or waitlist), rename, move people, reassign problems, disqualify. Every change is in the audit log.">Crews</H1>
       <p className="mb-4 text-sm">
-        <span className="text-crystal">{heads.accepted}{seats ? ` / ${seats}` : ""} seats accepted</span>
+        <span className="text-crystal">{heads.accepted}{seats ? ` / ${seats}` : ""} people accepted</span>
         <span className="text-paper-dim"> · {heads.pending} people pending · {heads.waitlisted} waitlisted</span>
         {seats && heads.accepted > seats ? <span className="text-siren"> · over capacity by {heads.accepted - seats}</span> : null}
-        {!seats && <span className="text-paper-dim"> · set the hall&apos;s seats on the Event page</span>}
+        {!seats && <span className="text-paper-dim"> · set a participant limit on the Event page (optional)</span>}
       </p>
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <input className={`${inputCls} max-w-xs`} placeholder="Search crew, code, name, email, problem" value={q} onChange={(e) => setQ(e.target.value)} />

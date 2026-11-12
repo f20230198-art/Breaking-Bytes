@@ -41,7 +41,7 @@ export function ProfileForm({ initial, cta, onSaved }: { initial: Initial; cta: 
     <form onSubmit={save} className="space-y-4">
       <Field label="Your name" value={name} onChange={(e) => setName(e.target.value)} maxLength={60} required hint="What your crew and the organisers see." />
       <p className="border-2 border-dashed border-ink/30 p-3 font-type text-sm text-ink/80">
-        Seats are limited. Add your own LinkedIn and GitHub: both are required.
+        Spots are limited. Add your own LinkedIn and GitHub: both are required.
         <strong className="mt-2 block text-brick">
           We check every profile. Anyone who submits someone else&apos;s LinkedIn or GitHub, or one that doesn&apos;t match their name, will be banned.
         </strong>

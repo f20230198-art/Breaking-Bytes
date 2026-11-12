@@ -6,7 +6,7 @@ import { useState } from "react";
 import { safeNext } from "@/lib/safeNext";
 import { supabaseBrowser } from "@/lib/supabase/client";
 
-/** Google is the only door in. (University accounts are still detected as Jesse on the server; IDs are checked at the door.) */
+/** Google is the only door in. (University accounts are still detected as Jesse on the server; no prizes depend on it any more.) */
 export function LoginCard() {
   const params = useSearchParams();
   const [busy, setBusy] = useState(false);
@@ -25,7 +25,7 @@ export function LoginCard() {
       <p className="font-type text-xs uppercase tracking-[0.3em] text-brick">The lab · sign in</p>
       <h1 className="mt-2 font-display text-3xl leading-tight">Say my name.</h1>
       <p className="mt-3 font-type text-sm">
-        Sign in with Google, then start or join a crew. Students: bring your university ID on the day.
+        Sign in with Google, then start or join a crew. The whole cook is online.
       </p>
       {failed && <p className="mt-3 border-2 border-brick px-3 py-2 font-type text-sm text-brick">That didn&apos;t work. Try again.</p>}
       <button

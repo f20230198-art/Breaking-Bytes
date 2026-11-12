@@ -287,7 +287,7 @@ export function FuseTimeline() {
                   </div>
                 </button>
                 {/* food runs all day: a tag pinned in the free space beside the fuse, once per day */}
-                {newDay && (
+                {newDay && FOOD_NOTE && (
                   <p
                     className={`mt-4 inline-block rotate-2 border-2 border-ink bg-hazmat px-3 py-1 font-stencil text-xs font-bold uppercase tracking-wider text-ink shadow-[3px_3px_0_var(--color-ink)] sm:absolute sm:top-10 sm:mt-0 sm:whitespace-nowrap ${left ? "sm:left-[150%]" : "sm:right-[150%]"}`}
                   >

@@ -70,7 +70,7 @@ export function AdminEvent() {
             <span className="mt-0.5 block text-xs text-paper-dim">{gulf(cfg[k] as string | null)}</span>
           </label>
         ))}
-        {([["team_max", "Max crew size"], ["seat_cap", "Seats in the hall (people)"], ["prize_pool_aed", "Prize pool (AED)"]] as const).map(([k, label]) => (
+        {([["team_max", "Max crew size"], ["seat_cap", "Max participants (people, blank = no limit)"], ["prize_pool_aed", "Prize pool (AED)"]] as const).map(([k, label]) => (
           <label key={k} className="text-sm">
             <span className="text-xs uppercase tracking-wider text-paper-dim">{label}</span>
             <input type="number" className={`${inputCls} mt-1`} value={cfg[k] ?? ""} onChange={(e) => setCfg({ ...cfg, [k]: e.target.value === "" ? null : Number(e.target.value) })} />

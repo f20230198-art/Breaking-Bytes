@@ -33,7 +33,7 @@ export default function Onboarding() {
           <Kicker>First day in the lab</Kicker>
           <h1 className="mt-1 font-display text-3xl">Who&apos;s cooking?</h1>
           <p className="mt-3 font-type text-sm text-ink/80">
-            Tell us who you are, then start a crew or join one with a code. Students: bring your university ID on the day.
+            Tell us who you are, then start a crew or join one with a code.
           </p>
           <div className="mt-5">
             <ProfileForm initial={profileInitial(me)} cta="Enter the lab" onSaved={() => router.replace("/dashboard")} />

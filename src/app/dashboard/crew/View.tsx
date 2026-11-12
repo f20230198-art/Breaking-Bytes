@@ -144,7 +144,7 @@ function Roster({ crew }: { crew: Crew }) {
 
 // pre-registration: seats are limited, so the organisers review every crew
 const STATUS = {
-  pending: { stamp: "Under review", text: "You're registered. Seats are limited, so the organisers review every crew; this page updates when they decide. Teammates can still join with the code." },
+  pending: { stamp: "Under review", text: "You're registered. Spots are limited, so the organisers review every crew; this page updates when they decide. Teammates can still join with the code." },
   accepted: { stamp: "Accepted", text: "You're in. See you at the lab. Need to change who's in the crew? Talk to an organiser." },
   waitlisted: { stamp: "Waitlist", text: "The hall is full for now, so your crew is on the waitlist. We'll move you up if a seat opens." },
 } as const;
