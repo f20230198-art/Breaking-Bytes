@@ -66,7 +66,7 @@ function Stage({ p }: { p: MotionValue<number> }) {
   const all = prizes.map((z) => `${z.name} (${z.place}) AED ${z.amount}`).join(", ");
   return (
     <div className="absolute inset-0 bg-night text-paper">
-      <Scene scene="prizes-office" cases={OFFICE} p={op} still={still} kicker="Small batch · pure product" stamp="Open to everyone" note={`AED ${total.toLocaleString("en-US")} in cash`}>
+      <Scene scene="prizes-office" cases={OFFICE} p={op} still={still} kicker="Paid in full" stamp="Open to everyone" note={`AED ${total.toLocaleString("en-US")} in cash`}>
         <OfficeLights />
       </Scene>
       <h2 className="sr-only">Cash prizes, AED {total} in all: {all}</h2>

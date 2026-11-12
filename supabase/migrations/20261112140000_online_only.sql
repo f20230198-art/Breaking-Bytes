@@ -8,3 +8,5 @@ set detail = 'Problem statements unseal in the lab. The 24-hour cook starts now,
 where day_offset = 0 and title = 'Problem statements drop';
 update public.faqs set a = 'No. Free to enter, and you cook from wherever you are.'
 where q = 'Does it cost anything?' and a like '%food sponsors%';
+update public.faqs set a = 'Because every empire starts in an RV. This is the first Breaking Bytes, and Chapter 2 is already being written.'
+where q = 'Why "Chapter 1"?' and a like '%small cash pot%';

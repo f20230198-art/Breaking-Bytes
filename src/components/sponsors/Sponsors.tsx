@@ -31,17 +31,17 @@ export function Sponsors() {
       <div aria-hidden className="pointer-events-none absolute -left-40 top-10 size-[36rem] rounded-full bg-rust/15 blur-3xl" />
       <div aria-hidden className="pointer-events-none absolute -right-40 bottom-0 size-[32rem] rounded-full bg-crystal/10 blur-3xl" />
       <span aria-hidden className="pointer-events-none absolute -right-6 top-16 select-none font-stencil text-[22vw] leading-none text-paper/[0.04] md:text-[16vw]">
-        CASH
+        SUPPLY
       </span>
       </div>
       <div className="relative mx-auto max-w-5xl">
-        <p className="font-type text-sm uppercase tracking-[0.3em] text-rust">Funding the cook</p>
-        <h2 className="mt-3 font-display text-4xl leading-none sm:text-6xl">Our sponsors</h2>
+        <p className="font-type text-sm uppercase tracking-[0.3em] text-rust">Supply chain</p>
+        <h2 className="mt-3 font-display text-4xl leading-none sm:text-6xl">Our suppliers</h2>
         <div aria-hidden className="mt-5 flex h-1.5 w-28">
           <span className="flex-1 bg-gdg-blue" /><span className="flex-1 bg-gdg-red" /><span className="flex-1 bg-gdg-yellow" /><span className="flex-1 bg-gdg-green" />
         </div>
         <p className="mt-4 max-w-xl font-type text-paper-dim">
-          No big backers for {EVENT.chapter}. These two local kitchens put up the prize money.
+          Thank you to the suppliers backing {EVENT.chapter} of Breaking Bytes.
         </p>
 
         <ul className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -77,8 +77,8 @@ export function Sponsors() {
           >
             <a href={`mailto:${CLUB.email}?subject=${encodeURIComponent("Backing Breaking Bytes: Chapter 2")}`} className="flex h-full flex-col items-center justify-center px-4 text-center">
               <span className="font-display text-3xl leading-none text-paper/80">?</span>
-              <span className="mt-2 font-type text-base uppercase tracking-wider">Back Chapter 2</span>
-              <span className="mt-1 font-type text-xs text-paper-dim">Your name here next time. Talk to us →</span>
+              <span className="mt-2 font-type text-base uppercase tracking-wider">Supply Chapter 2</span>
+              <span className="mt-1 font-type text-xs text-paper-dim">Interested in sponsoring? Get in touch →</span>
             </a>
           </motion.li>
         </ul>

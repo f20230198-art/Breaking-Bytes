@@ -88,7 +88,7 @@ export const SUPPLIERS: { symbol: string; name: string; number: number; track: s
 export const FAQS = [
   {
     q: 'Why "Chapter 1"?',
-    a: "Because every empire starts in an RV. This is the first Breaking Bytes: no big backers, a small cash pot, 24 hours and whoever shows up to cook. Chapter 2 is already being written.",
+    a: "Because every empire starts in an RV. This is the first Breaking Bytes, and Chapter 2 is already being written.",
   },
   { q: "Who can join?", a: "Anyone who can cook code. Students, grads, professionals. Crews of 1–4." },
   { q: "Does it cost anything?", a: "No. Free to enter, and you cook from wherever you are." },
