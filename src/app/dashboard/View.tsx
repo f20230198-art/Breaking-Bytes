@@ -15,10 +15,18 @@ export function Overview() {
   const [news, setNews] = useState<Announcement[]>([]);
   const [shipped, setShipped] = useState(false);
 
+  // organisers' updates: on open and every minute after, so a tab left open during the cook still hears them
+  useEffect(() => {
+    const fetchNews = () =>
+      void supabaseBrowser().from("announcements").select("*").order("pinned", { ascending: false }).order("created_at", { ascending: false }).limit(5)
+        .then(({ data }) => { if (data) setNews(data); });
+    fetchNews();
+    const id = setInterval(fetchNews, 60_000);
+    return () => clearInterval(id);
+  }, []);
+
   useEffect(() => {
     const supabase = supabaseBrowser();
-    void supabase.from("announcements").select("*").order("pinned", { ascending: false }).order("created_at", { ascending: false }).limit(5)
-      .then(({ data }) => setNews(data ?? []));
     if (crew)
       void supabase.from("submissions").select("repo_url, live_url, video_url").eq("team_id", crew.id).maybeSingle()
         .then(({ data }) => setShipped(!!(data?.repo_url || data?.live_url || data?.video_url)));

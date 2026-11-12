@@ -2,7 +2,7 @@
 /* eslint-disable @next/next/no-img-element -- Google avatars, tiny */
 
 import { useEffect, useState, type FormEvent } from "react";
-import { useLab, type Crew, type Member } from "@/components/dashboard/LabProvider";
+import { portalOpen, useLab, type Crew, type Member } from "@/components/dashboard/LabProvider";
 import { Button, Card, Field, Kicker, Notice, Stamp, Title } from "@/components/dashboard/ui";
 import { rpcMessage } from "@/lib/rpcErrors";
 import { supabaseBrowser } from "@/lib/supabase/client";
@@ -67,9 +67,11 @@ function NoCrew() {
 }
 
 function Roster({ crew }: { crew: Crew }) {
-  const { me, cfg, isLeader, reload } = useLab();
+  const { me, cfg, isLeader, reload, now } = useLab();
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  // before the drop everyone sees where they stand; after it, only a crew that still can't compete
+  const showStatus = !portalOpen(cfg, now()) || crew.registration_status !== "accepted";
 
   // live roster: only this page holds a Realtime connection, and only while it's open (the Formula page polls instead). Any roster change touches the
   // crew's own row (roster_updated_at), so that one RLS-checked feed is enough. Someone taken off the crew can't see
@@ -106,10 +108,10 @@ function Roster({ crew }: { crew: Crew }) {
             <Kicker>Your crew</Kicker>
             <Title>{crew.name}</Title>
             <div className="mt-2 flex flex-wrap items-center gap-2">
-              {!cfg.portal_open && <Stamp tone={crew.registration_status === "accepted" ? "olive" : "brick"}>{STATUS[crew.registration_status].stamp}</Stamp>}
+              {showStatus && <Stamp tone={crew.registration_status === "accepted" ? "olive" : "brick"}>{STATUS[crew.registration_status].stamp}</Stamp>}
               {crew.roster_locked && <Stamp>Roster locked</Stamp>}
             </div>
-            {!cfg.portal_open && <p className="mt-3 max-w-md font-type text-sm text-ink/70">{STATUS[crew.registration_status].text}</p>}
+            {showStatus && <p className="mt-3 max-w-md font-type text-sm text-ink/70">{STATUS[crew.registration_status].text}</p>}
           </div>
           <div className="text-right">
             <p className="font-type text-xs uppercase tracking-[0.2em] text-ink/60">Invite code</p>
@@ -142,11 +144,11 @@ function Roster({ crew }: { crew: Crew }) {
   );
 }
 
-// pre-registration: seats are limited, so the organisers review every crew
+// crews are accepted on creation while there is no seat cap; pending / waitlist only happen if organisers set one
 const STATUS = {
-  pending: { stamp: "Under review", text: "You're registered. Spots are limited, so the organisers review every crew; this page updates when they decide. Teammates can still join with the code." },
-  accepted: { stamp: "Accepted", text: "You're in. See you at the lab. Need to change who's in the crew? Talk to an organiser." },
-  waitlisted: { stamp: "Waitlist", text: "The hall is full for now, so your crew is on the waitlist. We'll move you up if a seat opens." },
+  pending: { stamp: "Under review", text: "You're registered. The organisers review every crew before it can lock a problem or ship; this page updates when they decide. Teammates can still join with the code." },
+  accepted: { stamp: "Accepted", text: "You're in. Teammates can join with the code until crews freeze. Problem statements drop at the start of the cook." },
+  waitlisted: { stamp: "Waitlist", text: "Your crew is on the waitlist for now. We'll move you up if a spot opens. Questions? Talk to an organiser." },
 } as const;
 
 function Polaroid({ m, tilt, canRemove, busy, onRemove }: { m: Member; tilt: number; canRemove: boolean; busy: boolean; onRemove: () => void }) {

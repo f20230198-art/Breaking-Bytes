@@ -11,7 +11,7 @@ export function ProfilePage() {
     <div className="grid gap-6 md:grid-cols-[1.3fr_1fr]">
       <Card>
         <Kicker>Profile</Kicker>
-        <Title>Your badge</Title>
+        <Title>Your details</Title>
         <div className="mt-5">
           <ProfileForm initial={profileInitial(me)} cta="Save" onSaved={() => void reload()} />
         </div>

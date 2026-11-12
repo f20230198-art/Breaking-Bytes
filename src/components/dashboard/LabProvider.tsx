@@ -147,3 +147,10 @@ export function nextMilestone(cfg: EventConfig, now: number) {
 export const profileInitial = (p: Profile) => ({ name: p.display_name, phone: p.phone ?? "", linkedin: p.linkedin_url ?? "", github: p.github_url ?? "" });
 
 export const passed = (at: string | null | undefined, now: number) => !!at && new Date(at).getTime() <= now;
+
+/**
+ * The full portal: the admin switch, or on its own once the problems drop (so a forgotten switch can't hide the
+ * dossier; the database seals the problems until then either way). The provider re-renders at the drop, so open
+ * tabs flip over without a refresh.
+ */
+export const portalOpen = (cfg: EventConfig, now: number) => cfg.portal_open || passed(cfg.problems_release_at, now);

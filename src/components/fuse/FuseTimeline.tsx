@@ -183,7 +183,7 @@ export function FuseTimeline() {
           </span>
         </h2>
         <p className="mx-auto mt-5 max-w-md font-type text-base text-ink-soft">
-          The fuse is lit at registration and burns all the way down to the payout. Scroll to burn it, or tap a card to jump the spark there.
+          The fuse is lit at the drop and burns all the way down to the payout. All times are Gulf time (UTC+4). Scroll to burn it, or tap a card to jump the spark there.
         </p>
       </header>
 

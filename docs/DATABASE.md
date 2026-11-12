@@ -85,6 +85,15 @@ not published: Postgres can't check RLS on deleted rows, so its DELETE events re
   still allowed. `my_crew()` returns the status; `admin_crews()` returns it plus every member's links.
 - Walter/Jesse is no longer shown during pre-registration: student IDs are checked at the door.
 
+## Open crews (2026-11-12, migration `20261112150000_open_crews.sql`)
+- **No seat cap = no review.** While `event_config.seat_cap` is null (Chapter 1 is online), the `auto_accept_crew`
+  trigger accepts every new crew on insert, and `join_team` lets people join accepted crews. Set a seat cap and the
+  review above comes back unchanged (new crews pending, `crew_accepted` on joining an accepted crew).
+- **Links:** at least one of LinkedIn / GitHub again (`need_a_link` only when both are missing).
+- **`upsert_submission`** raises `no_problem` until the crew has locked a problem, so every entry names its problem.
+- **Portal:** the lab treats the portal as open once `problems_release_at` passes, whatever `portal_open` says
+  (`portalOpen()` in `LabProvider.tsx`); the switch only matters for opening it earlier.
+
 ## Security hardening (2026-10-30, migration `20261030120000_security_hardening.sql`)
 - **Role and category from a verified address only:** `_trusted_email(uid)` returns the email only when Auth has
   confirmed it on a Google sign-in. `handle_new_user`, `sync_admin_roles`, `recompute_categories` and the new

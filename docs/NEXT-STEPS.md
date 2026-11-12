@@ -8,7 +8,9 @@
 - The 3 statements (A-001 farming, W-001 water, T-001 connectivity) and 3 domains ship in a migration, published
   (still sealed until the drop). Edit them in Admin → Problems (Domains table at the top). New ones: Code, Title, Domain, Summary, Full statement, Judging criteria, tick
   Published. Admin → Event: set every time (Problems drop, Dead Drop opens, Deadline, Rosters freeze).
-- Before the day: accept crews (Admin → Crews → Accept all pending). On the day: Open the full portal.
+- Crews are accepted automatically while no seat cap is set (2026-11-12), and the portal opens by itself at the
+  drop. Opening it early from Admin → Event is optional. Post the judging call link and how shortlisted crews are
+  told in Admin → Announcements (the lab re-checks every minute).
 
 Everything is built and tested: landing page (+ loader, FAQ pool, finale, easter eggs), hacker dashboard,
 admin panel, Supabase backend (RLS, RPCs, 60 pgTAP tests), 404 / share image / robots / sitemap / security.txt /

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import { passed, useLab } from "@/components/dashboard/LabProvider";
 import { Button, Card, Field, Kicker, Notice, Stamp, Title } from "@/components/dashboard/ui";
@@ -17,7 +18,7 @@ type Links = Record<(typeof FIELDS)[number][0], string>;
 
 /** The Dead Drop: three links plus notes. Editable until the deadline, and the server is the one that says no. */
 export function DeadDrop() {
-  const { crew, cfg, offset, now } = useLab();
+  const { crew, cfg, offset, now, reload } = useLab();
   const [links, setLinks] = useState<Links>({ repo: "", live: "", video: "" });
   const [notes, setNotes] = useState("");
   const [savedAt, setSavedAt] = useState<string | null>(null);
@@ -25,15 +26,25 @@ export function DeadDrop() {
   const [busy, setBusy] = useState(false);
   const [burst, setBurst] = useState(0);
 
+  // keyed on the crew's id, not the object: a reload (below) must not wipe links someone is still typing
+  const crewId = crew?.id;
   useEffect(() => {
-    if (!crew) return;
-    void supabaseBrowser().from("submissions").select("*").eq("team_id", crew.id).maybeSingle().then(({ data }) => {
+    if (!crewId) return;
+    void supabaseBrowser().from("submissions").select("*").eq("team_id", crewId).maybeSingle().then(({ data }) => {
       if (!data) return;
       setLinks({ repo: data.repo_url ?? "", live: data.live_url ?? "", video: data.video_url ?? "" });
       setNotes(data.notes);
       if (data.repo_url || data.live_url || data.video_url) setSavedAt(data.updated_at);
     });
-  }, [crew]);
+  }, [crewId]);
+
+  // no problem locked yet: check every 10 s, so the Ship button wakes up as soon as the leader locks one in
+  const noProblem = !!crew && !crew.problem_id;
+  useEffect(() => {
+    if (!noProblem) return;
+    const id = setInterval(() => void reload(), 10_000);
+    return () => clearInterval(id);
+  }, [noProblem, reload]);
 
   const t = now();
   const open = passed(cfg.submissions_open_at, t) && !passed(cfg.deadline_at, t);
@@ -71,6 +82,12 @@ export function DeadDrop() {
           </p>
         )}
         {passed(cfg.deadline_at, t) && <div className="mt-3"><Stamp>Closed. The cook is over.</Stamp></div>}
+        {noProblem && !passed(cfg.deadline_at, t) && (
+          <Notice>
+            Your crew has to lock a problem in before it can ship. Your leader does that on the{" "}
+            <Link href="/dashboard/formula" className="underline underline-offset-2">Formula</Link> tab, and it&apos;s final. You can draft below meanwhile.
+          </Notice>
+        )}
         <form onSubmit={ship} className="mt-5 space-y-4">
           {FIELDS.map(([k, label, ph]) => (
             <Field key={k} label={label} type="url" inputMode="url" placeholder={ph} value={links[k]} maxLength={300}
@@ -84,7 +101,7 @@ export function DeadDrop() {
               className="mt-1 w-full border-[3px] border-ink bg-paper-dim/40 px-3 py-2.5 font-type text-ink outline-none focus:bg-paper focus:shadow-[3px_3px_0_var(--color-crystal)]" />
           </label>
           {error && <Notice>{error}</Notice>}
-          <Button type="submit" disabled={busy || !open || valid === 0}>{busy ? "Shipping…" : savedAt ? "Update the batch" : "Ship the batch"}</Button>
+          <Button type="submit" disabled={busy || !open || noProblem || valid === 0}>{busy ? "Shipping…" : savedAt ? "Update the batch" : "Ship the batch"}</Button>
           {savedAt && (
             <p className="font-type text-xs text-ink/60">
               Last shipped {new Date(savedAt).toLocaleString("en-GB", { weekday: "short", hour: "2-digit", minute: "2-digit", second: "2-digit", timeZone: "Asia/Dubai" })}. Re-ship as often as you like until the deadline.

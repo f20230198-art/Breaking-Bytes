@@ -72,6 +72,7 @@ function Dossier() {
     void db.from("domains").select("name").order("sort_order").then(({ data }) => setOrder((data ?? []).map((d) => d.name)));
   }, []);
   if (!crew) return null;
+  const accepted = crew.registration_status === "accepted";
 
   // grouped by domain (the problem's track) in the Domains order from admin; anything else after, untracked under "Open"
   const rank = (d: string) => (order.indexOf(d) + 1 || order.length + 1);
@@ -104,6 +105,7 @@ function Dossier() {
         <h1 className="mt-1 font-display text-3xl sm:text-4xl">The dossier is open.</h1>
         <p className="mt-2 max-w-xl font-type text-paper-dim">
           {locked ? `Your crew is cooking ${locked.id} · ${locked.title}.${lockedNote}`
+            : !accepted ? "Read them all. Your crew hasn't been accepted yet, so it can't lock a problem in. Talk to an organiser."
             : isLeader ? "Read them all, then lock one in for your crew. One problem per crew, and it can't be changed."
             : "Read them all. Your leader locks one in for the crew."}
         </p>
@@ -141,7 +143,7 @@ function Dossier() {
                 <div className="mt-1 whitespace-pre-wrap font-type text-sm leading-relaxed">{p.criteria_md}</div>
               </div>
             )}
-            {isLeader && !crew.problem_id && <Button className="mt-5" disabled={busy} onClick={() => lock(p.id)}>Lock this problem in</Button>}
+            {isLeader && accepted && !crew.problem_id && <Button className="mt-5" disabled={busy} onClick={() => lock(p.id)}>Lock this problem in</Button>}
           </Card>
         );
       })}

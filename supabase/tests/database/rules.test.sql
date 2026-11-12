@@ -1,7 +1,7 @@
 -- The server-side rules, tested as real users. Run with: npx supabase test db
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(108);
+select plan(114);
 
 -- start from a clean slate, whatever is in the local database (all inside this transaction, rolled back at the end)
 delete from public.admin_emails;
@@ -35,7 +35,8 @@ update public.profiles set github_url = 'https://github.com/' || split_part(emai
 -- the old supplier step is retired (Chapter 1 hid the company sponsors) but pick_supplier still exists: test it with them back on
 update public.sponsors set is_supplier = true, visible = true where name in ('Deriv', '.zero', 'Replit');
 -- everyone signs in mid-event: suppliers open, problems still sealed, Dead Drop not open yet
-update public.event_config set registration_open = true, team_max = 3, supplier_cap_slack = 0,
+-- a seat cap switches the organisers' review on (new crews pending, accepted rosters closed); the open mode is tested further down
+update public.event_config set registration_open = true, team_max = 3, supplier_cap_slack = 0, seat_cap = 100,
   supplier_pick_at = now() - interval '1 hour', problems_release_at = now() + interval '1 hour',
   roster_lock_at = now() + interval '1 hour', submissions_open_at = now() + interval '2 hours', deadline_at = now() + interval '3 hours';
 update public.problems set is_published = true;
@@ -69,14 +70,14 @@ select is((select role::text from public.profiles where email = 'mike@lospollos.
 select throws_ok($$ update public.profiles set github_url = 'https://evil.example/hank' where email = 'hank@gmail.com' $$, '23514', null,
   'the table itself refuses a non-GitHub link');
 
--- ─── pre-registration: LinkedIn and GitHub, both, real profile links ───────────────────────────────────────────
+-- ─── pre-registration: LinkedIn and/or GitHub, real profile links ───────────────────────────────────────────────
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-000000000010","role":"authenticated"}', true);
 select throws_ok($$ select public.create_team('Hank Crew') $$, 'P0001', 'need_a_link', 'no crew without LinkedIn and GitHub');
 select throws_ok($$ select public.update_profile('Hank') $$, 'P0001', 'need_a_link', 'a profile needs the links');
 select throws_ok($$ select public.update_profile('Hank', null, 'https://evil.example/in/hank') $$, 'P0001', 'bad_linkedin', 'prank LinkedIn links are refused');
 select throws_ok($$ select public.update_profile('Hank', null, null, 'https://github.com/hank/../../evil') $$, 'P0001', 'bad_github', 'only a GitHub profile, not any path');
-select throws_ok($$ select public.update_profile('Hank Schrader', null, 'https://www.linkedin.com/in/hank-schrader') $$, 'P0001', 'need_a_link', 'LinkedIn alone is not enough');
+select lives_ok($$ select public.update_profile('Hank Schrader', null, 'https://www.linkedin.com/in/hank-schrader') $$, 'LinkedIn alone is enough');
 select throws_ok($$ select public.update_profile('Hank Schrader', null, 'https://www.linkedin.com/in/hank-schrader', 'https://github.com/Walt') $$, 'P0001', 'link_taken', 'no claiming someone else''s GitHub');
 select lives_ok($$ select public.update_profile('Hank Schrader', null, 'https://www.linkedin.com/in/hank-schrader', 'https://github.com/hank') $$, 'LinkedIn and GitHub together');
 
@@ -173,6 +174,7 @@ set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}', true);
 select is((select count(*)::int from public.problems), current_setting('test.problem_count')::int, 'every published problem unseals at the drop');
 select throws_ok($$ select public.pick_supplier((select id from public.sponsors where name = '.zero')) $$, 'P0001', 'supplier_window_closed', 'suppliers are fixed once problems drop');
+select throws_ok($$ select public.upsert_submission('https://github.com/early', null, null) $$, 'P0001', 'no_problem', 'no shipping before a problem is locked in');
 -- Chapter 1: no supplier step, so any published problem can be locked, whatever (if anything) the crew picked
 select lives_ok($$ select public.lock_problem('Z-001') $$, 'the leader locks a problem from outside the picked supplier');
 select throws_ok($$ select public.lock_problem('D-001') $$, 'P0001', 'problem_already_locked', 'one problem per crew');
@@ -218,6 +220,18 @@ select is((select members -> 0 ->> 'github' from public.admin_crews() where name
 update public.teams set registration_status = 'accepted' where name = 'Blue Sky';
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-000000000010","role":"authenticated"}', true);
 select throws_ok($$ select public.join_team((select c from code)) $$, 'P0001', 'crew_accepted', 'an accepted crew''s roster is the organisers'' call');
+
+-- ─── no seat cap (Chapter 1, online): crews are accepted on creation and stay joinable ─────────────────────────
+reset role;
+update public.event_config set seat_cap = null;
+create temp table salamanca on commit drop as select invite_code as c from public.teams where name = 'Salamanca';
+grant select on salamanca to authenticated;
+set local role authenticated;
+select isnt(public.join_team((select c from salamanca)), null::uuid, 'with no seat cap, an accepted crew still takes members by code');
+select lives_ok($$ select public.leave_team() $$, 'Hank leaves Salamanca again');
+select lives_ok($$ select public.create_team('Hank Crew') $$, 'Hank starts his own crew');
+select is(public.my_crew() ->> 'registration_status', 'accepted', 'with no seat cap a new crew is accepted straight away');
+select lives_ok($$ select public.leave_team() $$, 'and leaves it (an empty crew goes)');
 
 -- ─── leaving ───────────────────────────────────────────────────────────────────────────────────────────────────
 reset role;

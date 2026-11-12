@@ -234,7 +234,7 @@ export function LabStage({ progress, reveal = 1 }: { progress: MotionValue<numbe
           <p className="mt-[0.4cqw] font-type text-[0.95cqw] leading-snug portrait:max-sm:text-[3vw]">
             {cookWeekday} {startTime} → {endDay} {startTime}
             <br />
-            {EVENT.hours} hours, non-stop
+            Gulf time (UTC+4), non-stop
           </p>
         </Plate>
         <Plate at={CARDS[1]} label="Where" side="r">

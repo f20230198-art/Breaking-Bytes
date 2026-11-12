@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import { Countdown } from "@/components/ui/Countdown";
-import { nextMilestone, useLab } from "./LabProvider";
+import { nextMilestone, portalOpen, useLab } from "./LabProvider";
 
 const TABS = [
   ["/dashboard", "Overview"],
@@ -26,8 +26,9 @@ export function Shell({ children }: { children: ReactNode }) {
   const path = usePathname();
   const router = useRouter();
   const next = nextMilestone(cfg, now());
-  const tabs = cfg.portal_open ? TABS : PREREG_TABS;
-  const hidden = !cfg.portal_open && !PREREG_TABS.some(([href]) => path.startsWith(href));
+  const open = portalOpen(cfg, now());
+  const tabs = open ? TABS : PREREG_TABS;
+  const hidden = !open && !PREREG_TABS.some(([href]) => path.startsWith(href));
   useEffect(() => {
     if (hidden) router.replace("/dashboard/crew");
   }, [hidden, router]);
@@ -49,7 +50,7 @@ export function Shell({ children }: { children: ReactNode }) {
             <Link href="/admin" className="border-2 border-hazmat px-1.5 font-type text-xs uppercase tracking-wider text-hazmat hover:bg-hazmat hover:text-ink">Admin</Link>
           )}
           <div className="ml-auto text-right">
-            {!cfg.portal_open ? (
+            {!open ? (
               <p className="font-stencil text-sm font-bold uppercase tracking-[0.25em] text-crystal">Registration open</p>
             ) : next ? (
               <>

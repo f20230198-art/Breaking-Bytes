@@ -32,7 +32,7 @@ export default function Privacy() {
         </Section>
 
         <Section title="Why">
-          To register you and your crew, to decide who gets a seat when the hall is full (that is what the LinkedIn and
+          To register you and your crew, to check that every participant is a real person (that is what the LinkedIn and
           GitHub links are for), to contact you about the event, and to run judging and prizes.
         </Section>
 
