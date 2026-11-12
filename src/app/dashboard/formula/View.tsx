@@ -46,6 +46,20 @@ export function FormulaPage() {
 
 function Dossier() {
   const { crew, isLeader, reload } = useLab();
+  // until the crew has a problem, check every 10 s (and on coming back to the tab), so when the leader locks one in,
+  // everyone else in the crew sees it within seconds. A poll, not Realtime: the whole room sits on this page at the
+  // drop, and the free plan caps live connections. It stops once the crew has a problem.
+  const waiting = !!crew && !crew.problem_id;
+  useEffect(() => {
+    if (!waiting) return;
+    const id = setInterval(() => void reload(), 10_000);
+    const onShow = () => document.visibilityState === "visible" && void reload();
+    document.addEventListener("visibilitychange", onShow);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener("visibilitychange", onShow);
+    };
+  }, [waiting, reload]);
   const [problems, setProblems] = useState<Problem[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -68,6 +82,11 @@ function Dossier() {
     domains.set(d, [...(domains.get(d) ?? []), p]);
   }
   const locked = problems?.find((p) => p.id === crew.problem_id);
+  // once locked, the crew sees only its own problem
+  const shown = [...domains].map(([d, list]) => [d, locked ? list.filter((p) => p.id === locked.id) : list] as const).filter(([, list]) => list.length);
+  const lockedNote = crew.problem_locked_at
+    ? ` Locked in${crew.problem_locked_by ? ` by ${crew.problem_locked_by}` : ""} at ${new Date(crew.problem_locked_at).toLocaleTimeString("en-GB", { timeZone: "Asia/Dubai", hour: "2-digit", minute: "2-digit" })}.`
+    : "";
 
   const lock = async (id: string) => {
     if (!window.confirm("Lock this problem in? This can't be undone.")) return;
@@ -84,11 +103,11 @@ function Dossier() {
         <Kicker className="text-rust">The formula · unsealed</Kicker>
         <h1 className="mt-1 font-display text-3xl sm:text-4xl">The dossier is open.</h1>
         <p className="mt-2 max-w-xl font-type text-paper-dim">
-          {locked ? `Your crew is cooking ${locked.id} · ${locked.title}.`
+          {locked ? `Your crew is cooking ${locked.id} · ${locked.title}.${lockedNote}`
             : isLeader ? "Read them all, then lock one in for your crew. One problem per crew, and it can't be changed."
             : "Read them all. Your leader locks one in for the crew."}
         </p>
-        {domains.size > 1 && (
+        {!locked && domains.size > 1 && (
           <nav className="mt-3 flex flex-wrap gap-2" aria-label="Domains">
             {[...domains.keys()].map((d) => (
               <a key={d} href={`#domain-${slug(d)}`} className="border-2 border-paper/40 px-2 py-0.5 font-type text-xs uppercase tracking-wider hover:bg-paper hover:text-ink">{d}</a>
@@ -99,7 +118,7 @@ function Dossier() {
       {error && <div className="max-w-xl"><Notice>{error}</Notice></div>}
       {problems === null && <p className="font-type text-paper-dim">Opening the folder…</p>}
       {problems?.length === 0 && <p className="font-type text-paper-dim">No problems are published yet. Hold tight, and refresh in a minute.</p>}
-      {[...domains].map(([domain, list]) => (
+      {shown.map(([domain, list]) => (
         <section key={domain} id={`domain-${slug(domain)}`} className="scroll-mt-24 space-y-4">
           <h2 className="font-display text-xl uppercase tracking-wider text-paper">{domain}</h2>
       {list.map((p) => {

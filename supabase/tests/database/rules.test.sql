@@ -1,7 +1,7 @@
 -- The server-side rules, tested as real users. Run with: npx supabase test db
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(106);
+select plan(108);
 
 -- start from a clean slate, whatever is in the local database (all inside this transaction, rolled back at the end)
 delete from public.admin_emails;
@@ -182,6 +182,9 @@ set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000f","role":"authenticated"}', true);
 select lives_ok($$ select public.lock_problem('O-001') $$, 'a crew that never picked a supplier locks a sponsor-less problem');
 select is((select problem_id from public.teams where name = 'Salamanca'), 'O-001', 'and it is recorded on the crew');
+select is((select problem_locked_by from public.teams where name = 'Salamanca'), '00000000-0000-0000-0000-00000000000f'::uuid,
+  'the lock records who did it');
+select ok((public.my_crew() ->> 'problem_locked_at') is not null, 'and when, which the whole crew can see');
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}', true);
 select throws_ok($$ select public.upsert_submission('http://github.com/x', null, null) $$, 'P0001', 'bad_url', 'links must be https');
 select throws_ok($$ select public.upsert_submission('javascript:alert(1)', null, null) $$, 'P0001', 'bad_url', 'no javascript: links');

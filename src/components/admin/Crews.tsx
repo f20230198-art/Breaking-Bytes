@@ -7,7 +7,8 @@ type Member = { id: string; name: string; email: string; category: string; leade
 type Reg = "pending" | "accepted" | "waitlisted";
 type CrewRow = {
   id: string; name: string; invite_code: string; status: "active" | "disqualified"; registration_status: Reg; roster_locked: boolean; category: string;
-  sponsor: string | null; problem_id: string | null; members: Member[]; repo_url: string | null; live_url: string | null;
+  sponsor: string | null; problem_id: string | null; problem_title: string | null; problem_locked_at: string | null;
+  problem_locked_by: string | null; members: Member[]; repo_url: string | null; live_url: string | null;
   video_url: string | null; notes: string | null; submitted_at: string | null; late: boolean;
 };
 type Opt = { id: string; name: string };
@@ -54,7 +55,7 @@ export function AdminCrews() {
     const s = q.trim().toLowerCase();
     return (rows ?? []).filter((r) =>
       (!onlySubmitted || r.repo_url || r.live_url || r.video_url) && (reg === "all" || r.registration_status === reg) &&
-      (!s || r.name.toLowerCase().includes(s) || r.invite_code.toLowerCase().includes(s) || r.members.some((m) => `${m.name} ${m.email}`.toLowerCase().includes(s))));
+      (!s || r.name.toLowerCase().includes(s) || r.invite_code.toLowerCase().includes(s) || `${r.problem_id ?? ""} ${r.problem_title ?? ""}`.toLowerCase().includes(s) || r.members.some((m) => `${m.name} ${m.email}`.toLowerCase().includes(s))));
   }, [rows, q, onlySubmitted, reg]);
 
   // people (not crews) per status: the hall's limit is a headcount
@@ -96,7 +97,7 @@ That makes ${after} accepted people, over the ${seats} seats.` : "";
         {!seats && <span className="text-paper-dim"> · set the hall&apos;s seats on the Event page</span>}
       </p>
       <div className="mb-4 flex flex-wrap items-center gap-3">
-        <input className={`${inputCls} max-w-xs`} placeholder="Search crew, code, name, email" value={q} onChange={(e) => setQ(e.target.value)} />
+        <input className={`${inputCls} max-w-xs`} placeholder="Search crew, code, name, email, problem" value={q} onChange={(e) => setQ(e.target.value)} />
         <select className={`${inputCls} w-auto`} value={reg} onChange={(e) => setReg(e.target.value as Reg | "all")} aria-label="Registration status">
           <option value="all">All statuses</option>
           <option value="pending">Pending</option>
@@ -116,7 +117,7 @@ That makes ${after} accepted people, over the ${seats} seats.` : "";
               <span className="text-crystal">{r.invite_code}</span>
               <span className={REG_TONE[r.registration_status]}>{REG_LABEL[r.registration_status]}</span>
               <span className="text-paper-dim">{r.members.length} cooks · {r.category}</span>
-              <span className="text-paper-dim">{r.problem_id ?? "no problem"}</span>
+              <span className={r.problem_id ? "text-paper" : "text-paper-dim"}>{r.problem_id ? `${r.problem_id} · ${r.problem_title ?? ""}` : "no problem yet"}</span>
               {r.status === "disqualified" && <span className="text-siren">disqualified</span>}
               {r.submitted_at && (r.repo_url || r.live_url || r.video_url) ? <span className={r.late ? "text-siren" : "text-crystal"}>submitted {gulf(r.submitted_at)}{r.late ? " (late)" : ""}</span> : null}
             </summary>
@@ -160,8 +161,13 @@ That makes ${after} accepted people, over the ${seats} seats.` : "";
                   </Btn>
                   <Btn tone="danger" onClick={() => run(teams().delete().eq("id", r.id), `Delete ${r.name} and its submission? Members become crewless.`)}>Delete crew</Btn>
                 </div>
+                {r.problem_id && (
+                  <p className="text-xs text-paper-dim">
+                    Locked in{r.problem_locked_by ? ` by ${r.problem_locked_by}` : ""}{r.problem_locked_at ? ` · ${gulf(r.problem_locked_at)}` : ""}
+                  </p>
+                )}
                 <label className="block">
-                  <span className="text-xs uppercase tracking-wider text-paper-dim">Problem</span>
+                  <span className="text-xs uppercase tracking-wider text-paper-dim">Problem (organiser override)</span>
                   <select className={`${inputCls} mt-1`} value={r.problem_id ?? ""} onChange={(e) => run(teams().update({ problem_id: e.target.value || null }).eq("id", r.id))}>
                     <option value="">—</option>
                     {problems.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
@@ -178,7 +184,7 @@ That makes ${after} accepted people, over the ${seats} seats.` : "";
 }
 
 function exportCsv(rows: CrewRow[]) {
-  const head = ["crew", "invite_code", "registration", "status", "category", "people", "supplier", "problem", "members", "emails", "linkedin", "github",
+  const head = ["crew", "invite_code", "registration", "status", "category", "people", "supplier", "problem", "problem_title", "problem_locked_by", "problem_locked_at_utc", "members", "emails", "linkedin", "github",
     "repo", "live", "video", "notes", "submitted_at_utc", "late"];
   const cell = (v: unknown) => {
     const s = v === null || v === undefined ? "" : String(v);
@@ -186,7 +192,7 @@ function exportCsv(rows: CrewRow[]) {
     return `"${(/^[=+\-@\t\r]/.test(s) ? `'${s}` : s).replace(/"/g, '""')}"`;
   };
   const lines = rows.map((r) => [
-    r.name, r.invite_code, r.registration_status, r.status, r.category, r.members.length, r.sponsor, r.problem_id,
+    r.name, r.invite_code, r.registration_status, r.status, r.category, r.members.length, r.sponsor, r.problem_id, r.problem_title, r.problem_locked_by, r.problem_locked_at,
     r.members.map((m) => m.name).join("; "), r.members.map((m) => m.email).join("; "),
     r.members.map((m) => m.linkedin ?? "").join("; "), r.members.map((m) => m.github ?? "").join("; "),
     r.repo_url, r.live_url, r.video_url, r.notes, r.submitted_at, r.late,

@@ -289,14 +289,14 @@ isOneToOne: true
                   ]
                 },"teams": {
                   Row: {
-                    "created_at": string,"id": string,"invite_code": string,"leader_id": string | null,"name": string,"problem_id": string | null,"registration_status": Database["public"]['Enums']["registration_status"],"roster_locked": boolean,"roster_updated_at": string,"sponsor_id": string | null,"status": Database["public"]['Enums']["team_status"]
+                    "created_at": string,"id": string,"invite_code": string,"leader_id": string | null,"name": string,"problem_id": string | null,"problem_locked_at": string | null,"problem_locked_by": string | null,"registration_status": Database["public"]['Enums']["registration_status"],"roster_locked": boolean,"roster_updated_at": string,"sponsor_id": string | null,"status": Database["public"]['Enums']["team_status"]
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"id"?: string,"invite_code": string,"leader_id"?: string | null,"name": string,"problem_id"?: string | null,"registration_status"?: Database["public"]['Enums']["registration_status"],"roster_locked"?: boolean,"roster_updated_at"?: string,"sponsor_id"?: string | null,"status"?: Database["public"]['Enums']["team_status"]
+                    "created_at"?: string,"id"?: string,"invite_code": string,"leader_id"?: string | null,"name": string,"problem_id"?: string | null,"problem_locked_at"?: string | null,"problem_locked_by"?: string | null,"registration_status"?: Database["public"]['Enums']["registration_status"],"roster_locked"?: boolean,"roster_updated_at"?: string,"sponsor_id"?: string | null,"status"?: Database["public"]['Enums']["team_status"]
                   }
                   Update: {
-                    "created_at"?: string,"id"?: string,"invite_code"?: string,"leader_id"?: string | null,"name"?: string,"problem_id"?: string | null,"registration_status"?: Database["public"]['Enums']["registration_status"],"roster_locked"?: boolean,"roster_updated_at"?: string,"sponsor_id"?: string | null,"status"?: Database["public"]['Enums']["team_status"]
+                    "created_at"?: string,"id"?: string,"invite_code"?: string,"leader_id"?: string | null,"name"?: string,"problem_id"?: string | null,"problem_locked_at"?: string | null,"problem_locked_by"?: string | null,"registration_status"?: Database["public"]['Enums']["registration_status"],"roster_locked"?: boolean,"roster_updated_at"?: string,"sponsor_id"?: string | null,"status"?: Database["public"]['Enums']["team_status"]
                   }
                   Relationships: [
                     {

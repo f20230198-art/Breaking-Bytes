@@ -71,7 +71,7 @@ function Roster({ crew }: { crew: Crew }) {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  // live roster: only this page holds a Realtime connection, and only while it's open. Any roster change touches the
+  // live roster: only this page holds a Realtime connection, and only while it's open (the Formula page polls instead). Any roster change touches the
   // crew's own row (roster_updated_at), so that one RLS-checked feed is enough. Someone taken off the crew can't see
   // the row any more, so coming back to the tab re-checks too.
   useEffect(() => {

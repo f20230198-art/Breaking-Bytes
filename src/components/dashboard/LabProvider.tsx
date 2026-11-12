@@ -11,6 +11,8 @@ export type Member = { id: string; display_name: string; avatar_url: string | nu
 export type Crew = {
   id: string; name: string; invite_code: string; leader_id: string | null; roster_locked: boolean;
   sponsor_id: string | null; problem_id: string | null; status: "active" | "disqualified";
+  /** when the problem was locked in, and the display name of whoever did it (leader, or an organiser) */
+  problem_locked_at: string | null; problem_locked_by: string | null;
   registration_status: "pending" | "accepted" | "waitlisted";
   category: "walter" | "jesse"; members: Member[];
 };
