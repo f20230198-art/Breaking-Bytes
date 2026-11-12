@@ -14,7 +14,7 @@
 ## Google sign-in (one-time setup)
 1. Google Cloud console → APIs & Services → Credentials → **OAuth client ID** (Web application).
 2. Authorised redirect URIs: `https://<project-ref>.supabase.co/auth/v1/callback` (hosted) and
-   `http://127.0.0.1:54321/auth/v1/callback` (local stack).
+   `http://127.0.0.1:55321/auth/v1/callback` (local stack).
 3. Hosted: Supabase dashboard → Authentication → Providers → Google: paste client ID + secret; **disable the Email
    provider**; URL configuration: site URL = the domain, redirect URLs = `https://<domain>/auth/callback` (+ localhost).
 4. Local: put `SUPABASE_AUTH_GOOGLE_CLIENT_ID` / `SUPABASE_AUTH_GOOGLE_SECRET` in `.env` (see `.env.example`), then
