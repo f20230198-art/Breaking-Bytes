@@ -33,6 +33,7 @@ export function Classroom() {
 function Stage({ p }: { p: MotionValue<number> }) {
   const still = !!useReducedMotion();
   const TRACKS = useSite().domains;
+  const big = TRACKS.length <= 3;
   const tileAt = (i: number) => 0.12 + i * 0.055;
   const ruleAt = (i: number) => 0.5 + i * 0.08;
   // phones: the main board is wider than the screen, so the camera follows the chalk across it, then on to the rules
@@ -49,13 +50,14 @@ function Stage({ p }: { p: MotionValue<number> }) {
             Today&apos;s lesson: pick your poison
           </Chalk>
           {/* one row of element tiles, centred in the board under the title */}
-          <div className="mx-auto my-auto grid grid-cols-3 gap-x-[4cqw] gap-y-[2cqw]">
+          {/* up to 3 domains fill the board in one row of big tiles; 4–6 need two rows, so they shrink to fit */}
+          <div className={`mx-auto my-auto grid grid-cols-3 ${big ? "gap-x-[4cqw]" : "gap-x-[4cqw] gap-y-[2cqw]"}`}>
             {TRACKS.map((t, i) => (
               <Chalk key={t.number} p={p} at={tileAt(i)} still={still}>
-                <div className="relative flex h-[11cqw] w-[17cqw] flex-col items-center justify-center border-[0.35cqw] border-paper/85">
-                  <span className="absolute left-[7%] top-[4%] font-type text-[1.4cqw]">{t.number}</span>
-                  <span className="font-display text-[4.8cqw] leading-none">{t.symbol}</span>
-                  <span className="mt-[0.6cqw] text-center font-type text-[1.6cqw] uppercase leading-tight tracking-wider">{t.name}</span>
+                <div className={`relative flex flex-col items-center justify-center border-paper/85 ${big ? "h-[17cqw] w-[26cqw] border-[0.45cqw] px-[1.5cqw]" : "h-[11cqw] w-[17cqw] border-[0.35cqw]"}`}>
+                  <span className={`absolute left-[7%] top-[4%] font-type ${big ? "text-[2cqw]" : "text-[1.4cqw]"}`}>{t.number}</span>
+                  <span className={`font-display leading-none ${big ? "text-[7cqw]" : "text-[4.8cqw]"}`}>{t.symbol}</span>
+                  <span className={`text-center font-type uppercase leading-tight tracking-wider ${big ? "mt-[1cqw] text-[2.6cqw]" : "mt-[0.6cqw] text-[1.6cqw]"}`}>{t.name}</span>
                 </div>
               </Chalk>
             ))}

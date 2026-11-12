@@ -50,7 +50,7 @@ export function Shell({ children }: { children: ReactNode }) {
           )}
           <div className="ml-auto text-right">
             {!cfg.portal_open ? (
-              <p className="font-stencil text-sm font-bold uppercase tracking-[0.25em] text-crystal">Pre-registration</p>
+              <p className="font-stencil text-sm font-bold uppercase tracking-[0.25em] text-crystal">Registration open</p>
             ) : next ? (
               <>
                 <p className="font-type text-[10px] uppercase tracking-[0.25em] text-paper-dim">{next.label}</p>

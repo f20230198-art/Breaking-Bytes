@@ -45,7 +45,7 @@ export const EVENT = {
  * TODO(admin): tentative; confirm with the club.
  */
 export const SCHEDULE: { day: number; time: string; until?: string; title: string; note: string }[] = [
-  { day: 0, time: "09:00", title: "Registration opens", note: "Check in, grab your badge, find your crew." },
+  { day: 0, time: "09:00", title: "Check-in", note: "Registered online? Show your ID at the door, grab your badge, find your crew." },
   { day: 0, time: "10:00", title: "Problem statements drop", note: "Problem statements unseal. The 24-hour cook starts now." },
   { day: 0, time: "10:00", until: "18:00", title: "Mentors on the floor", note: "Stuck? Flag one down. They're around all afternoon." },
   { day: 0, time: "18:00", title: "Head home", note: "The venue closes. The cook doesn't." },
