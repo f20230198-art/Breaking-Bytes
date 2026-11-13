@@ -151,6 +151,8 @@ export function LabStage({ progress, reveal = 1 }: { progress: MotionValue<numbe
   return (
     <SceneCanvas
       scene="lab"
+      // eager: it's revealed through a clip-path right under the hero, which mobile lazy-loading treats as off-screen
+      priority
       className="portrait:[--focus:0.247]" // phones: the clipboard and its plates (paper centre, after the 1.05 overscan)
       plate={false}
       hide={["pipe"]}

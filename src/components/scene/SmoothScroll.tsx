@@ -6,7 +6,8 @@ import { useEffect } from "react";
 /** Lenis smooth scrolling (skipped for reduced motion). */
 export function SmoothScroll() {
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    // touch devices scroll natively (Lenis there only burns a RAF loop and fights momentum scrolling)
+    if (window.matchMedia("(prefers-reduced-motion: reduce), (pointer: coarse)").matches) return;
     const lenis = new Lenis({ lerp: 0.09, wheelMultiplier: 0.9 });
     let raf = requestAnimationFrame(function loop(t) {
       lenis.raf(t);

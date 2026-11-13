@@ -123,7 +123,8 @@ export function SceneCanvas({ scene, hide = [], children, priority, className = 
                 data-layer={l.id}
                 draggable={false}
                 srcSet={l.srcset}
-                sizes={`(min-aspect-ratio: ${a.width}/${a.height}) 100vw, ${(100 * ratio).toFixed(1)}vh`}
+                // phones: cap the request (portrait would otherwise ask for ~178vh x DPR and pull the full originals)
+                sizes={`(max-width: 900px) 640px, (min-aspect-ratio: ${a.width}/${a.height}) 100vw, ${(100 * ratio).toFixed(1)}vh`}
                 decoding="async"
                 loading={priority ? "eager" : "lazy"}
                 fetchPriority={deferred.includes(l.id) ? "low" : priority ? "high" : "auto"}

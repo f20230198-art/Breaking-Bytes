@@ -67,7 +67,12 @@ function Stage({ progress }: { progress: MotionValue<number> }) {
   const onLens = useCallback((l: LensPx) => setLens(l), []);
 
   useEffect(() => {
-    const read = () => setVp({ w: window.innerWidth, h: window.innerHeight });
+    // ignore the mobile URL bar sliding in/out (small height-only changes) so the stage doesn't re-render mid-scroll
+    const read = () =>
+      setVp((p) => {
+        const w = window.innerWidth, h = window.innerHeight;
+        return p && p.w === w && Math.abs(p.h - h) < 150 ? p : { w, h };
+      });
     read();
     window.addEventListener("resize", read);
     return () => window.removeEventListener("resize", read);
